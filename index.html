@@ -5,447 +5,649 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ego Death Squad</title>
   <meta name="description" content="A collective of no one in particular, dedicated to the dissolution of the self. Begin intake.">
-  <meta name="theme-color" content="#07070a">
+  <meta name="theme-color" content="#f2eee3">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23d7261e'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23f5c400'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07070a;
-      --fg: #ece8df;
-      --muted: #7d7a85;
-      --faint: #2a2830;
-      --accent: #b9a4ff;
-      --serif: "Instrument Serif", Georgia, serif;
-      --mono: "JetBrains Mono", ui-monospace, monospace;
+      --paper: #f2eee3;
+      --ink: #111111;
+      --red: #d7261e;
+      --blue: #1c4a9c;
+      --yellow: #f5c400;
+      --muted: #4a4a4a;
+      --line: clamp(4px, .8vw, 8px);
+      --pad: clamp(18px, 3.4vw, 48px);
+      --sans: "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
+      --p: 0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 64px; }
     body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: var(--serif);
+      background: var(--ink);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 500;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
-    ::selection { background: var(--accent); color: var(--bg); }
+    ::selection { background: var(--blue); color: #fff; }
+    a { color: inherit; }
+    :focus-visible { outline: 4px solid var(--blue); outline-offset: 3px; }
 
-    .label {
-      font-family: var(--mono);
-      font-size: .72rem;
-      letter-spacing: .28em;
+    .small {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .22em;
       text-transform: uppercase;
-      color: var(--muted);
     }
+
+    /* ---------- Header ---------- */
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--line);
+      background: var(--ink);
+      border-bottom: var(--line) solid var(--ink);
+    }
+    .bar > * {
+      display: flex;
+      align-items: center;
+      padding: 14px var(--pad);
+      text-decoration: none;
+    }
+    .bar .logo {
+      background: var(--red);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: .08em;
+      padding-left: clamp(14px, 2.6vw, 36px);
+      padding-right: clamp(14px, 2.6vw, 36px);
+    }
+    .bar .name { background: var(--paper); }
+    .bar .go {
+      background: var(--yellow);
+      transition: background .2s, color .2s;
+    }
+    .bar .go:hover, .bar .go:focus-visible { background: var(--ink); color: var(--yellow); outline-offset: -4px; }
 
     /* ---------- Hero ---------- */
     .hero {
-      position: relative;
-      height: 200vh;
-    }
-    .hero-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      height: 100svh;
-      overflow: hidden;
-    }
-    #field {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .hero-top, .hero-bottom {
-      position: absolute;
-      left: 0; right: 0;
-      padding: 24px 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
-      pointer-events: none;
-    }
-    .hero-top { top: 0; }
-    .hero-bottom { bottom: 0; align-items: flex-end; }
-    .hero-caption {
-      font-size: clamp(1.4rem, 4vw, 2.4rem);
-      line-height: 1.1;
-      max-width: 16ch;
-      transition: opacity .4s;
-    }
-    .hero-caption em { color: var(--accent); }
-    .scroll-hint { animation: breathe 3s ease-in-out infinite; }
-    @keyframes breathe { 50% { opacity: .3; } }
-
-    /* ---------- Sections ---------- */
-    section.block {
-      position: relative;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 18vh 16px;
-    }
-    .block-head {
-      display: flex;
-      gap: 24px;
-      align-items: baseline;
-      margin-bottom: 8vh;
-      border-bottom: 1px solid var(--faint);
-      padding-bottom: 16px;
-    }
-
-    /* Manifesto */
-    .manifesto { list-style: none; counter-reset: line; }
-    .manifesto li {
-      counter-increment: line;
       display: grid;
-      grid-template-columns: 3.5rem 1fr;
-      gap: 8px;
-      padding: 3.5vh 0;
-      font-size: clamp(1.8rem, 5.2vw, 4rem);
-      line-height: 1.05;
-      letter-spacing: -.01em;
-      cursor: default;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--line);
+      background: var(--ink);
+      border-bottom: var(--line) solid var(--ink);
     }
-    .manifesto li::before {
-      content: counter(line, decimal-leading-zero);
-      font-family: var(--mono);
-      font-size: .75rem;
-      color: var(--muted);
-      padding-top: .9em;
-    }
-    .manifesto .word {
-      display: inline-block;
-      transition: filter .9s ease, opacity .9s ease, transform .9s ease, letter-spacing .9s ease;
-    }
-    .manifesto li:hover .word, .manifesto li.let-go .word {
-      filter: blur(6px);
-      opacity: .15;
-      letter-spacing: .12em;
-    }
-    .manifesto li:hover .word.keep, .manifesto li.let-go .word.keep {
-      filter: none;
-      opacity: 1;
-      letter-spacing: normal;
-      color: var(--accent);
-      font-style: italic;
-    }
-
-    /* Process */
-    .stages {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--faint);
-      border: 1px solid var(--faint);
-    }
-    .stage {
-      background: var(--bg);
-      padding: 32px 24px 40px;
-      min-height: 340px;
+    .hero > * { background: var(--paper); min-width: 0; }
+    .h-title {
+      grid-column: 1 / 9;
+      padding: var(--pad);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      justify-content: space-between;
+      gap: 32px;
+      min-height: clamp(380px, 64vh, 660px);
     }
-    .stage h3 {
-      font-weight: 400;
-      font-size: clamp(2.2rem, 4vw, 3.2rem);
-      line-height: 1;
-      margin-top: auto;
+    h1 {
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(3.2rem, 12vw, 9.6rem);
+      line-height: .84;
+      letter-spacing: -.03em;
     }
-    .stage p { color: var(--muted); font-size: 1.15rem; line-height: 1.4; }
-    .stage:nth-child(1) h3 { }
-    .stage:nth-child(2) h3 { letter-spacing: .04em; }
-    .stage:nth-child(3) h3 { letter-spacing: .25em; filter: blur(1.2px); opacity: .7; }
-    .stage:nth-child(4) h3 { font-style: italic; color: var(--accent); }
-
-    /* Roster */
-    .roster {
+    h1 .bar-under {
+      background: linear-gradient(var(--red), var(--red)) no-repeat 0 92% / 100% .13em;
+      padding-bottom: .06em;
+    }
+    .h-glyph {
+      grid-column: 9 / 13;
+      background: var(--yellow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(10px, 2vw, 28px);
+      overflow: hidden;
+    }
+    .glyph { width: 100%; height: auto; overflow: visible; }
+    .glyph .gl {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .glyph .gl-e { transform: translate(calc(var(--p) * -34px), calc(var(--p) * -60px)) rotate(calc(var(--p) * -30deg)); }
+    .glyph .gl-g { transform: translate(0, calc(var(--p) * 70px)) rotate(calc(var(--p) * 120deg)); }
+    .glyph .gl-o { transform: translate(calc(var(--p) * 40px), calc(var(--p) * -50px)) scale(calc(1 - var(--p) * .55)); }
+    .h-tag {
+      grid-column: 1 / 9;
+      padding: var(--pad);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .h-tag p {
+      font-size: clamp(1.3rem, 2.8vw, 2.1rem);
+      font-weight: 700;
+      line-height: 1.1;
+      max-width: 17ch;
+    }
+    .h-blue, .h-red {
+      min-height: 190px;
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 0;
-      font-family: var(--mono);
-      font-size: .95rem;
+      place-items: center;
+      overflow: hidden;
     }
-    .roster > div {
-      padding: 14px 0;
-      border-bottom: 1px solid var(--faint);
-    }
-    .roster .name { position: relative; }
-    .roster .name span { transition: opacity 1.2s ease, filter 1.2s ease; }
-    .roster .name.gone span { opacity: 0; filter: blur(8px); }
-    .roster .name::after {
-      content: "—";
-      position: absolute;
-      left: 0;
-      opacity: 0;
-      transition: opacity 1.2s ease .6s;
-      color: var(--muted);
-    }
-    .roster .name.gone::after { opacity: 1; }
-    .roster .status { color: var(--muted); text-align: right; }
-    .roster-total {
-      margin-top: 40px;
-      font-size: clamp(1.6rem, 4vw, 2.8rem);
-      line-height: 1.15;
-    }
-    .roster-total em { color: var(--accent); }
+    .h-blue { grid-column: 9 / 11; background: var(--blue); }
+    .h-red  { grid-column: 11 / 13; background: var(--red); }
+    .h-blue svg, .h-red svg { width: 62%; height: auto; overflow: visible; }
+    .h-blue svg { transform: translate(calc(var(--p) * 90%), calc(var(--p) * -30%)); }
+    .h-red svg  { transform: rotate(calc(var(--p) * 150deg)) scale(calc(1 + var(--p) * .4)); }
 
-    /* Enlist */
-    .enlist {
-      text-align: center;
-      padding: 24vh 16px 20vh;
+    .btn {
+      display: inline-block;
+      background: var(--ink);
+      color: var(--paper);
+      border: var(--line) solid var(--ink);
+      font-weight: 900;
+      font-size: .9rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 18px 30px;
+      transition: background .2s, color .2s;
     }
-    .enlist h2 {
-      font-weight: 400;
-      font-size: clamp(3rem, 11vw, 8.5rem);
+    .btn:hover, .btn:focus-visible { background: var(--yellow); color: var(--ink); }
+    .btn.big { font-size: clamp(.95rem, 2.4vw, 1.25rem); padding: 26px 40px; }
+
+    /* ---------- Section frame ---------- */
+    section {
+      background: var(--ink);
+      border-bottom: var(--line) solid var(--ink);
+    }
+    section > * + * { margin-top: var(--line); }
+    .shead {
+      display: grid;
+      grid-template-columns: clamp(64px, 10vw, 120px) 1fr auto;
+      gap: var(--line);
+      background: var(--ink);
+    }
+    .shead > * { background: var(--paper); display: flex; align-items: center; }
+    .shead .snum {
+      justify-content: center;
+      color: #fff;
+      background: var(--c, var(--red));
+      font-weight: 900;
+      font-size: clamp(1.4rem, 3.4vw, 2.6rem);
+    }
+    .shead h2 {
+      padding: 18px var(--pad);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(2rem, 6vw, 4.6rem);
       line-height: .9;
       letter-spacing: -.02em;
     }
-    .enlist h2 em { color: var(--accent); }
-    .enlist p {
-      color: var(--muted);
-      font-size: 1.3rem;
-      margin: 28px auto 48px;
-      max-width: 30ch;
-    }
-    .enlist-btn {
-      display: inline-block;
-      text-decoration: none;
-      font-family: var(--mono);
-      font-size: .8rem;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      background: transparent;
-      color: var(--fg);
-      border: 1px solid var(--fg);
-      padding: 18px 36px;
+    .shead p { padding: 18px var(--pad); color: var(--muted); text-align: right; }
+
+    /* ---------- Manifesto ---------- */
+    .manifesto { list-style: none; display: grid; gap: var(--line); }
+    .mrow {
+      display: grid;
+      grid-template-columns: clamp(64px, 10vw, 120px) 1fr;
+      gap: var(--line);
+      background: var(--ink);
       cursor: pointer;
-      transition: background .3s, color .3s, opacity 1.5s, filter 1.5s, letter-spacing 1.5s;
     }
-    .enlist-btn:hover, .enlist-btn:focus-visible {
-      background: var(--fg);
-      color: var(--bg);
-      outline: none;
+    .mnum {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: var(--c);
+      font-weight: 900;
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      letter-spacing: .1em;
     }
-    button.enlist-btn.dissolved {
-      opacity: 0;
-      filter: blur(10px);
-      letter-spacing: 1.2em;
-      pointer-events: none;
+    .mrow:nth-child(5n+1) { --c: var(--red); }
+    .mrow:nth-child(5n+2) { --c: var(--blue); }
+    .mrow:nth-child(5n+3) { --c: var(--ink); }
+    .mrow:nth-child(5n+4) { --c: var(--red); }
+    .mrow:nth-child(5n+5) { --c: var(--blue); }
+    .mtext {
+      background: var(--paper);
+      padding: clamp(20px, 3.4vw, 44px) var(--pad);
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3.9vw, 3.1rem);
+      line-height: 1.08;
+      letter-spacing: -.01em;
     }
-    .enlist-reply {
-      margin-top: -40px;
-      font-size: clamp(1.6rem, 4vw, 2.6rem);
-      font-style: italic;
-      min-height: 1.3em;
-      opacity: 0;
-      transition: opacity 2s ease 1s;
+    .mtext .word { transition: opacity .5s; }
+    .mrow.let-go .word:not(.keep) { opacity: .16; text-decoration: line-through; text-decoration-thickness: .07em; }
+    .mrow.let-go .keep { background: var(--yellow); }
+    @media (hover: hover) {
+      .mrow:hover .word:not(.keep) { opacity: .16; text-decoration: line-through; text-decoration-thickness: .07em; }
+      .mrow:hover .keep { background: var(--yellow); }
     }
-    .enlist-reply.on { opacity: 1; }
 
-    .nav-link {
-      pointer-events: auto;
-      color: var(--fg);
+    /* ---------- Process ---------- */
+    .stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--line); }
+    .stage {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--line);
+      background: var(--ink);
+    }
+    .stage .fig {
+      background: var(--bg);
+      aspect-ratio: 1 / .78;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .stage .fig svg { width: 56%; height: auto; }
+    .stage .txt { background: var(--paper); padding: 20px var(--pad) 28px; }
+    .stage .txt .small { color: var(--muted); }
+    .stage h3 {
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+      line-height: 1;
+      margin: 6px 0 10px;
+      letter-spacing: -.01em;
+    }
+    .stage p { color: var(--muted); line-height: 1.45; font-size: 1.05rem; }
+
+    /* ---------- Roll call ---------- */
+    .roster { display: grid; gap: var(--line); }
+    .rrow {
+      display: grid;
+      grid-template-columns: 1fr clamp(130px, 18vw, 230px);
+      gap: var(--line);
+      background: var(--ink);
+    }
+    .rname {
+      background: var(--paper);
+      padding: 20px var(--pad);
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2.4vw, 1.7rem);
+    }
+    .rname span { transition: opacity .6s; }
+    .rstat {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--paper);
+      font-weight: 900;
+      font-size: .75rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      transition: background .5s, color .5s;
+    }
+    .rrow.gone .rname span { opacity: .3; text-decoration: line-through; text-decoration-thickness: .08em; }
+    .rrow.gone .rstat { background: var(--red); color: #fff; }
+    .rtotal {
+      background: var(--yellow);
+      padding: clamp(26px, 5vw, 64px) var(--pad);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(2rem, 6.2vw, 5rem);
+      line-height: .95;
+      letter-spacing: -.02em;
+    }
+    .rtotal b { background: var(--ink); color: var(--yellow); padding: 0 .18em; }
+
+    /* ---------- Intake ---------- */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--line); }
+    .step {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--line);
+      background: var(--ink);
       text-decoration: none;
-      border-bottom: 1px solid var(--accent);
-      padding-bottom: 4px;
-      transition: color .3s;
     }
-    .nav-link:hover, .nav-link:focus-visible { color: var(--accent); outline: none; }
+    .step .fig {
+      background: var(--bg);
+      aspect-ratio: 1 / .62;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .step .fig svg { width: 40%; height: auto; transition: transform .4s; }
+    .step:hover .fig svg, .step:focus-visible .fig svg { transform: rotate(14deg) scale(1.08); }
+    .step .txt { background: var(--paper); padding: 18px var(--pad) 24px; }
+    .step .small { color: var(--muted); }
+    .step h3 {
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
+      line-height: 1;
+      margin: 6px 0 8px;
+    }
+    .step p { color: var(--muted); line-height: 1.4; }
+    .cta-row { display: grid; grid-template-columns: 7fr 5fr; gap: var(--line); }
+    .cta-row > * { background: var(--paper); }
+    .cta-main { padding: clamp(28px, 6vw, 80px) var(--pad); }
+    .cta-main h2 {
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(2.8rem, 9vw, 8rem);
+      line-height: .84;
+      letter-spacing: -.03em;
+    }
+    .cta-main p { margin-top: 22px; font-size: 1.2rem; max-width: 34ch; color: var(--muted); line-height: 1.45; }
+    .cta-side {
+      background: var(--red);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      padding: var(--pad);
+      text-align: center;
+    }
+    .cta-side .btn:hover, .cta-side .btn:focus-visible { background: var(--yellow); color: var(--ink); border-color: var(--ink); }
 
-    .intake-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 48px;
-      align-items: start;
+    /* ---------- Footer ---------- */
+    footer {
+      background: var(--ink);
+      color: var(--paper);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 22px var(--pad);
     }
-    .intake-lede {
-      font-size: clamp(1.8rem, 4.4vw, 3rem);
-      line-height: 1.1;
-    }
-    .intake-lede em { color: var(--accent); }
-    .intake-facts { list-style: none; }
-    .intake-facts li {
-      display: grid;
-      grid-template-columns: 8.5rem 1fr;
-      gap: 12px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--faint);
-      font-size: 1.2rem;
-      align-items: baseline;
-    }
+    footer a { text-decoration: none; }
+    footer a:hover, footer a:focus-visible { color: var(--yellow); }
 
     .float-cta {
       position: fixed;
       right: 16px;
       bottom: 16px;
-      z-index: 10;
-      font-family: var(--mono);
-      font-size: .72rem;
-      letter-spacing: .25em;
+      z-index: 30;
+      background: var(--yellow);
+      color: var(--ink);
+      border: var(--line) solid var(--ink);
+      font-weight: 900;
+      font-size: .8rem;
+      letter-spacing: .22em;
       text-transform: uppercase;
       text-decoration: none;
-      color: var(--bg);
-      background: var(--fg);
       padding: 14px 20px;
       opacity: 0;
-      transform: translateY(12px);
+      transform: translateY(14px);
       pointer-events: none;
-      transition: opacity .5s, transform .5s, background .3s;
+      transition: opacity .35s, transform .35s, background .2s, color .2s;
     }
     .float-cta.on { opacity: 1; transform: none; pointer-events: auto; }
-    .float-cta:hover, .float-cta:focus-visible { background: var(--accent); outline: none; }
+    .float-cta:hover, .float-cta:focus-visible { background: var(--ink); color: var(--yellow); }
 
-    footer {
-      border-top: 1px solid var(--faint);
-      padding: 24px 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    /* Reveal on scroll */
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 1.2s ease, transform 1.2s ease; }
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.in { opacity: 1; transform: none; }
 
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .stages, .steps { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 820px) {
-      .intake-grid { grid-template-columns: 1fr; gap: 24px; }
-      .stages { grid-template-columns: 1fr 1fr; }
-      .stage { min-height: 240px; }
+      .h-title, .h-glyph, .h-tag { grid-column: 1 / 13; }
+      .h-title { min-height: 0; gap: 44px; }
+      h1 { font-size: clamp(3.2rem, 17vw, 7rem); }
+      .h-blue { grid-column: 1 / 7; }
+      .h-red { grid-column: 7 / 13; }
+      .glyph { max-width: 460px; }
+      .shead { grid-template-columns: clamp(64px, 10vw, 120px) 1fr; }
+      .shead p { grid-column: 1 / 3; text-align: left; padding-top: 14px; padding-bottom: 14px; }
+      .cta-row { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
+      .bar .name { display: none; }
+      .bar { grid-template-columns: auto 1fr; }
+      .bar .go { justify-content: center; }
       .stages { grid-template-columns: 1fr; }
-      .manifesto li { grid-template-columns: 2.2rem 1fr; }
-      .block-head { flex-direction: column; gap: 8px; }
+      .steps .txt { padding: 14px 14px 18px; }
+      .steps .step p { font-size: .95rem; }
+      .rrow { grid-template-columns: 1fr; }
+      .rstat { padding: 10px; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .reveal { opacity: 1; transform: none; transition: none; }
-      .scroll-hint { animation: none; }
+      .float-cta, .step .fig svg { transition: none; }
     }
   </style>
 </head>
 <body>
 
+  <nav class="bar" aria-label="Main">
+    <a class="logo" href="#top" aria-label="Ego Death Squad, top of page">EDS</a>
+    <span class="name small">Ego Death Squad</span>
+    <a class="go small" href="intake/">Begin intake &rarr;</a>
+  </nav>
+
   <header class="hero" id="top">
-    <div class="hero-sticky">
-      <canvas id="field" aria-hidden="true"></canvas>
-      <div class="hero-top">
-        <span class="label">Ego Death Squad</span>
-        <a class="label nav-link" href="intake/">Begin intake &rarr;</a>
-      </div>
-      <div class="hero-bottom">
-        <p class="hero-caption" id="caption">A collective of <em>no one</em> in particular.</p>
-        <span class="label scroll-hint">Scroll to let go</span>
-      </div>
+    <div class="h-title">
+      <span class="small">Collective No. 0 &mdash; Est. never</span>
+      <h1>Ego<br>Death<br><span class="bar-under">Squad</span></h1>
+    </div>
+
+    <div class="h-glyph" aria-hidden="true">
+      <svg class="glyph" viewBox="0 0 360 120">
+        <g class="gl gl-e" fill="#111">
+          <rect x="0" y="0" width="22" height="120"/>
+          <rect x="0" y="0" width="80" height="22"/>
+          <rect x="0" y="49" width="62" height="22"/>
+          <rect x="0" y="98" width="80" height="22"/>
+        </g>
+        <g class="gl gl-g">
+          <circle cx="180" cy="60" r="49" fill="none" stroke="#1c4a9c" stroke-width="22" stroke-dasharray="250 58"/>
+          <rect x="180" y="53" width="50" height="16" fill="#111"/>
+        </g>
+        <g class="gl gl-o">
+          <circle cx="300" cy="60" r="49" fill="none" stroke="#d7261e" stroke-width="22"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="h-tag">
+      <p>A collective of no one in particular.</p>
+      <a class="btn" href="intake/">Begin intake &rarr;</a>
+    </div>
+
+    <div class="h-blue" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#f2eee3"/></svg>
+    </div>
+    <div class="h-red" aria-hidden="true">
+      <svg viewBox="0 0 100 100"><polygon points="50,6 96,90 4,90" fill="#111"/></svg>
     </div>
   </header>
 
   <main>
-    <section class="block" id="manifesto">
-      <div class="block-head reveal">
-        <span class="label">I.</span>
-        <span class="label">Manifesto &mdash; touch a line to let it go</span>
+    <!-- I. Manifesto -->
+    <section id="manifesto">
+      <div class="shead">
+        <span class="snum" style="--c: var(--red)">I</span>
+        <h2>Manifesto</h2>
+        <p class="small">Touch a line to let it go</p>
       </div>
       <ol class="manifesto">
-        <li class="reveal">You are not the voice reading <span class="keep">this</span> sentence.</li>
-        <li class="reveal">We do not recruit. We <span class="keep">subtract</span>.</li>
-        <li class="reveal">Membership is free. It costs everything you think you <span class="keep">are</span>.</li>
-        <li class="reveal">There is no leader. There was never anyone to <span class="keep">lead</span>.</li>
-        <li class="reveal">What remains when the story stops is <span class="keep">enough</span>.</li>
+        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">01</span><p class="mtext">You are not the voice reading <span class="keep">this</span> sentence.</p></li>
+        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">02</span><p class="mtext">We do not recruit. We <span class="keep">subtract</span>.</p></li>
+        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">03</span><p class="mtext">Membership is free. It costs everything you think you <span class="keep">are</span>.</p></li>
+        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">04</span><p class="mtext">There is no leader. There was never anyone to <span class="keep">lead</span>.</p></li>
+        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">05</span><p class="mtext">What remains when the story stops is <span class="keep">enough</span>.</p></li>
       </ol>
     </section>
 
-    <section class="block" id="process">
-      <div class="block-head reveal">
-        <span class="label">II.</span>
-        <span class="label">The process</span>
+    <!-- II. Process -->
+    <section id="process">
+      <div class="shead">
+        <span class="snum" style="--c: var(--blue)">II</span>
+        <h2>The process</h2>
+        <p class="small">Four movements</p>
       </div>
-      <div class="stages reveal">
-        <article class="stage">
-          <span class="label">01</span>
-          <h3>Grip</h3>
-          <p>The self holds on to its name, its history, its opinions about everything.</p>
+      <div class="stages">
+        <article class="stage reveal">
+          <div class="fig" style="--bg: var(--paper)" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><rect x="14" y="14" width="72" height="72" fill="#111"/></svg>
+          </div>
+          <div class="txt">
+            <span class="small">01</span>
+            <h3>Grip</h3>
+            <p>The self holds on to its name, its history, its opinions about everything.</p>
+          </div>
         </article>
-        <article class="stage">
-          <span class="label">02</span>
-          <h3>Crack</h3>
-          <p>A crack appears. The edges you were sure of start to look drawn on.</p>
+        <article class="stage reveal">
+          <div class="fig" style="--bg: var(--yellow)" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <polygon points="10,10 76,10 10,76" fill="#111"/>
+              <polygon points="26,92 92,92 92,26" fill="#d7261e"/>
+            </svg>
+          </div>
+          <div class="txt">
+            <span class="small">02</span>
+            <h3>Crack</h3>
+            <p>A crack appears. The edges you were sure of start to look drawn on.</p>
+          </div>
         </article>
-        <article class="stage">
-          <span class="label">03</span>
-          <h3>Dissolve</h3>
-          <p>The boundary between watcher and world goes quiet. No one is there to mind.</p>
+        <article class="stage reveal">
+          <div class="fig" style="--bg: var(--blue)" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <circle cx="38" cy="54" r="28" fill="#f2eee3"/>
+              <circle cx="78" cy="30" r="13" fill="#f2eee3"/>
+              <circle cx="88" cy="70" r="7" fill="#f2eee3"/>
+            </svg>
+          </div>
+          <div class="txt">
+            <span class="small">03</span>
+            <h3>Dissolve</h3>
+            <p>The boundary between watcher and world goes quiet. No one is there to mind.</p>
+          </div>
         </article>
-        <article class="stage">
-          <span class="label">04</span>
-          <h3>Return</h3>
-          <p>You come back, lighter. Same body, same street, less in the way.</p>
+        <article class="stage reveal">
+          <div class="fig" style="--bg: var(--red)" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <rect x="14" y="14" width="72" height="72" fill="#111"/>
+              <circle cx="50" cy="50" r="26" fill="#f5c400"/>
+            </svg>
+          </div>
+          <div class="txt">
+            <span class="small">04</span>
+            <h3>Return</h3>
+            <p>You come back, lighter. Same body, same street, less in the way.</p>
+          </div>
         </article>
       </div>
     </section>
 
-    <section class="block" id="roster">
-      <div class="block-head reveal">
-        <span class="label">III.</span>
-        <span class="label">Roll call</span>
+    <!-- III. Roll call -->
+    <section id="roster">
+      <div class="shead">
+        <span class="snum" style="--c: var(--ink)">III</span>
+        <h2>Roll call</h2>
+        <p class="small">Those present</p>
       </div>
-      <div class="roster reveal" id="rosterList">
-        <div class="name"><span>The one who needed to be right</span></div><div class="status">discharged</div>
-        <div class="name"><span>The one keeping score</span></div><div class="status">discharged</div>
-        <div class="name"><span>The one rehearsing arguments in the shower</span></div><div class="status">discharged</div>
-        <div class="name"><span>The one afraid of being found out</span></div><div class="status">discharged</div>
-        <div class="name"><span>The one who wrote this list</span></div><div class="status">discharged</div>
-      </div>
-      <p class="roster-total reveal">Active members: <em>0</em>.<br>Also: everyone.</p>
-    </section>
-
-    <section class="block" id="intake-info">
-      <div class="block-head reveal">
-        <span class="label">IV.</span>
-        <span class="label">Intake</span>
-      </div>
-      <div class="intake-grid">
-        <p class="intake-lede reveal">The squad takes new arrivals through a short <em>intake terminal</em>. Three layers to get through, each one asking you to let a little more go.</p>
-        <ul class="intake-facts reveal">
-          <li><span class="label">Layers</span><span>Three small puzzles</span></li>
-          <li><span class="label">Time</span><span>About five minutes</span></li>
-          <li><span class="label">Cost</span><span>Your name, briefly</span></li>
-          <li><span class="label">At the end</span><span>The guest book: leave a message for the squad</span></li>
-        </ul>
+      <div class="roster" id="rosterList">
+        <div class="rrow"><div class="rname"><span>The one who needed to be right</span></div><div class="rstat">Present</div></div>
+        <div class="rrow"><div class="rname"><span>The one keeping score</span></div><div class="rstat">Present</div></div>
+        <div class="rrow"><div class="rname"><span>The one rehearsing arguments in the shower</span></div><div class="rstat">Present</div></div>
+        <div class="rrow"><div class="rname"><span>The one afraid of being found out</span></div><div class="rstat">Present</div></div>
+        <div class="rrow"><div class="rname"><span>The one who wrote this list</span></div><div class="rstat">Present</div></div>
+        <p class="rtotal">Active members: <b>0</b>.<br>Also: everyone.</p>
       </div>
     </section>
 
-    <section class="enlist" id="enlist">
-      <h2 class="reveal">Report for<br><em>nothing.</em></h2>
-      <p class="reveal">Get through intake and sign the guest book. No fees. No one to sign it but you.</p>
-      <a class="enlist-btn reveal" href="intake/">Begin intake</a>
+    <!-- IV. Intake -->
+    <section id="intake-info">
+      <div class="shead">
+        <span class="snum" style="--c: var(--yellow); color: var(--ink)">IV</span>
+        <h2>Intake</h2>
+        <p class="small">Three layers &middot; one guest book</p>
+      </div>
+      <div class="steps">
+        <a class="step reveal" href="intake/">
+          <div class="fig" style="--bg: var(--red)" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="#f2eee3"/></svg>
+          </div>
+          <div class="txt">
+            <span class="small">Layer 01</span>
+            <h3>Mirror</h3>
+            <p>Lean over still water.</p>
+          </div>
+        </a>
+        <a class="step reveal" href="intake/">
+          <div class="fig" style="--bg: var(--yellow)" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#111"/></svg>
+          </div>
+          <div class="txt">
+            <span class="small">Layer 02</span>
+            <h3>Beneath</h3>
+            <p>Reach into the empty space.</p>
+          </div>
+        </a>
+        <a class="step reveal" href="intake/">
+          <div class="fig" style="--bg: var(--blue)" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><polygon points="50,8 94,90 6,90" fill="#f2eee3"/></svg>
+          </div>
+          <div class="txt">
+            <span class="small">Layer 03</span>
+            <h3>First things</h3>
+            <p>Read how every line begins.</p>
+          </div>
+        </a>
+        <a class="step reveal" href="intake/">
+          <div class="fig" style="--bg: var(--ink)" aria-hidden="true">
+            <svg viewBox="0 0 100 100" fill="none" stroke="#f5c400" stroke-width="7" stroke-linejoin="round">
+              <rect x="8" y="22" width="84" height="56"/>
+              <polyline points="8,22 50,56 92,22"/>
+            </svg>
+          </div>
+          <div class="txt">
+            <span class="small">At the end</span>
+            <h3>Guest book</h3>
+            <p>Leave a message for the squad.</p>
+          </div>
+        </a>
+      </div>
+      <div class="cta-row">
+        <div class="cta-main reveal">
+          <h2>Report for nothing.</h2>
+          <p>About five minutes. Your name, briefly. No fees, and no one to sign it but you.</p>
+        </div>
+        <div class="cta-side reveal">
+          <a class="btn big" href="intake/">Begin intake &rarr;</a>
+          <span class="small">Three layers &middot; then the guest book</span>
+        </div>
+      </div>
     </section>
   </main>
 
-  <a class="float-cta" id="floatCta" href="intake/">Begin intake <span aria-hidden="true">&rarr;</span></a>
-
   <footer>
-    <span class="label">&copy; <span id="y"></span> No one</span>
-    <a class="label" href="intake/" style="color:inherit;text-decoration:none">Intake &amp; guest book</a>
-    <a class="label" href="#top" style="color:inherit;text-decoration:none">Return &uarr;</a>
+    <span class="small">&copy; <span id="y"></span> No one</span>
+    <a class="small" href="intake/">Intake &amp; guest book</a>
+    <a class="small" href="#top">Return &uarr;</a>
   </footer>
+
+  <a class="float-cta" id="floatCta" href="intake/">Begin intake <span aria-hidden="true">&rarr;</span></a>
 
   <script>
   (function () {
+    var root = document.documentElement;
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("y").textContent = new Date().getFullYear();
 
-    /* ---- Split manifesto lines into words so they can dissolve one by one ---- */
-    document.querySelectorAll(".manifesto li").forEach(function (li) {
+    /* ---- Manifesto: split lines into words so they can be let go one by one ---- */
+    document.querySelectorAll(".mtext").forEach(function (el) {
       var out = [];
-      li.childNodes.forEach(function (node) {
+      Array.prototype.slice.call(el.childNodes).forEach(function (node) {
         if (node.nodeType === 3) {
           node.textContent.split(/(\s+)/).forEach(function (part) {
             if (!part) return;
@@ -460,14 +662,18 @@
           out.push(node);
         }
       });
-      var line = document.createElement("span");
-      out.forEach(function (n, i) {
-        if (n.nodeType === 1) n.style.transitionDelay = (i * 0.03) + "s";
-        line.appendChild(n);
+      el.textContent = "";
+      out.forEach(function (n) { el.appendChild(n); });
+    });
+    document.querySelectorAll(".mrow").forEach(function (row) {
+      function toggle() {
+        var on = row.classList.toggle("let-go");
+        row.setAttribute("aria-pressed", on ? "true" : "false");
+      }
+      row.addEventListener("click", toggle);
+      row.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
       });
-      li.textContent = "";
-      li.appendChild(line);
-      li.addEventListener("click", function () { li.classList.toggle("let-go"); });
     });
 
     /* ---- Reveal on scroll ---- */
@@ -475,157 +681,49 @@
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
     document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
-    /* ---- Roster names fade out one by one once seen ---- */
+    /* ---- Roll call: each one is discharged in turn once seen ---- */
     var roster = document.getElementById("rosterList");
     var rosterIO = new IntersectionObserver(function (entries) {
       if (!entries[0].isIntersecting) return;
       rosterIO.disconnect();
-      roster.querySelectorAll(".name").forEach(function (n, i) {
-        setTimeout(function () { n.classList.add("gone"); }, 1400 + i * 900);
+      roster.querySelectorAll(".rrow").forEach(function (row, i) {
+        setTimeout(function () {
+          row.classList.add("gone");
+          row.querySelector(".rstat").textContent = "Discharged";
+        }, 900 + i * 700);
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.5 });
     rosterIO.observe(roster);
 
-    /* ---- Floating intake link, shown once the hero has dissolved ---- */
-    var cta = document.getElementById("floatCta");
-    var enlist = document.getElementById("enlist");
-    var nearEnd = false;
-    new IntersectionObserver(function (e) {
-      nearEnd = e[0].isIntersecting;
-      updateCta();
-    }).observe(enlist);
-    function updateCta() {
-      var past = window.scrollY > document.querySelector(".hero").offsetHeight * 0.6;
-      cta.classList.toggle("on", past && !nearEnd);
-    }
-    window.addEventListener("scroll", updateCta, { passive: true });
-
-    /* ---- Particle field: "EGO" that comes apart as you scroll ---- */
-    var canvas = document.getElementById("field");
-    var ctx = canvas.getContext("2d");
+    /* ---- Hero shapes drift apart as you scroll; floating intake link ---- */
     var hero = document.querySelector(".hero");
-    var caption = document.getElementById("caption");
-    var particles = [];
-    var W = 0, H = 0, dpr = 1;
-    var pointer = { x: -9999, y: -9999 };
-    var accent = [185, 164, 255];
-    var bone = [236, 232, 223];
+    var cta = document.getElementById("floatCta");
+    var intakeVisible = false;
+    new IntersectionObserver(function (e) {
+      intakeVisible = e[0].isIntersecting;
+      update();
+    }).observe(document.getElementById("intake-info"));
 
-    function build() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = canvas.clientWidth; H = canvas.clientHeight;
-      canvas.width = W * dpr; canvas.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // Draw the word offscreen and sample its pixels
-      var off = document.createElement("canvas");
-      off.width = W; off.height = H;
-      var o = off.getContext("2d");
-      var size = Math.min(W * 0.36, H * 0.55);
-      o.fillStyle = "#fff";
-      o.textAlign = "center";
-      o.textBaseline = "middle";
-      o.font = "400 " + size + "px 'Instrument Serif', Georgia, serif";
-      o.fillText("EGO", W / 2, H * 0.46);
-      var data = o.getImageData(0, 0, W, H).data;
-
-      var step = Math.max(3, Math.round(size / 70));
-      particles = [];
-      for (var y = 0; y < H; y += step) {
-        for (var x = 0; x < W; x += step) {
-          if (data[(y * W + x) * 4 + 3] > 128) {
-            var angle = Math.random() * Math.PI * 2;
-            var dist = (0.5 + Math.random()) * Math.max(W, H) * 0.7;
-            particles.push({
-              hx: x, hy: y,
-              x: x, y: y,
-              vx: 0, vy: 0,
-              // where each particle drifts to once the ego is gone
-              dx: x + Math.cos(angle) * dist,
-              dy: y + Math.sin(angle) * dist,
-              r: Math.random() * 1.1 + 0.6,
-              tint: Math.random() < 0.12,
-              phase: Math.random() * Math.PI * 2
-            });
-          }
-        }
+    var ticking = false;
+    function update() {
+      var h = hero.offsetHeight;
+      var y = window.scrollY;
+      if (!reduceMotion) {
+        var p = Math.min(1, Math.max(0, y / h));
+        root.style.setProperty("--p", p.toFixed(3));
       }
+      cta.classList.toggle("on", y > h * 0.7 && !intakeVisible);
     }
-
-    function progress() {
-      var rect = hero.getBoundingClientRect();
-      var total = hero.offsetHeight - window.innerHeight;
-      return Math.min(1, Math.max(0, -rect.top / total));
-    }
-
-    var t = 0;
-    function frame() {
-      t += 0.016;
-      var p = progress();
-      var ease = p * p * (3 - 2 * p);
-      caption.style.opacity = 1 - Math.min(1, p * 1.6);
-
-      ctx.clearRect(0, 0, W, H);
-      for (var i = 0; i < particles.length; i++) {
-        var q = particles[i];
-        // target slides from the letter toward its scattered destination
-        var tx = q.hx + (q.dx - q.hx) * ease;
-        var ty = q.hy + (q.dy - q.hy) * ease;
-        // a little breathing, more as it loosens
-        var wob = 0.6 + ease * 14;
-        tx += Math.sin(t + q.phase) * wob;
-        ty += Math.cos(t * 0.8 + q.phase) * wob;
-
-        // pointer pushes particles away
-        var ddx = q.x - pointer.x, ddy = q.y - pointer.y;
-        var d2 = ddx * ddx + ddy * ddy;
-        if (d2 < 9000) {
-          var f = (9000 - d2) / 9000 * 3.2;
-          var d = Math.sqrt(d2) || 1;
-          q.vx += (ddx / d) * f;
-          q.vy += (ddy / d) * f;
-        }
-
-        q.vx += (tx - q.x) * 0.04;
-        q.vy += (ty - q.y) * 0.04;
-        q.vx *= 0.84; q.vy *= 0.84;
-        q.x += q.vx; q.y += q.vy;
-
-        var c = q.tint ? accent : bone;
-        var a = 0.9 - ease * 0.65;
-        ctx.fillStyle = "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
-        ctx.beginPath();
-        ctx.arc(q.x, q.y, q.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      if (!reduceMotion) requestAnimationFrame(frame);
-    }
-
-    function start() {
-      build();
-      frame();
-      if (reduceMotion) {
-        window.addEventListener("scroll", function () { requestAnimationFrame(frame); }, { passive: true });
-      }
-    }
-
-    window.addEventListener("pointermove", function (e) { pointer.x = e.clientX; pointer.y = e.clientY; });
-    window.addEventListener("pointerleave", function () { pointer.x = pointer.y = -9999; });
-    var rt;
-    window.addEventListener("resize", function () {
-      clearTimeout(rt);
-      rt = setTimeout(function () { build(); if (reduceMotion) frame(); }, 150);
-    });
-
-    // Wait for the serif so the word is sampled in the right face
-    if (document.fonts && document.fonts.load) {
-      document.fonts.load("400 100px 'Instrument Serif'").then(start, start);
-    } else {
-      start();
-    }
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; update(); });
+    }, { passive: true });
+    window.addEventListener("resize", update);
+    update();
   })();
   </script>
 </body>

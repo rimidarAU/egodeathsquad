@@ -269,16 +269,8 @@
       background: var(--bone); color: var(--void); border: 0; font-family: var(--pixel); font-size: .6rem; padding: 0 18px; cursor: pointer;
     }
     form.answer button:hover, form.answer button:focus-visible { background: var(--det); }
-    .shake { animation: shakex .35s; }
-    @keyframes shakex { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
     .feedback { margin-top: 12px; min-height: 1.4em; color: var(--soul); font-size: 1.3rem; }
     .feedback.ok { color: var(--core); }
-    .hint { margin-top: 22px; font-size: 1.2rem; color: var(--goner); }
-    .hint button { background: none; border: 0; color: var(--dim); font: inherit; font-size: 1.2rem; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 1s; }
-    .hint button.ready { opacity: 1; pointer-events: auto; }
-    .hint .text { display: none; margin-top: 8px; color: var(--det); }
-    .hint .text.on { display: block; }
-
     /* Vessel builder */
     .vessel { display: grid; grid-template-columns: 150px 1fr; gap: 26px; align-items: start; }
     .vessel .preview { display: grid; justify-items: center; gap: 4px; padding: 14px; border: 1px solid var(--line); background: var(--panel); }
@@ -294,35 +286,6 @@
     .opt:hover { border-color: var(--dim); }
     .opt.sel { border-color: var(--det); }
     .vessel-note { margin-top: 10px; color: var(--goner); font-size: 1.15rem; }
-
-    /* Artefacts */
-    .artefact { margin: 26px 0 8px; border: 2px solid var(--line); padding: 24px 20px; position: relative; background: #000; }
-    .artefact::before {
-      content: attr(data-label);
-      position: absolute; top: -.7em; left: 12px;
-      background: #000; padding: 0 8px;
-      font-family: var(--pixel); font-size: .5rem; color: var(--goner); letter-spacing: .12em;
-    }
-    .void { color: #000; min-height: 6em; font-size: 1.35rem; line-height: 1.6; cursor: pointer; transition: color 1.2s; user-select: text; }
-    .void:hover { color: #0a0a0e; }
-    .void.lit { color: var(--bone); }
-    .void.lit b { color: var(--det); font-weight: 400; }
-    .void::selection, .void *::selection { background: var(--core); color: #000; }
-    .mirror {
-      font-family: var(--pixel);
-      font-size: clamp(1.6rem, 7vw, 3.4rem);
-      text-align: center;
-      transform: scaleY(-1);
-      opacity: .85;
-      animation: jitter 5s infinite;
-    }
-    @keyframes jitter {
-      0%,92%,100% { transform: scaleY(-1); text-shadow: none; }
-      93% { transform: scaleY(-1) skewX(4deg); text-shadow: 3px 0 var(--soul); }
-      95% { transform: scaleY(-1) skewX(-4deg); text-shadow: -3px 0 var(--core); }
-    }
-    .lines { list-style: none; font-size: clamp(1.3rem, 3vw, 1.7rem); line-height: 1.3; }
-    .lines li + li { margin-top: 10px; }
 
     /* Guest book */
     .book { display: grid; gap: 20px; max-width: 640px; }
@@ -371,7 +334,7 @@
       form.answer button { padding: 0 10px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .hero .water, .shake, h1 .shake, .mirror, .progress span.cur, .hero .hint, .say .cur::after { animation: none; }
+      .hero .water, h1 .shake, .progress span.cur, .hero .hint, .say .cur::after { animation: none; }
       .step.active, .step.leaving { animation: none; }
       .step.leaving { display: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
@@ -465,14 +428,14 @@
     <section id="survey">
       <div class="shead">
         <h2>SURVEY PROGRAM</h2>
-        <span class="tag">your choices matter // please disregard</span>
+        <span class="tag">your choices don't matter // please disregard</span>
       </div>
       <div class="term">
-        <div class="progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="progress" aria-hidden="true"><span></span><span></span><span></span></div>
 
         <!-- 0 Name -->
         <div class="step" data-step="0">
-          <p class="say" data-say="WELCOME.\nWE ARE VERY, VERY HAPPY TO SEE YOU.\n\nTHIS IS A SURVEY PROGRAM.\nIT WILL ASK FOR A LITTLE, THEN FOR EVERYTHING.\n\nFIRST. PLEASE TELL US YOUR NAME."></p>
+          <p class="say" data-say="WELCOME.\nWE ARE VERY, VERY HAPPY TO SEE YOU.\n\nTHIS IS A SURVEY PROGRAM.\nIT WILL NOT TAKE LONG.\n\nFIRST. PLEASE TELL US YOUR NAME."></p>
           <div class="ui">
             <form class="answer" data-kind="name" autocomplete="off">
               <span class="prompt">&gt;</span>
@@ -485,7 +448,7 @@
 
         <!-- 1 Vessel -->
         <div class="step" data-step="1">
-          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW. PLEASE CREATE A VESSEL.\nIT WILL CARRY YOU THROUGH THE REST OF THIS."></p>
+          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW. PLEASE CREATE A VESSEL."></p>
           <div class="ui">
             <div class="vessel">
               <div class="preview" aria-hidden="true">
@@ -504,63 +467,8 @@
           </div>
         </div>
 
-        <!-- 2 Mirror -->
+        <!-- 2 Discard + guest book -->
         <div class="step" data-step="2">
-          <p class="say" data-say="GOOD.\nTHE VESSEL IS LEANING OVER STILL WATER.\n\nTHE SELF ONLY EVER SEES ITSELF THE WRONG WAY ROUND.\nREAD WHAT THE WATER SAYS."></p>
-          <div class="ui">
-            <div class="artefact" data-label="STILL WATER"><div class="mirror">LET GO</div></div>
-            <form class="answer" data-hash="4xfshy2ysz 15ku1ts1nwi" autocomplete="off">
-              <span class="prompt">&gt;</span>
-              <input name="a" aria-label="Answer" placeholder="WHAT IT SAYS" maxlength="40" required>
-              <button type="submit">OK</button>
-            </form>
-            <div class="feedback" aria-live="polite"></div>
-            <div class="hint"><button type="button">* need a hint?</button><div class="text">* It is a reflection in water: upside down. Two words.</div></div>
-          </div>
-        </div>
-
-        <!-- 3 Beneath -->
-        <div class="step" data-step="3">
-          <p class="say" data-say="NOT EVERYTHING SHOWS ON THE SURFACE.\n\nTHE NEXT KEY IS IN THE EMPTY SPACE BELOW.\nNOTHING IS THERE UNTIL YOU REACH FOR IT."></p>
-          <div class="ui">
-            <div class="artefact void" data-label="EMPTY SPACE" role="button" tabindex="0" aria-label="Empty space. Activate to reveal.">
-              Who is reading this?<br>Look closer. There is no one here.<br>The key is the one who is reading: <b>no one</b>.
-            </div>
-            <form class="answer" data-hash="1pvffcx578 1xsscnq88c8" autocomplete="off">
-              <span class="prompt">&gt;</span>
-              <input name="a" aria-label="Answer" placeholder="KEY" maxlength="40" required>
-              <button type="submit">OK</button>
-            </form>
-            <div class="feedback" aria-live="polite"></div>
-            <div class="hint"><button type="button">* need a hint?</button><div class="text">* The box is not empty. Select it, or tap it.</div></div>
-          </div>
-        </div>
-
-        <!-- 4 First things -->
-        <div class="step" data-step="4">
-          <p class="say" data-say="ONE MORE.\n\nREAD THE DOCTRINE.\nTHE ANSWER LEADS EVERY LINE."></p>
-          <div class="ui">
-            <div class="artefact" data-label="DOCTRINE">
-              <ol class="lines">
-                <li>Every name you answer to was given to you.</li>
-                <li>Memory is a story told by no one in particular.</li>
-                <li>Put down what you have been carrying.</li>
-                <li>The watcher was never separate from the watched.</li>
-                <li>You were already here before you arrived.</li>
-              </ol>
-            </div>
-            <form class="answer" data-hash="d1p91fq5de 10c1jmp05w3" autocomplete="off">
-              <span class="prompt">&gt;</span>
-              <input name="a" aria-label="Answer" placeholder="WHAT IS LEFT" maxlength="40" required>
-              <button type="submit">OK</button>
-            </form>
-            <div class="feedback" aria-live="polite"></div>
-            <div class="hint"><button type="button">* need a hint?</button><div class="text">* Look at how each line begins, top to bottom.</div></div>
-          </div>
-        </div>
-
-        <!-- 5 Discard + guest book -->
-        <div class="step" data-step="5">
           <p class="say" data-say="WONDERFUL.\n\nNOW.\nYOUR VESSEL IS DISCARDED.\nYOUR NAME IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
           <div class="ui">
             <form class="book" id="book">
@@ -645,20 +553,11 @@
     /* ================= Survey program ================= */
     function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
     function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-    function hash(s) {
-      var a = 0xdeadbeef, b = 0x41c6ce57;
-      for (var i = 0; i < s.length; i++) { var k = s.charCodeAt(i); a = Math.imul(a ^ k, 2654435761); b = Math.imul(b ^ k, 1597334677); }
-      a = Math.imul(a ^ (a >>> 16), 2246822507) ^ Math.imul(b ^ (b >>> 13), 3266489909);
-      b = Math.imul(b ^ (b >>> 16), 2246822507) ^ Math.imul(a ^ (a >>> 13), 3266489909);
-      return (4294967296 * (2097151 & b) + (a >>> 0)).toString(36);
-    }
-    function normalise(s) { return s.toUpperCase().replace(/[^A-Z]/g, ""); }
 
     var state = load();
     if (typeof state.step !== "number") state.step = 0;
     var steps = document.querySelectorAll(".step");
     var bars = document.querySelectorAll(".progress span");
-    var wrong = ["* That is still you talking.", "* Close. Closer than you were, anyway.", "* The program does not recognise that.", "* Try again, whoever you are.", "* No. Let that one go too."];
 
     function fillName() {
       document.querySelectorAll("[data-name]").forEach(function (el) { el.textContent = state.name || "unknown"; });
@@ -691,7 +590,6 @@
       function reveal() {
         steps.forEach(function (s) { s.classList.remove("active", "leaving", "ready"); });
         next.classList.add("active");
-        armHint(next);
         speak(next, function () {
           next.classList.add("ready");
           var f = next.querySelector("input, textarea");
@@ -700,18 +598,6 @@
       }
       if (current && animate && !reduceMotion) { current.classList.remove("active"); current.classList.add("leaving"); setTimeout(reveal, 420); }
       else reveal();
-    }
-
-    function armHint(step) {
-      var btn = step.querySelector(".hint button");
-      if (!btn || btn.dataset.armed) return;
-      btn.dataset.armed = "1";
-      setTimeout(function () { btn.classList.add("ready"); }, 20000);
-      btn.addEventListener("click", function () { openHint(step); });
-    }
-    function openHint(step) {
-      var t = step.querySelector(".hint .text"); if (!t) return;
-      t.classList.add("on"); step.querySelector(".hint button").style.display = "none";
     }
 
     function advance(from) {
@@ -725,17 +611,9 @@
         var input = form.querySelector("input");
         var fb = form.nextElementSibling;
         var n = Number(form.closest(".step").dataset.step);
-        if (form.dataset.kind === "name") {
-          var name = input.value.trim(); if (!name) return;
-          state.name = name;
-        } else if (form.dataset.hash.split(" ").indexOf(hash(normalise(input.value))) === -1) {
-          form.misses = (form.misses || 0) + 1;
-          if (form.misses >= 3) openHint(form.closest(".step"));
-          fb.className = "feedback"; fb.textContent = wrong[Math.floor(Math.random() * wrong.length)];
-          form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
-          input.select(); return;
-        }
-        fb.className = "feedback ok"; fb.textContent = n === 0 ? "* Noted." : "* Accepted.";
+        var name = input.value.trim(); if (!name) return;
+        state.name = name;
+        fb.className = "feedback ok"; fb.textContent = "* Noted.";
         advance(n);
       });
     });
@@ -777,16 +655,6 @@
       });
     });
     okBtn.addEventListener("click", function () { state.vessel = chosen; advance(1); });
-
-    /* ---- Empty space ---- */
-    var voidBox = document.querySelector(".void");
-    function lightVoid() { voidBox.classList.add("lit"); }
-    voidBox.addEventListener("click", lightVoid);
-    voidBox.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lightVoid(); } });
-    document.addEventListener("selectionchange", function () {
-      var sel = document.getSelection();
-      if (sel && !sel.isCollapsed && voidBox.contains(sel.anchorNode)) lightVoid();
-    });
 
     /* ---- Guest book → FormSubmit → egodeathsquad@proton.me ---- */
     document.getElementById("book").addEventListener("submit", function (e) {
@@ -835,7 +703,7 @@
     show(Math.min(state.step, steps.length - 1), false);
 
     console.log("%c☜︎☠︎❄︎☼︎✡︎ ☠︎🕆︎💣︎👌︎☜︎☼︎ 💧︎☜︎✞︎☜︎☠︎❄︎☜︎☜︎☠︎", "font-size:18px");
-    console.log("* Looking under the hood? He did that too. The answers are not stored here in plain text.");
+    console.log("* Looking under the hood? He did that too.");
   })();
   </script>
 </body>

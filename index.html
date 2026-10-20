@@ -271,22 +271,6 @@
     form.answer button:hover, form.answer button:focus-visible { background: var(--det); }
     .feedback { margin-top: 12px; min-height: 1.4em; color: var(--soul); font-size: 1.3rem; }
     .feedback.ok { color: var(--core); }
-    /* Vessel builder */
-    .vessel { display: grid; grid-template-columns: 150px 1fr; gap: 26px; align-items: start; }
-    .vessel .preview { display: grid; justify-items: center; gap: 4px; padding: 14px; border: 1px solid var(--line); background: var(--panel); }
-    .vessel .preview svg { width: 72px; height: 48px; shape-rendering: crispEdges; }
-    .vrow { margin-bottom: 18px; }
-    .vrow .tag { display: block; margin-bottom: 8px; }
-    .opts { display: flex; gap: 8px; flex-wrap: wrap; }
-    .opt {
-      width: 64px; height: 52px; background: #000; border: 2px solid var(--line); cursor: pointer; display: grid; place-items: center;
-      transition: border-color .15s;
-    }
-    .opt svg { width: 46px; height: 32px; shape-rendering: crispEdges; }
-    .opt:hover { border-color: var(--dim); }
-    .opt.sel { border-color: var(--det); }
-    .vessel-note { margin-top: 10px; color: var(--goner); font-size: 1.15rem; }
-
     /* Guest book */
     .book { display: grid; gap: 20px; max-width: 640px; }
     .book label { display: block; font-family: var(--pixel); font-size: .55rem; color: var(--dim); margin-bottom: 8px; letter-spacing: .1em; }
@@ -326,7 +310,6 @@
     @media (max-width: 760px) {
       .fell { grid-template-columns: 1fr 1fr; }
       .entry { grid-template-columns: 1fr; gap: 8px; }
-      .vessel { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .fell { grid-template-columns: 1fr; }
@@ -431,7 +414,7 @@
         <span class="tag">your choices don't matter // please disregard</span>
       </div>
       <div class="term">
-        <div class="progress" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="progress" aria-hidden="true"><span></span><span></span></div>
 
         <!-- 0 Name -->
         <div class="step" data-step="0">
@@ -446,30 +429,9 @@
           </div>
         </div>
 
-        <!-- 1 Vessel -->
+        <!-- 1 Discard + guest book -->
         <div class="step" data-step="1">
-          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW. PLEASE CREATE A VESSEL."></p>
-          <div class="ui">
-            <div class="vessel">
-              <div class="preview" aria-hidden="true">
-                <svg id="pvHead" viewBox="0 0 24 16"></svg>
-                <svg id="pvTorso" viewBox="0 0 24 16"></svg>
-                <svg id="pvLegs" viewBox="0 0 24 16"></svg>
-              </div>
-              <div>
-                <div class="vrow" data-part="head"><span class="tag">HEAD</span><div class="opts"></div></div>
-                <div class="vrow" data-part="torso"><span class="tag">TORSO</span><div class="opts"></div></div>
-                <div class="vrow" data-part="legs"><span class="tag">LEGS</span><div class="opts"></div></div>
-                <button class="btn" id="vesselOk" type="button" disabled>CONFIRM VESSEL</button>
-                <p class="vessel-note">* your choices don't matter.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2 Discard + guest book -->
-        <div class="step" data-step="2">
-          <p class="say" data-say="WONDERFUL.\n\nNOW.\nYOUR VESSEL IS DISCARDED.\nYOUR NAME IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
+          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW.\nIT IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
           <div class="ui">
             <form class="book" id="book">
               <div>
@@ -618,44 +580,6 @@
       });
     });
 
-    /* ---- Vessel builder ---- */
-    var PARTS = {
-      head: [
-        '<rect x="7" y="2" width="10" height="10" fill="#f2f2f2"/><rect x="9" y="5" width="2" height="3" fill="#000"/><rect x="13" y="5" width="2" height="3" fill="#000"/>',
-        '<rect x="6" y="3" width="12" height="8" fill="#f2f2f2"/><rect x="8" y="5" width="3" height="2" fill="#000"/><rect x="13" y="5" width="3" height="2" fill="#000"/><rect x="11" y="9" width="2" height="2" fill="#000"/>',
-        '<rect x="8" y="1" width="8" height="12" fill="#f2f2f2"/><rect x="10" y="4" width="1" height="4" fill="#000"/><rect x="13" y="4" width="1" height="4" fill="#000"/>'
-      ],
-      torso: [
-        '<rect x="7" y="1" width="10" height="14" fill="#f2f2f2"/><rect x="3" y="3" width="4" height="8" fill="#f2f2f2"/><rect x="17" y="3" width="4" height="8" fill="#f2f2f2"/>',
-        '<rect x="5" y="1" width="14" height="14" fill="#f2f2f2"/><rect x="11" y="5" width="2" height="6" fill="#000"/>',
-        '<rect x="9" y="1" width="6" height="14" fill="#f2f2f2"/><rect x="2" y="2" width="7" height="3" fill="#f2f2f2"/><rect x="15" y="2" width="7" height="3" fill="#f2f2f2"/>'
-      ],
-      legs: [
-        '<rect x="7" y="1" width="4" height="13" fill="#f2f2f2"/><rect x="13" y="1" width="4" height="13" fill="#f2f2f2"/>',
-        '<rect x="6" y="1" width="12" height="9" fill="#f2f2f2"/><rect x="4" y="10" width="16" height="3" fill="#f2f2f2"/>',
-        '<rect x="11" y="1" width="2" height="12" fill="#f2f2f2"/><rect x="5" y="13" width="14" height="2" fill="#f2f2f2"/>'
-      ]
-    };
-    var chosen = {};
-    var okBtn = document.getElementById("vesselOk");
-    Object.keys(PARTS).forEach(function (part) {
-      var row = document.querySelector('.vrow[data-part="' + part + '"] .opts');
-      PARTS[part].forEach(function (svg, i) {
-        var b = document.createElement("button");
-        b.type = "button"; b.className = "opt"; b.setAttribute("aria-label", part + " option " + (i + 1));
-        b.innerHTML = '<svg viewBox="0 0 24 16" aria-hidden="true">' + svg + "</svg>";
-        b.addEventListener("click", function () {
-          row.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("sel"); });
-          b.classList.add("sel");
-          chosen[part] = i;
-          document.getElementById("pv" + part.charAt(0).toUpperCase() + part.slice(1)).innerHTML = svg;
-          okBtn.disabled = Object.keys(chosen).length < 3;
-        });
-        row.appendChild(b);
-      });
-    });
-    okBtn.addEventListener("click", function () { state.vessel = chosen; advance(1); });
-
     /* ---- Guest book → FormSubmit → egodeathsquad@proton.me ---- */
     document.getElementById("book").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -689,10 +613,7 @@
     });
 
     document.getElementById("reset").addEventListener("click", function () {
-      state = { step: 0 }; save(state); chosen = {};
-      document.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("sel"); });
-      ["pvHead", "pvTorso", "pvLegs"].forEach(function (id) { document.getElementById(id).innerHTML = ""; });
-      okBtn.disabled = true;
+      state = { step: 0 }; save(state);
       document.querySelectorAll("form").forEach(function (f) { f.reset(); });
       document.querySelectorAll(".feedback").forEach(function (f) { f.textContent = ""; });
       document.getElementById("book").classList.remove("sent");

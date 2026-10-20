@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ego Death Squad</title>
+  <meta name="description" content="Ego Death Squad">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --fg: #f2f0ea;
+      --muted: #8d8a99;
+      --accent: #c9a7ff;
+      --line: #23222c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    .glow {
+      position: fixed;
+      inset: -30vmax;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(201,167,255,.18), transparent 40%),
+        radial-gradient(circle at 70% 65%, rgba(120,220,255,.10), transparent 45%);
+      animation: drift 18s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes drift {
+      to { transform: rotate(25deg) scale(1.1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glow { animation: none; }
+    }
+    main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 16px;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .kicker {
+      color: var(--accent);
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      font-size: .8rem;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: clamp(3rem, 12vw, 8rem);
+      line-height: .9;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+    h1 span { color: transparent; -webkit-text-stroke: 1px var(--fg); }
+    p.lede {
+      margin-top: 32px;
+      max-width: 34ch;
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--line);
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+  <main>
+    <div class="kicker">Coming soon</div>
+    <h1>Ego<br><span>Death</span><br>Squad</h1>
+    <p class="lede">Something is taking shape. Check back soon.</p>
+  </main>
+  <footer>&copy; <span id="y"></span> Ego Death Squad</footer>
+  <script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -151,7 +151,7 @@
       color: var(--muted);
     }
     .void {
-      color: #1d1c24;
+      color: var(--bg);
       cursor: pointer;
       transition: color 1.2s ease;
       min-height: 7em;
@@ -160,7 +160,7 @@
       user-select: text;
       -webkit-user-select: text;
     }
-    .void:hover { color: #2c2a35; }
+    .void:hover { color: #111016; }
     .void.lit { color: var(--fg); }
     .void.lit b { color: var(--accent); }
     .void:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
@@ -170,17 +170,18 @@
       font-size: clamp(3rem, 12vw, 5.5rem);
       letter-spacing: .12em;
       text-align: center;
-      transform: scaleX(-1);
-      animation: jitter 4s infinite;
+      transform: scaleY(-1);
+      opacity: .8;
+      animation: jitter 5s infinite;
     }
     @keyframes jitter {
-      0%, 92%, 100% { transform: scaleX(-1); text-shadow: none; }
-      93% { transform: scaleX(-1) translateX(-2px); text-shadow: 2px 0 var(--accent); }
-      95% { transform: scaleX(-1) translateX(2px); text-shadow: -2px 0 var(--warn); }
+      0%, 92%, 100% { transform: scaleY(-1); text-shadow: none; }
+      93% { transform: scaleY(-1) skewX(4deg); text-shadow: 2px 0 var(--accent); }
+      95% { transform: scaleY(-1) skewX(-4deg); text-shadow: -2px 0 var(--warn); }
     }
     .lines { list-style: none; font-family: var(--serif); font-size: clamp(1.3rem, 3.6vw, 1.9rem); line-height: 1.35; }
     .lines li + li { margin-top: 12px; }
-    .lines b { font-weight: 400; color: var(--accent); }
+    .lines b { font-weight: 400; }
 
     /* Answer form */
     form.answer {
@@ -345,9 +346,9 @@
       <h2 id="s1">Your reflection<br>has <em>something</em> to say.</h2>
       <div class="body">
         <p>Your name has been noted, and discarded: <span class="former"><s data-name></s></span></p>
-        <p>The self only ever sees itself backwards. Read what the mirror is telling you.</p>
+        <p>Lean over the still water. The self only ever sees itself the wrong way round.</p>
       </div>
-      <div class="artefact" data-label="Mirror">
+      <div class="artefact" data-label="Still water">
         <div class="mirror" aria-label="Mirrored text">LET GO</div>
       </div>
       <form class="answer" data-hash="4xfshy2ysz 15ku1ts1nwi" autocomplete="off">
@@ -358,7 +359,7 @@
       <div class="feedback" aria-live="polite"></div>
       <div class="hint">
         <button type="button">Need a hint?</button>
-        <div class="text">It's written backwards, like in a mirror. Two words, read right to left.</div>
+        <div class="text">It's a reflection in water: upside down. Turn your screen, or your head. Two words.</div>
       </div>
     </section>
 
@@ -367,7 +368,7 @@
       <div class="kicker">Layer 02 / Beneath</div>
       <h2 id="s2">Not everything<br>shows on the <em>surface</em>.</h2>
       <div class="body">
-        <p>Something is written in the dark below. Reach for it: <strong>tap or select the box</strong> to bring it up.</p>
+        <p>The next key is in the empty space below. Nothing is there until you reach for it.</p>
       </div>
       <div class="artefact void" data-label="Empty space" role="button" tabindex="0" aria-label="Empty space. Tap to reveal.">
         Who is reading this?<br>
@@ -382,7 +383,7 @@
       <div class="feedback" aria-live="polite"></div>
       <div class="hint">
         <button type="button">Need a hint?</button>
-        <div class="text">Tap the empty box. The key is in the last line: who is reading this?</div>
+        <div class="text">The box isn't empty. Tap it, or select the space inside it.</div>
       </div>
     </section>
 
@@ -391,7 +392,7 @@
       <div class="kicker">Layer 03 / First things</div>
       <h2 id="s3">What is left<br>when you <em>let go</em>?</h2>
       <div class="body">
-        <p>Read the doctrine. The answer is spelled down the side, one letter leading each line.</p>
+        <p>Read the doctrine. The answer leads every line.</p>
       </div>
       <div class="artefact" data-label="Doctrine">
         <ol class="lines">
@@ -410,7 +411,7 @@
       <div class="feedback" aria-live="polite"></div>
       <div class="hint">
         <button type="button">Need a hint?</button>
-        <div class="text">Read the highlighted first letter of each line, top to bottom.</div>
+        <div class="text">Look at how each line begins, top to bottom.</div>
       </div>
     </section>
 
@@ -516,7 +517,7 @@
       var btn = stage.querySelector(".hint button");
       if (!btn || btn.dataset.armed) return;
       btn.dataset.armed = "1";
-      setTimeout(function () { btn.classList.add("ready"); }, 10000);
+      setTimeout(function () { btn.classList.add("ready"); }, 20000);
       btn.addEventListener("click", function () { openHint(stage); });
     }
 
@@ -551,8 +552,8 @@
           state.name = name;
         } else if (form.dataset.hash.split(" ").indexOf(hash(normalise(input.value))) === -1) {
           form.misses = (form.misses || 0) + 1;
-          // after two misses, hand over the hint without being asked
-          if (form.misses >= 2) openHint(form.closest(".stage"));
+          // after three misses, hand over the hint without being asked
+          if (form.misses >= 3) openHint(form.closest(".stage"));
           fb.className = "feedback";
           fb.textContent = wrong[Math.floor(Math.random() * wrong.length)];
           form.classList.remove("shake");

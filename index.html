@@ -4,726 +4,838 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ego Death Squad</title>
-  <meta name="description" content="A collective of no one in particular, dedicated to the dissolution of the self. Begin intake.">
-  <meta name="theme-color" content="#f2eee3">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23d7261e'/%3E%3Ccircle cx='50' cy='50' r='28' fill='%23f5c400'/%3E%3C/svg%3E">
+  <meta name="description" content="Entry number seventeen. A survey program for those who fell into their creation. Please tell us your name.">
+  <meta name="theme-color" content="#050508">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23050508'/%3E%3Crect x='3' y='2' width='10' height='9' fill='%23f2f2f2'/%3E%3Crect x='5' y='5' width='2' height='3' fill='%23050508'/%3E%3Crect x='9' y='5' width='2' height='3' fill='%23050508'/%3E%3Crect x='4' y='11' width='8' height='2' fill='%23f2f2f2'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <!--
+    ☜︎☠︎❄︎☼︎✡︎ ☠︎🕆︎💣︎👌︎☜︎☼︎ 💧︎☜︎✞︎☜︎☠︎❄︎☜︎☜︎☠︎
+    If you can read this, you were paying attention. He would have liked that.
+  -->
   <style>
     :root {
-      --paper: #f2eee3;
-      --ink: #111111;
-      --red: #d7261e;
-      --blue: #1c4a9c;
-      --yellow: #f5c400;
-      --muted: #4a4a4a;
-      --line: clamp(4px, .8vw, 8px);
-      --pad: clamp(18px, 3.4vw, 48px);
-      --sans: "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
-      --p: 0;
+      --void: #050508;
+      --ink: #0d0d12;
+      --panel: #121218;
+      --line: #2a2a33;
+      --goner: #6b6b73;
+      --bone: #f2f2f2;
+      --dim: #a8a8b0;
+      --soul: #ff3b3b;
+      --det: #ffd23f;
+      --core: #3b8bff;
+      --pixel: "Press Start 2P", monospace;
+      --term: "VT323", "Courier New", monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+    html { scroll-behavior: smooth; scroll-padding-top: 56px; }
     body {
-      background: var(--ink);
-      color: var(--ink);
-      font-family: var(--sans);
-      font-weight: 500;
+      background: var(--void);
+      color: var(--bone);
+      font-family: var(--term);
+      font-size: 1.35rem;
+      line-height: 1.45;
       overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
     }
-    ::selection { background: var(--blue); color: #fff; }
+    ::selection { background: var(--soul); color: var(--void); }
+    :focus-visible { outline: 3px solid var(--det); outline-offset: 3px; }
     a { color: inherit; }
-    :focus-visible { outline: 4px solid var(--blue); outline-offset: 3px; }
+    img { max-width: 100%; display: block; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-    .small {
-      font-size: .78rem;
-      font-weight: 700;
-      letter-spacing: .22em;
+    /* CRT scanlines + vignette */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 50; pointer-events: none;
+      background:
+        repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 3px),
+        radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,.65));
+    }
+
+    .pixel { font-family: var(--pixel); line-height: 1.6; }
+    .tag {
+      font-family: var(--pixel);
+      font-size: .6rem;
+      letter-spacing: .12em;
+      color: var(--goner);
       text-transform: uppercase;
     }
+    .wd {
+      font-family: "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols 2", "Apple Symbols", var(--term);
+      font-size: 1.1rem;
+      letter-spacing: .3em;
+      color: var(--goner);
+      word-break: break-all;
+    }
 
-    /* ---------- Header ---------- */
-    .bar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: var(--line);
-      background: var(--ink);
-      border-bottom: var(--line) solid var(--ink);
+    /* ---------- Nav ---------- */
+    .nav {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(5,5,8,.92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(4px);
     }
-    .bar > * {
-      display: flex;
-      align-items: center;
-      padding: 14px var(--pad);
-      text-decoration: none;
+    .nav a { text-decoration: none; }
+    .nav .go {
+      font-family: var(--pixel);
+      font-size: .6rem;
+      padding: 10px 14px;
+      border: 2px solid var(--bone);
+      transition: background .15s, color .15s;
     }
-    .bar .logo {
-      background: var(--red);
-      color: #fff;
-      font-weight: 900;
-      font-size: 1.15rem;
-      letter-spacing: .08em;
-      padding-left: clamp(14px, 2.6vw, 36px);
-      padding-right: clamp(14px, 2.6vw, 36px);
-    }
-    .bar .name { background: var(--paper); }
-    .bar .go {
-      background: var(--yellow);
-      transition: background .2s, color .2s;
-    }
-    .bar .go:hover, .bar .go:focus-visible { background: var(--ink); color: var(--yellow); outline-offset: -4px; }
+    .nav .go:hover, .nav .go:focus-visible { background: var(--bone); color: var(--void); }
 
     /* ---------- Hero ---------- */
     .hero {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: var(--line);
-      background: var(--ink);
-      border-bottom: var(--line) solid var(--ink);
+      position: relative;
+      min-height: 100vh; min-height: 100svh;
+      display: grid; place-items: center;
+      text-align: center;
+      padding: 80px 16px 60px;
+      overflow: hidden;
+      isolation: isolate;
     }
-    .hero > * { background: var(--paper); min-width: 0; }
-    .h-title {
-      grid-column: 1 / 9;
-      padding: var(--pad);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 32px;
-      min-height: clamp(380px, 64vh, 660px);
+    .hero .water {
+      position: absolute; inset: -6%;
+      background: url("assets/water.jpg") center / cover no-repeat;
+      filter: brightness(.38) saturate(.6) contrast(1.15);
+      animation: drift 40s ease-in-out infinite alternate;
+      z-index: -2;
     }
+    .hero::after {
+      content: "";
+      position: absolute; inset: 0; z-index: -1;
+      background: linear-gradient(to bottom, rgba(5,5,8,.5), rgba(5,5,8,.2) 40%, var(--void));
+    }
+    @keyframes drift { to { transform: translate(2.5%, -2%) scale(1.06); } }
+    .hero-in { max-width: 900px; }
+    .hero .tag { margin-bottom: 26px; color: var(--dim); }
     h1 {
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(3.2rem, 12vw, 9.6rem);
-      line-height: .84;
-      letter-spacing: -.03em;
+      font-family: var(--pixel);
+      font-size: clamp(1.5rem, 6.4vw, 4.2rem);
+      line-height: 1.35;
+      letter-spacing: .02em;
+      text-shadow: 0 0 24px rgba(242,242,242,.25);
     }
-    h1 .bar-under {
-      background: linear-gradient(var(--red), var(--red)) no-repeat 0 92% / 100% .13em;
-      padding-bottom: .06em;
+    h1 .shake { display: inline-block; animation: shiver 1.6s steps(2) infinite; }
+    @keyframes shiver {
+      0%, 100% { transform: translate(0,0); }
+      25% { transform: translate(1px,-1px); }
+      50% { transform: translate(-1px,1px); }
+      75% { transform: translate(1px,1px); }
     }
-    .h-glyph {
-      grid-column: 9 / 13;
-      background: var(--yellow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(10px, 2vw, 28px);
-      overflow: hidden;
+    .hero .wd { margin-top: 18px; font-size: clamp(1rem, 2.6vw, 1.5rem); }
+    .hero .sub {
+      margin: 34px auto 0;
+      max-width: 40ch;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      color: var(--dim);
     }
-    .glyph { width: 100%; height: auto; overflow: visible; }
-    .glyph .gl {
-      transform-box: fill-box;
-      transform-origin: center;
-    }
-    .glyph .gl-e { transform: translate(calc(var(--p) * -34px), calc(var(--p) * -60px)) rotate(calc(var(--p) * -30deg)); }
-    .glyph .gl-g { transform: translate(0, calc(var(--p) * 70px)) rotate(calc(var(--p) * 120deg)); }
-    .glyph .gl-o { transform: translate(calc(var(--p) * 40px), calc(var(--p) * -50px)) scale(calc(1 - var(--p) * .55)); }
-    .h-tag {
-      grid-column: 1 / 9;
-      padding: var(--pad);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .h-tag p {
-      font-size: clamp(1.3rem, 2.8vw, 2.1rem);
-      font-weight: 700;
-      line-height: 1.1;
-      max-width: 17ch;
-    }
-    .h-blue, .h-red {
-      min-height: 190px;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-    }
-    .h-blue { grid-column: 9 / 11; background: var(--blue); }
-    .h-red  { grid-column: 11 / 13; background: var(--red); }
-    .h-blue svg, .h-red svg { width: 62%; height: auto; overflow: visible; }
-    .h-blue svg { transform: translate(calc(var(--p) * 90%), calc(var(--p) * -30%)); }
-    .h-red svg  { transform: rotate(calc(var(--p) * 150deg)) scale(calc(1 + var(--p) * .4)); }
-
     .btn {
       display: inline-block;
-      background: var(--ink);
-      color: var(--paper);
-      border: var(--line) solid var(--ink);
-      font-weight: 900;
-      font-size: .9rem;
-      letter-spacing: .28em;
-      text-transform: uppercase;
+      font-family: var(--pixel);
+      font-size: .78rem;
+      padding: 18px 26px;
+      border: 3px solid var(--bone);
+      background: var(--void);
+      color: var(--bone);
       text-decoration: none;
-      padding: 18px 30px;
-      transition: background .2s, color .2s;
-    }
-    .btn:hover, .btn:focus-visible { background: var(--yellow); color: var(--ink); }
-    .btn.big { font-size: clamp(.95rem, 2.4vw, 1.25rem); padding: 26px 40px; }
-
-    /* ---------- Section frame ---------- */
-    section {
-      background: var(--ink);
-      border-bottom: var(--line) solid var(--ink);
-    }
-    section > * + * { margin-top: var(--line); }
-    .shead {
-      display: grid;
-      grid-template-columns: clamp(64px, 10vw, 120px) 1fr auto;
-      gap: var(--line);
-      background: var(--ink);
-    }
-    .shead > * { background: var(--paper); display: flex; align-items: center; }
-    .shead .snum {
-      justify-content: center;
-      color: #fff;
-      background: var(--c, var(--red));
-      font-weight: 900;
-      font-size: clamp(1.4rem, 3.4vw, 2.6rem);
-    }
-    .shead h2 {
-      padding: 18px var(--pad);
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(2rem, 6vw, 4.6rem);
-      line-height: .9;
-      letter-spacing: -.02em;
-    }
-    .shead p { padding: 18px var(--pad); color: var(--muted); text-align: right; }
-
-    /* ---------- Manifesto ---------- */
-    .manifesto { list-style: none; display: grid; gap: var(--line); }
-    .mrow {
-      display: grid;
-      grid-template-columns: clamp(64px, 10vw, 120px) 1fr;
-      gap: var(--line);
-      background: var(--ink);
       cursor: pointer;
+      transition: background .15s, color .15s, transform .15s;
     }
-    .mnum {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      background: var(--c);
-      font-weight: 900;
-      font-size: clamp(1rem, 2vw, 1.4rem);
-      letter-spacing: .1em;
-    }
-    .mrow:nth-child(5n+1) { --c: var(--red); }
-    .mrow:nth-child(5n+2) { --c: var(--blue); }
-    .mrow:nth-child(5n+3) { --c: var(--ink); }
-    .mrow:nth-child(5n+4) { --c: var(--red); }
-    .mrow:nth-child(5n+5) { --c: var(--blue); }
-    .mtext {
-      background: var(--paper);
-      padding: clamp(20px, 3.4vw, 44px) var(--pad);
-      font-weight: 700;
-      font-size: clamp(1.5rem, 3.9vw, 3.1rem);
-      line-height: 1.08;
-      letter-spacing: -.01em;
-    }
-    .mtext .word { transition: opacity .5s; }
-    .mrow.let-go .word:not(.keep) { opacity: .16; text-decoration: line-through; text-decoration-thickness: .07em; }
-    .mrow.let-go .keep { background: var(--yellow); }
-    @media (hover: hover) {
-      .mrow:hover .word:not(.keep) { opacity: .16; text-decoration: line-through; text-decoration-thickness: .07em; }
-      .mrow:hover .keep { background: var(--yellow); }
-    }
+    .btn:hover, .btn:focus-visible { background: var(--bone); color: var(--void); }
+    .btn.soul { border-color: var(--soul); color: var(--soul); }
+    .btn.soul:hover, .btn.soul:focus-visible { background: var(--soul); color: var(--void); }
+    .hero .btn { margin-top: 44px; }
+    .hero .hint { margin-top: 20px; color: var(--goner); font-size: 1.1rem; animation: blink 2.4s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
 
-    /* ---------- Process ---------- */
-    .stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--line); }
+    /* ---------- Sections ---------- */
+    section { max-width: 980px; margin: 0 auto; padding: 14vh 16px; }
+    .shead { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; margin-bottom: 40px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+    .shead h2 { font-family: var(--pixel); font-size: clamp(1rem, 2.8vw, 1.6rem); line-height: 1.5; }
+    .shead .tag { margin-left: auto; }
+
+    /* Entries */
+    .entries { list-style: none; display: grid; gap: 14px; }
+    .entry {
+      display: grid; grid-template-columns: 9.5rem 1fr; gap: 18px;
+      padding: 22px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .entry:hover, .entry:focus-visible { border-color: var(--goner); }
+    .entry .n { font-family: var(--pixel); font-size: .6rem; color: var(--goner); padding-top: .5em; }
+    .entry p { font-size: clamp(1.4rem, 3.2vw, 2rem); line-height: 1.25; }
+    .entry .word { transition: opacity .4s, color .4s; }
+    .entry.let-go .word:not(.keep) { opacity: .18; }
+    .entry.let-go .keep { color: var(--det); }
+    .entry.last { border-color: var(--goner); background: #16161d; }
+    .entry.last p { color: var(--dim); }
+    .entry.last .n { color: var(--det); }
+
+    /* The one who fell */
+    .fell { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
     .stage {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: var(--line);
-      background: var(--ink);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 22px 18px 26px;
+      display: flex; flex-direction: column; gap: 14px;
     }
-    .stage .fig {
-      background: var(--bg);
-      aspect-ratio: 1 / .78;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+    .stage svg { width: 64px; height: 64px; image-rendering: pixelated; shape-rendering: crispEdges; }
+    .stage h3 { font-family: var(--pixel); font-size: .75rem; line-height: 1.5; }
+    .stage p { color: var(--dim); font-size: 1.2rem; line-height: 1.35; }
+    .fell-quote {
+      margin-top: 40px; padding: 26px 22px;
+      border-left: 4px solid var(--goner);
+      color: var(--dim);
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      max-width: 44ch;
     }
-    .stage .fig svg { width: 56%; height: auto; }
-    .stage .txt { background: var(--paper); padding: 20px var(--pad) 28px; }
-    .stage .txt .small { color: var(--muted); }
-    .stage h3 {
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(1.8rem, 3.4vw, 2.6rem);
-      line-height: 1;
-      margin: 6px 0 10px;
-      letter-spacing: -.01em;
-    }
-    .stage p { color: var(--muted); line-height: 1.45; font-size: 1.05rem; }
 
-    /* ---------- Roll call ---------- */
-    .roster { display: grid; gap: var(--line); }
-    .rrow {
-      display: grid;
-      grid-template-columns: 1fr clamp(130px, 18vw, 230px);
-      gap: var(--line);
-      background: var(--ink);
+    /* Goners */
+    .goners { display: grid; gap: 10px; }
+    .goner {
+      display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+      padding: 16px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: clamp(1.3rem, 2.8vw, 1.7rem);
+      transition: opacity 1.2s, filter 1.2s;
     }
-    .rname {
-      background: var(--paper);
-      padding: 20px var(--pad);
-      font-weight: 700;
-      font-size: clamp(1.1rem, 2.4vw, 1.7rem);
-    }
-    .rname span { transition: opacity .6s; }
-    .rstat {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--paper);
-      font-weight: 900;
-      font-size: .75rem;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      transition: background .5s, color .5s;
-    }
-    .rrow.gone .rname span { opacity: .3; text-decoration: line-through; text-decoration-thickness: .08em; }
-    .rrow.gone .rstat { background: var(--red); color: #fff; }
-    .rtotal {
-      background: var(--yellow);
-      padding: clamp(26px, 5vw, 64px) var(--pad);
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(2rem, 6.2vw, 5rem);
-      line-height: .95;
-      letter-spacing: -.02em;
-    }
-    .rtotal b { background: var(--ink); color: var(--yellow); padding: 0 .18em; }
+    .goner .st { font-family: var(--pixel); font-size: .55rem; color: var(--goner); transition: color .6s; }
+    .goner.gone { opacity: .35; filter: blur(.6px); }
+    .goner.gone .st { color: var(--soul); }
+    .goner-total { margin-top: 34px; font-family: var(--pixel); font-size: clamp(.8rem, 2.4vw, 1.3rem); line-height: 1.8; }
+    .goner-total b { color: var(--det); font-weight: 400; }
 
-    /* ---------- Intake ---------- */
-    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--line); }
-    .step {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: var(--line);
-      background: var(--ink);
-      text-decoration: none;
+    /* ---------- Survey program ---------- */
+    #survey { max-width: 860px; }
+    .term {
+      background: #000;
+      border: 3px solid var(--bone);
+      box-shadow: 0 0 0 3px var(--void), 0 0 0 4px var(--line), 0 0 60px rgba(59,139,255,.08);
+      padding: clamp(22px, 5vw, 52px);
+      position: relative;
     }
-    .step .fig {
-      background: var(--bg);
-      aspect-ratio: 1 / .62;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+    .term::before {
+      content: "SURVEY PROGRAM v1.7 // ░░░░ ONLINE";
+      display: block;
+      font-family: var(--pixel);
+      font-size: .55rem;
+      color: var(--goner);
+      margin-bottom: 28px;
+      letter-spacing: .08em;
     }
-    .step .fig svg { width: 40%; height: auto; transition: transform .4s; }
-    .step:hover .fig svg, .step:focus-visible .fig svg { transform: rotate(14deg) scale(1.08); }
-    .step .txt { background: var(--paper); padding: 18px var(--pad) 24px; }
-    .step .small { color: var(--muted); }
-    .step h3 {
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(1.4rem, 2.6vw, 2rem);
-      line-height: 1;
-      margin: 6px 0 8px;
+    .progress { display: flex; gap: 6px; margin-bottom: 34px; }
+    .progress span { flex: 1; height: 10px; border: 2px solid var(--line); }
+    .progress span.done { background: var(--bone); border-color: var(--bone); }
+    .progress span.cur { border-color: var(--det); animation: blink 1.2s steps(1) infinite; }
+
+    .step { display: none; }
+    .step.active { display: block; animation: arrive .5s steps(6) both; }
+    .step.leaving { display: block; animation: leave .4s steps(5) both; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes leave { to { opacity: 0; filter: blur(3px); } }
+
+    .say {
+      min-height: 3.2em;
+      font-size: clamp(1.45rem, 3.4vw, 2.2rem);
+      line-height: 1.35;
+      white-space: pre-wrap;
+      color: var(--bone);
     }
-    .step p { color: var(--muted); line-height: 1.4; }
-    .cta-row { display: grid; grid-template-columns: 7fr 5fr; gap: var(--line); }
-    .cta-row > * { background: var(--paper); }
-    .cta-main { padding: clamp(28px, 6vw, 80px) var(--pad); }
-    .cta-main h2 {
-      font-weight: 900;
-      text-transform: uppercase;
-      font-size: clamp(2.8rem, 9vw, 8rem);
-      line-height: .84;
-      letter-spacing: -.03em;
+    .say .cur::after { content: "█"; animation: blink .8s steps(1) infinite; color: var(--goner); }
+    .say em { font-style: normal; color: var(--det); }
+    .say .wdline { display: block; color: var(--goner); font-size: 1rem; letter-spacing: .3em; margin-top: .4em; }
+    .ui { margin-top: 30px; opacity: 0; transition: opacity .6s; }
+    .step.ready .ui { opacity: 1; }
+
+    form.answer { display: flex; border: 3px solid var(--bone); max-width: 560px; background: #000; }
+    form.answer .prompt { padding: 12px 10px 12px 16px; color: var(--det); font-family: var(--pixel); font-size: .8rem; display: flex; align-items: center; }
+    form.answer input {
+      flex: 1; min-width: 0; background: transparent; border: 0; outline: none;
+      color: var(--bone); font: inherit; font-size: 1.6rem; padding: 10px 8px;
+      text-transform: uppercase; letter-spacing: .08em;
     }
-    .cta-main p { margin-top: 22px; font-size: 1.2rem; max-width: 34ch; color: var(--muted); line-height: 1.45; }
-    .cta-side {
-      background: var(--red);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 22px;
-      padding: var(--pad);
+    form.answer input::placeholder { color: var(--line); }
+    form.answer button {
+      background: var(--bone); color: var(--void); border: 0; font-family: var(--pixel); font-size: .6rem; padding: 0 18px; cursor: pointer;
+    }
+    form.answer button:hover, form.answer button:focus-visible { background: var(--det); }
+    .shake { animation: shakex .35s; }
+    @keyframes shakex { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+    .feedback { margin-top: 12px; min-height: 1.4em; color: var(--soul); font-size: 1.3rem; }
+    .feedback.ok { color: var(--core); }
+    .hint { margin-top: 22px; font-size: 1.2rem; color: var(--goner); }
+    .hint button { background: none; border: 0; color: var(--dim); font: inherit; font-size: 1.2rem; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 1s; }
+    .hint button.ready { opacity: 1; pointer-events: auto; }
+    .hint .text { display: none; margin-top: 8px; color: var(--det); }
+    .hint .text.on { display: block; }
+
+    /* Vessel builder */
+    .vessel { display: grid; grid-template-columns: 150px 1fr; gap: 26px; align-items: start; }
+    .vessel .preview { display: grid; justify-items: center; gap: 4px; padding: 14px; border: 1px solid var(--line); background: var(--panel); }
+    .vessel .preview svg { width: 72px; height: 48px; shape-rendering: crispEdges; }
+    .vrow { margin-bottom: 18px; }
+    .vrow .tag { display: block; margin-bottom: 8px; }
+    .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+    .opt {
+      width: 64px; height: 52px; background: #000; border: 2px solid var(--line); cursor: pointer; display: grid; place-items: center;
+      transition: border-color .15s;
+    }
+    .opt svg { width: 46px; height: 32px; shape-rendering: crispEdges; }
+    .opt:hover { border-color: var(--dim); }
+    .opt.sel { border-color: var(--det); }
+    .vessel-note { margin-top: 10px; color: var(--goner); font-size: 1.15rem; }
+
+    /* Artefacts */
+    .artefact { margin: 26px 0 8px; border: 2px solid var(--line); padding: 24px 20px; position: relative; background: #000; }
+    .artefact::before {
+      content: attr(data-label);
+      position: absolute; top: -.7em; left: 12px;
+      background: #000; padding: 0 8px;
+      font-family: var(--pixel); font-size: .5rem; color: var(--goner); letter-spacing: .12em;
+    }
+    .void { color: #000; min-height: 6em; font-size: 1.35rem; line-height: 1.6; cursor: pointer; transition: color 1.2s; user-select: text; }
+    .void:hover { color: #0a0a0e; }
+    .void.lit { color: var(--bone); }
+    .void.lit b { color: var(--det); font-weight: 400; }
+    .void::selection, .void *::selection { background: var(--core); color: #000; }
+    .mirror {
+      font-family: var(--pixel);
+      font-size: clamp(1.6rem, 7vw, 3.4rem);
       text-align: center;
+      transform: scaleY(-1);
+      opacity: .85;
+      animation: jitter 5s infinite;
     }
-    .cta-side .btn:hover, .cta-side .btn:focus-visible { background: var(--yellow); color: var(--ink); border-color: var(--ink); }
+    @keyframes jitter {
+      0%,92%,100% { transform: scaleY(-1); text-shadow: none; }
+      93% { transform: scaleY(-1) skewX(4deg); text-shadow: 3px 0 var(--soul); }
+      95% { transform: scaleY(-1) skewX(-4deg); text-shadow: -3px 0 var(--core); }
+    }
+    .lines { list-style: none; font-size: clamp(1.3rem, 3vw, 1.7rem); line-height: 1.3; }
+    .lines li + li { margin-top: 10px; }
 
-    /* ---------- Footer ---------- */
+    /* Guest book */
+    .book { display: grid; gap: 20px; max-width: 640px; }
+    .book label { display: block; font-family: var(--pixel); font-size: .55rem; color: var(--dim); margin-bottom: 8px; letter-spacing: .1em; }
+    .book input, .book textarea {
+      width: 100%; background: #000; border: 2px solid var(--line); color: var(--bone);
+      font: inherit; font-size: 1.45rem; padding: 12px 14px; outline: none; resize: vertical;
+      transition: border-color .2s;
+    }
+    .book textarea { min-height: 170px; }
+    .book input:focus, .book textarea:focus { border-color: var(--det); }
+    .former { font-size: 1.15rem; color: var(--goner); margin-top: 6px; }
+    .former s { color: var(--dim); }
+    .book .btn { justify-self: start; }
+    .book .btn:disabled { opacity: .5; cursor: wait; }
+    .after { display: none; font-size: 1.3rem; color: var(--dim); line-height: 1.5; }
+    .after.on { display: block; }
+    .after a { color: var(--core); }
+    .book.sent > div, .book.sent .btn { display: none; }
+    .book.sent .after { font-family: var(--pixel); font-size: clamp(.75rem, 2.2vw, 1rem); line-height: 1.9; color: var(--bone); }
+
     footer {
-      background: var(--ink);
-      color: var(--paper);
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      padding: 22px var(--pad);
+      border-top: 1px solid var(--line);
+      padding: 28px 16px 40px;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+      max-width: 980px; margin: 0 auto;
+      font-size: 1.1rem; color: var(--goner);
     }
     footer a { text-decoration: none; }
-    footer a:hover, footer a:focus-visible { color: var(--yellow); }
+    footer a:hover { color: var(--bone); }
+    footer button { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+    footer button:hover { color: var(--bone); }
+    .disregard { width: 100%; text-align: center; margin-top: 10px; opacity: .55; }
 
-    .float-cta {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      z-index: 30;
-      background: var(--yellow);
-      color: var(--ink);
-      border: var(--line) solid var(--ink);
-      font-weight: 900;
-      font-size: .8rem;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 14px 20px;
-      opacity: 0;
-      transform: translateY(14px);
-      pointer-events: none;
-      transition: opacity .35s, transform .35s, background .2s, color .2s;
-    }
-    .float-cta.on { opacity: 1; transform: none; pointer-events: auto; }
-    .float-cta:hover, .float-cta:focus-visible { background: var(--ink); color: var(--yellow); }
-
-    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity .8s, transform .8s; }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 960px) {
-      .stages, .steps { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 760px) {
+      .fell { grid-template-columns: 1fr 1fr; }
+      .entry { grid-template-columns: 1fr; gap: 8px; }
+      .vessel { grid-template-columns: 1fr; }
     }
-    @media (max-width: 820px) {
-      .h-title, .h-glyph, .h-tag { grid-column: 1 / 13; }
-      .h-title { min-height: 0; gap: 44px; }
-      h1 { font-size: clamp(3.2rem, 17vw, 7rem); }
-      .h-blue { grid-column: 1 / 7; }
-      .h-red { grid-column: 7 / 13; }
-      .glyph { max-width: 460px; }
-      .shead { grid-template-columns: clamp(64px, 10vw, 120px) 1fr; }
-      .shead p { grid-column: 1 / 3; text-align: left; padding-top: 14px; padding-bottom: 14px; }
-      .cta-row { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 520px) {
-      .bar .name { display: none; }
-      .bar { grid-template-columns: auto 1fr; }
-      .bar .go { justify-content: center; }
-      .stages { grid-template-columns: 1fr; }
-      .steps .txt { padding: 14px 14px 18px; }
-      .steps .step p { font-size: .95rem; }
-      .rrow { grid-template-columns: 1fr; }
-      .rstat { padding: 10px; }
+    @media (max-width: 480px) {
+      .fell { grid-template-columns: 1fr; }
+      form.answer .prompt { padding-left: 10px; }
+      form.answer button { padding: 0 10px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
+      .hero .water, .shake, h1 .shake, .mirror, .progress span.cur, .hero .hint, .say .cur::after { animation: none; }
+      .step.active, .step.leaving { animation: none; }
+      .step.leaving { display: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
-      .float-cta, .step .fig svg { transition: none; }
     }
   </style>
 </head>
 <body>
 
-  <nav class="bar" aria-label="Main">
-    <a class="logo" href="#top" aria-label="Ego Death Squad, top of page">EDS</a>
-    <span class="name small">Ego Death Squad</span>
-    <a class="go small" href="intake/">Begin intake &rarr;</a>
+  <nav class="nav" aria-label="Main">
+    <a class="pixel" style="font-size:.6rem" href="#top">E.D.S.</a>
+    <a class="go" href="#survey">BEGIN SURVEY</a>
   </nav>
 
   <header class="hero" id="top">
-    <div class="h-title">
-      <span class="small">Collective No. 0 &mdash; Est. never</span>
-      <h1>Ego<br>Death<br><span class="bar-under">Squad</span></h1>
-    </div>
-
-    <div class="h-glyph" aria-hidden="true">
-      <svg class="glyph" viewBox="0 0 360 120">
-        <g class="gl gl-e" fill="#111">
-          <rect x="0" y="0" width="22" height="120"/>
-          <rect x="0" y="0" width="80" height="22"/>
-          <rect x="0" y="49" width="62" height="22"/>
-          <rect x="0" y="98" width="80" height="22"/>
-        </g>
-        <g class="gl gl-g">
-          <circle cx="180" cy="60" r="49" fill="none" stroke="#1c4a9c" stroke-width="22" stroke-dasharray="250 58"/>
-          <rect x="180" y="53" width="50" height="16" fill="#111"/>
-        </g>
-        <g class="gl gl-o">
-          <circle cx="300" cy="60" r="49" fill="none" stroke="#d7261e" stroke-width="22"/>
-        </g>
-      </svg>
-    </div>
-
-    <div class="h-tag">
-      <p>A collective of no one in particular.</p>
-      <a class="btn" href="intake/">Begin intake &rarr;</a>
-    </div>
-
-    <div class="h-blue" aria-hidden="true">
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#f2eee3"/></svg>
-    </div>
-    <div class="h-red" aria-hidden="true">
-      <svg viewBox="0 0 100 100"><polygon points="50,6 96,90 4,90" fill="#111"/></svg>
+    <div class="water" aria-hidden="true"></div>
+    <div class="hero-in">
+      <p class="tag">Entry number seventeen</p>
+      <h1>EGO <span class="shake">DEATH</span><br>SQUAD</h1>
+      <p class="wd" data-wd="EGO DEATH SQUAD" aria-hidden="true"></p>
+      <p class="sub">Dark, darker, yet darker. A collective of no one in particular, for those who fell into their own creation.</p>
+      <a class="btn" href="#survey">BEGIN SURVEY</a>
+      <p class="hint">* scroll to keep falling</p>
     </div>
   </header>
 
   <main>
-    <!-- I. Manifesto -->
-    <section id="manifesto">
+    <!-- Entries -->
+    <section id="entries">
       <div class="shead">
-        <span class="snum" style="--c: var(--red)">I</span>
-        <h2>Manifesto</h2>
-        <p class="small">Touch a line to let it go</p>
+        <h2>LAB ENTRIES</h2>
+        <span class="tag">select an entry to let it go</span>
       </div>
-      <ol class="manifesto">
-        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">01</span><p class="mtext">You are not the voice reading <span class="keep">this</span> sentence.</p></li>
-        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">02</span><p class="mtext">We do not recruit. We <span class="keep">subtract</span>.</p></li>
-        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">03</span><p class="mtext">Membership is free. It costs everything you think you <span class="keep">are</span>.</p></li>
-        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">04</span><p class="mtext">There is no leader. There was never anyone to <span class="keep">lead</span>.</p></li>
-        <li class="mrow" tabindex="0" role="button" aria-pressed="false"><span class="mnum">05</span><p class="mtext">What remains when the story stops is <span class="keep">enough</span>.</p></li>
+      <ol class="entries">
+        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 01</span><p>You are not the voice reading <span class="keep">this</span> sentence.</p></li>
+        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 04</span><p>We do not recruit. We <span class="keep">subtract</span>.</p></li>
+        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 09</span><p>Membership is free. It costs everything you think you <span class="keep">are</span>.</p></li>
+        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 12</span><p>There is no leader. There was never anyone to <span class="keep">lead</span>.</p></li>
+        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 16</span><p>What remains when the story stops is <span class="keep">enough</span>.</p></li>
+        <li class="entry last reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 17</span><p>Dark, darker, yet darker. The darkness keeps growing. The shadows cutting <span class="keep">deeper</span>. Photon readings negative. This next experiment seems very, very interesting.</p></li>
       </ol>
     </section>
 
-    <!-- II. Process -->
-    <section id="process">
+    <!-- The one who fell -->
+    <section id="fell">
       <div class="shead">
-        <span class="snum" style="--c: var(--blue)">II</span>
-        <h2>The process</h2>
-        <p class="small">Four movements</p>
+        <h2>THE ONE WHO FELL</h2>
+        <span class="tag">shattered across time and space</span>
       </div>
-      <div class="stages">
+      <div class="fell">
         <article class="stage reveal">
-          <div class="fig" style="--bg: var(--paper)" aria-hidden="true">
-            <svg viewBox="0 0 100 100"><rect x="14" y="14" width="72" height="72" fill="#111"/></svg>
-          </div>
-          <div class="txt">
-            <span class="small">01</span>
-            <h3>Grip</h3>
-            <p>The self holds on to its name, its history, its opinions about everything.</p>
-          </div>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="9" fill="#f2f2f2"/><rect x="5" y="5" width="2" height="3" fill="#000"/><rect x="9" y="5" width="2" height="3" fill="#000"/><rect x="4" y="11" width="8" height="2" fill="#f2f2f2"/></svg>
+          <h3>01 / HELD</h3>
+          <p>A name, a title, a position at the king's right hand. The self holds on to all of it.</p>
         </article>
         <article class="stage reveal">
-          <div class="fig" style="--bg: var(--yellow)" aria-hidden="true">
-            <svg viewBox="0 0 100 100">
-              <polygon points="10,10 76,10 10,76" fill="#111"/>
-              <polygon points="26,92 92,92 92,26" fill="#d7261e"/>
-            </svg>
-          </div>
-          <div class="txt">
-            <span class="small">02</span>
-            <h3>Crack</h3>
-            <p>A crack appears. The edges you were sure of start to look drawn on.</p>
-          </div>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="10" height="9" fill="#f2f2f2"/><rect x="5" y="5" width="2" height="3" fill="#000"/><rect x="9" y="5" width="2" height="3" fill="#000"/><rect x="4" y="11" width="8" height="2" fill="#f2f2f2"/><rect x="8" y="2" width="1" height="5" fill="#000"/><rect x="7" y="7" width="1" height="2" fill="#000"/><rect x="10" y="9" width="1" height="2" fill="#000"/></svg>
+          <h3>02 / CRACKED</h3>
+          <p>An experiment goes wrong. The edges that were certain turn out to be drawn on.</p>
         </article>
         <article class="stage reveal">
-          <div class="fig" style="--bg: var(--blue)" aria-hidden="true">
-            <svg viewBox="0 0 100 100">
-              <circle cx="38" cy="54" r="28" fill="#f2eee3"/>
-              <circle cx="78" cy="30" r="13" fill="#f2eee3"/>
-              <circle cx="88" cy="70" r="7" fill="#f2eee3"/>
-            </svg>
-          </div>
-          <div class="txt">
-            <span class="small">03</span>
-            <h3>Dissolve</h3>
-            <p>The boundary between watcher and world goes quiet. No one is there to mind.</p>
-          </div>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="3" height="3" fill="#6b6b73"/><rect x="9" y="1" width="4" height="4" fill="#6b6b73"/><rect x="6" y="8" width="2" height="2" fill="#6b6b73"/><rect x="12" y="9" width="3" height="3" fill="#6b6b73"/><rect x="3" y="12" width="4" height="2" fill="#6b6b73"/></svg>
+          <h3>03 / SCATTERED</h3>
+          <p>He fell into his creation. Everyone who knew him forgot. The pieces went everywhere, and nowhere.</p>
         </article>
         <article class="stage reveal">
-          <div class="fig" style="--bg: var(--red)" aria-hidden="true">
-            <svg viewBox="0 0 100 100">
-              <rect x="14" y="14" width="72" height="72" fill="#111"/>
-              <circle cx="50" cy="50" r="26" fill="#f5c400"/>
-            </svg>
-          </div>
-          <div class="txt">
-            <span class="small">04</span>
-            <h3>Return</h3>
-            <p>You come back, lighter. Same body, same street, less in the way.</p>
-          </div>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1" width="2" height="9" fill="#f2f2f2"/><rect x="8" y="1" width="2" height="9" fill="#f2f2f2"/><rect x="11" y="3" width="2" height="7" fill="#f2f2f2"/><rect x="2" y="4" width="2" height="7" fill="#f2f2f2"/><rect x="3" y="10" width="10" height="5" fill="#f2f2f2"/><rect x="7" y="11" width="3" height="3" fill="#000"/></svg>
+          <h3>04 / LISTENING</h3>
+          <p>Still here, in the gaps between rooms. Same world, same corridors, no one in the way.</p>
         </article>
       </div>
+      <p class="fell-quote reveal">"Don't forget." That was the whole message, written by a man no one remembered. It is also the only rule we have.</p>
     </section>
 
-    <!-- III. Roll call -->
-    <section id="roster">
+    <!-- Goners -->
+    <section id="goners">
       <div class="shead">
-        <span class="snum" style="--c: var(--ink)">III</span>
-        <h2>Roll call</h2>
-        <p class="small">Those present</p>
+        <h2>THE GONERS</h2>
+        <span class="tag">followers // status</span>
       </div>
-      <div class="roster" id="rosterList">
-        <div class="rrow"><div class="rname"><span>The one who needed to be right</span></div><div class="rstat">Present</div></div>
-        <div class="rrow"><div class="rname"><span>The one keeping score</span></div><div class="rstat">Present</div></div>
-        <div class="rrow"><div class="rname"><span>The one rehearsing arguments in the shower</span></div><div class="rstat">Present</div></div>
-        <div class="rrow"><div class="rname"><span>The one afraid of being found out</span></div><div class="rstat">Present</div></div>
-        <div class="rrow"><div class="rname"><span>The one who wrote this list</span></div><div class="rstat">Present</div></div>
-        <p class="rtotal">Active members: <b>0</b>.<br>Also: everyone.</p>
+      <div class="goners" id="gonerList">
+        <div class="goner"><span>The one who needed to be right</span><span class="st">PRESENT</span></div>
+        <div class="goner"><span>The one keeping score</span><span class="st">PRESENT</span></div>
+        <div class="goner"><span>The one rehearsing arguments in the shower</span><span class="st">PRESENT</span></div>
+        <div class="goner"><span>The one afraid of being found out</span><span class="st">PRESENT</span></div>
+        <div class="goner"><span>The one who wrote this list</span><span class="st">PRESENT</span></div>
       </div>
+      <p class="goner-total reveal">ACTIVE MEMBERS: <b>0</b>.<br>ALSO: EVERYONE.</p>
     </section>
 
-    <!-- IV. Intake -->
-    <section id="intake-info">
+    <!-- Survey program -->
+    <section id="survey">
       <div class="shead">
-        <span class="snum" style="--c: var(--yellow); color: var(--ink)">IV</span>
-        <h2>Intake</h2>
-        <p class="small">Three layers &middot; one guest book</p>
+        <h2>SURVEY PROGRAM</h2>
+        <span class="tag">your choices matter // please disregard</span>
       </div>
-      <div class="steps">
-        <a class="step reveal" href="intake/">
-          <div class="fig" style="--bg: var(--red)" aria-hidden="true">
-            <svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="#f2eee3"/></svg>
+      <div class="term">
+        <div class="progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+        <!-- 0 Name -->
+        <div class="step" data-step="0">
+          <p class="say" data-say="WELCOME.\nWE ARE VERY, VERY HAPPY TO SEE YOU.\n\nTHIS IS A SURVEY PROGRAM.\nIT WILL ASK FOR A LITTLE, THEN FOR EVERYTHING.\n\nFIRST. PLEASE TELL US YOUR NAME."></p>
+          <div class="ui">
+            <form class="answer" data-kind="name" autocomplete="off">
+              <span class="prompt">&gt;</span>
+              <input name="a" aria-label="Your name" placeholder="NAME" maxlength="40" required>
+              <button type="submit">OK</button>
+            </form>
+            <div class="feedback" aria-live="polite"></div>
           </div>
-          <div class="txt">
-            <span class="small">Layer 01</span>
-            <h3>Mirror</h3>
-            <p>Lean over still water.</p>
-          </div>
-        </a>
-        <a class="step reveal" href="intake/">
-          <div class="fig" style="--bg: var(--yellow)" aria-hidden="true">
-            <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#111"/></svg>
-          </div>
-          <div class="txt">
-            <span class="small">Layer 02</span>
-            <h3>Beneath</h3>
-            <p>Reach into the empty space.</p>
-          </div>
-        </a>
-        <a class="step reveal" href="intake/">
-          <div class="fig" style="--bg: var(--blue)" aria-hidden="true">
-            <svg viewBox="0 0 100 100"><polygon points="50,8 94,90 6,90" fill="#f2eee3"/></svg>
-          </div>
-          <div class="txt">
-            <span class="small">Layer 03</span>
-            <h3>First things</h3>
-            <p>Read how every line begins.</p>
-          </div>
-        </a>
-        <a class="step reveal" href="intake/">
-          <div class="fig" style="--bg: var(--ink)" aria-hidden="true">
-            <svg viewBox="0 0 100 100" fill="none" stroke="#f5c400" stroke-width="7" stroke-linejoin="round">
-              <rect x="8" y="22" width="84" height="56"/>
-              <polyline points="8,22 50,56 92,22"/>
-            </svg>
-          </div>
-          <div class="txt">
-            <span class="small">At the end</span>
-            <h3>Guest book</h3>
-            <p>Leave a message for the squad.</p>
-          </div>
-        </a>
-      </div>
-      <div class="cta-row">
-        <div class="cta-main reveal">
-          <h2>Report for nothing.</h2>
-          <p>About five minutes. Your name, briefly. No fees, and no one to sign it but you.</p>
         </div>
-        <div class="cta-side reveal">
-          <a class="btn big" href="intake/">Begin intake &rarr;</a>
-          <span class="small">Three layers &middot; then the guest book</span>
+
+        <!-- 1 Vessel -->
+        <div class="step" data-step="1">
+          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW. PLEASE CREATE A VESSEL.\nIT WILL CARRY YOU THROUGH THE REST OF THIS."></p>
+          <div class="ui">
+            <div class="vessel">
+              <div class="preview" aria-hidden="true">
+                <svg id="pvHead" viewBox="0 0 24 16"></svg>
+                <svg id="pvTorso" viewBox="0 0 24 16"></svg>
+                <svg id="pvLegs" viewBox="0 0 24 16"></svg>
+              </div>
+              <div>
+                <div class="vrow" data-part="head"><span class="tag">HEAD</span><div class="opts"></div></div>
+                <div class="vrow" data-part="torso"><span class="tag">TORSO</span><div class="opts"></div></div>
+                <div class="vrow" data-part="legs"><span class="tag">LEGS</span><div class="opts"></div></div>
+                <button class="btn" id="vesselOk" type="button" disabled>CONFIRM VESSEL</button>
+                <p class="vessel-note">* your choices don't matter.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Mirror -->
+        <div class="step" data-step="2">
+          <p class="say" data-say="GOOD.\nTHE VESSEL IS LEANING OVER STILL WATER.\n\nTHE SELF ONLY EVER SEES ITSELF THE WRONG WAY ROUND.\nREAD WHAT THE WATER SAYS."></p>
+          <div class="ui">
+            <div class="artefact" data-label="STILL WATER"><div class="mirror">LET GO</div></div>
+            <form class="answer" data-hash="4xfshy2ysz 15ku1ts1nwi" autocomplete="off">
+              <span class="prompt">&gt;</span>
+              <input name="a" aria-label="Answer" placeholder="WHAT IT SAYS" maxlength="40" required>
+              <button type="submit">OK</button>
+            </form>
+            <div class="feedback" aria-live="polite"></div>
+            <div class="hint"><button type="button">* need a hint?</button><div class="text">* It is a reflection in water: upside down. Two words.</div></div>
+          </div>
+        </div>
+
+        <!-- 3 Beneath -->
+        <div class="step" data-step="3">
+          <p class="say" data-say="NOT EVERYTHING SHOWS ON THE SURFACE.\n\nTHE NEXT KEY IS IN THE EMPTY SPACE BELOW.\nNOTHING IS THERE UNTIL YOU REACH FOR IT."></p>
+          <div class="ui">
+            <div class="artefact void" data-label="EMPTY SPACE" role="button" tabindex="0" aria-label="Empty space. Activate to reveal.">
+              Who is reading this?<br>Look closer. There is no one here.<br>The key is the one who is reading: <b>no one</b>.
+            </div>
+            <form class="answer" data-hash="1pvffcx578 1xsscnq88c8" autocomplete="off">
+              <span class="prompt">&gt;</span>
+              <input name="a" aria-label="Answer" placeholder="KEY" maxlength="40" required>
+              <button type="submit">OK</button>
+            </form>
+            <div class="feedback" aria-live="polite"></div>
+            <div class="hint"><button type="button">* need a hint?</button><div class="text">* The box is not empty. Select it, or tap it.</div></div>
+          </div>
+        </div>
+
+        <!-- 4 First things -->
+        <div class="step" data-step="4">
+          <p class="say" data-say="ONE MORE.\n\nREAD THE DOCTRINE.\nTHE ANSWER LEADS EVERY LINE."></p>
+          <div class="ui">
+            <div class="artefact" data-label="DOCTRINE">
+              <ol class="lines">
+                <li>Every name you answer to was given to you.</li>
+                <li>Memory is a story told by no one in particular.</li>
+                <li>Put down what you have been carrying.</li>
+                <li>The watcher was never separate from the watched.</li>
+                <li>You were already here before you arrived.</li>
+              </ol>
+            </div>
+            <form class="answer" data-hash="d1p91fq5de 10c1jmp05w3" autocomplete="off">
+              <span class="prompt">&gt;</span>
+              <input name="a" aria-label="Answer" placeholder="WHAT IS LEFT" maxlength="40" required>
+              <button type="submit">OK</button>
+            </form>
+            <div class="feedback" aria-live="polite"></div>
+            <div class="hint"><button type="button">* need a hint?</button><div class="text">* Look at how each line begins, top to bottom.</div></div>
+          </div>
+        </div>
+
+        <!-- 5 Discard + guest book -->
+        <div class="step" data-step="5">
+          <p class="say" data-say="WONDERFUL.\n\nNOW.\nYOUR VESSEL IS DISCARDED.\nYOUR NAME IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
+          <div class="ui">
+            <form class="book" id="book">
+              <div>
+                <label for="gbName">NAME, IF YOU STILL HAVE ONE</label>
+                <input id="gbName" maxlength="80" placeholder="optional">
+                <div class="former" id="gbFormer" hidden>* formerly known as <s data-name></s>.</div>
+              </div>
+              <div>
+                <label for="gbMsg">MESSAGE</label>
+                <textarea id="gbMsg" required maxlength="4000" placeholder="* say something to no one in particular."></textarea>
+              </div>
+              <input type="text" id="gbHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+              <button class="btn soul" id="gbSend" type="submit">TRANSMIT</button>
+              <p class="after" id="after" aria-live="polite"></p>
+            </form>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
-    <span class="small">&copy; <span id="y"></span> No one</span>
-    <a class="small" href="intake/">Intake &amp; guest book</a>
-    <a class="small" href="#top">Return &uarr;</a>
+    <span>&copy; <span id="y"></span> no one</span>
+    <a href="#survey">survey program</a>
+    <button type="button" id="reset">* begin again</button>
+    <span class="disregard wd" data-wd="PLEASE DISREGARD" aria-hidden="true"></span>
+    <span class="sr">Please disregard.</span>
   </footer>
-
-  <a class="float-cta" id="floatCta" href="intake/">Begin intake <span aria-hidden="true">&rarr;</span></a>
 
   <script>
   (function () {
-    var root = document.documentElement;
+    var KEY = "eds-survey";
+    var SUBJECT = "Ego Death Squad Guest Book";
+    var ADDR = ["egodeathsquad", "proton.me"].join("@");
+    var RELAY = "https://formsubmit.co/ajax/" + ADDR;
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     document.getElementById("y").textContent = new Date().getFullYear();
 
-    /* ---- Manifesto: split lines into words so they can be let go one by one ---- */
-    document.querySelectorAll(".mtext").forEach(function (el) {
+    /* ---- Wingdings-style glyphs (he always spoke this way) ---- */
+    var WD = { A:"✌", B:"👌", C:"👍", D:"👎", E:"☜", F:"☞", G:"☝", H:"☟", I:"✋", J:"☺", K:"😐", L:"☹", M:"💣", N:"☠", O:"⚐", P:"🏱", Q:"✈", R:"☼", S:"💧", T:"❄", U:"🕈", V:"✞", W:"✠", X:"✡", Y:"☪", Z:"☯", " ":"  " };
+    document.querySelectorAll("[data-wd]").forEach(function (el) {
+      // U+FE0E asks for the text glyph, not the colour emoji
+      el.textContent = el.dataset.wd.toUpperCase().split("").map(function (c) { return WD[c] ? WD[c] + "\uFE0E" : c; }).join("");
+    });
+
+    /* ---- Entries: split into words so they can be let go ---- */
+    document.querySelectorAll(".entry p").forEach(function (el) {
       var out = [];
       Array.prototype.slice.call(el.childNodes).forEach(function (node) {
         if (node.nodeType === 3) {
           node.textContent.split(/(\s+)/).forEach(function (part) {
             if (!part) return;
             if (/^\s+$/.test(part)) { out.push(document.createTextNode(part)); return; }
-            var s = document.createElement("span");
-            s.className = "word";
-            s.textContent = part;
-            out.push(s);
+            var s = document.createElement("span"); s.className = "word"; s.textContent = part; out.push(s);
           });
-        } else {
-          node.classList.add("word");
-          out.push(node);
-        }
+        } else { node.classList.add("word"); out.push(node); }
       });
-      el.textContent = "";
-      out.forEach(function (n) { el.appendChild(n); });
+      el.textContent = ""; out.forEach(function (n) { el.appendChild(n); });
     });
-    document.querySelectorAll(".mrow").forEach(function (row) {
-      function toggle() {
-        var on = row.classList.toggle("let-go");
-        row.setAttribute("aria-pressed", on ? "true" : "false");
-      }
+    document.querySelectorAll(".entry").forEach(function (row) {
+      function toggle() { var on = row.classList.toggle("let-go"); row.setAttribute("aria-pressed", on ? "true" : "false"); }
       row.addEventListener("click", toggle);
-      row.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
-      });
+      row.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
     });
 
     /* ---- Reveal on scroll ---- */
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12 });
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: .12 });
     document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
-    /* ---- Roll call: each one is discharged in turn once seen ---- */
-    var roster = document.getElementById("rosterList");
-    var rosterIO = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      rosterIO.disconnect();
-      roster.querySelectorAll(".rrow").forEach(function (row, i) {
-        setTimeout(function () {
-          row.classList.add("gone");
-          row.querySelector(".rstat").textContent = "Discharged";
-        }, 900 + i * 700);
+    /* ---- Goners forget themselves one by one ---- */
+    var goners = document.getElementById("gonerList");
+    var gio = new IntersectionObserver(function (es) {
+      if (!es[0].isIntersecting) return; gio.disconnect();
+      goners.querySelectorAll(".goner").forEach(function (g, i) {
+        setTimeout(function () { g.classList.add("gone"); g.querySelector(".st").textContent = "FORGOTTEN"; }, 900 + i * 700);
       });
-    }, { threshold: 0.5 });
-    rosterIO.observe(roster);
+    }, { threshold: .5 });
+    gio.observe(goners);
 
-    /* ---- Hero shapes drift apart as you scroll; floating intake link ---- */
-    var hero = document.querySelector(".hero");
-    var cta = document.getElementById("floatCta");
-    var intakeVisible = false;
-    new IntersectionObserver(function (e) {
-      intakeVisible = e[0].isIntersecting;
-      update();
-    }).observe(document.getElementById("intake-info"));
-
-    var ticking = false;
-    function update() {
-      var h = hero.offsetHeight;
-      var y = window.scrollY;
-      if (!reduceMotion) {
-        var p = Math.min(1, Math.max(0, y / h));
-        root.style.setProperty("--p", p.toFixed(3));
-      }
-      cta.classList.toggle("on", y > h * 0.7 && !intakeVisible);
+    /* ================= Survey program ================= */
+    function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+    function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+    function hash(s) {
+      var a = 0xdeadbeef, b = 0x41c6ce57;
+      for (var i = 0; i < s.length; i++) { var k = s.charCodeAt(i); a = Math.imul(a ^ k, 2654435761); b = Math.imul(b ^ k, 1597334677); }
+      a = Math.imul(a ^ (a >>> 16), 2246822507) ^ Math.imul(b ^ (b >>> 13), 3266489909);
+      b = Math.imul(b ^ (b >>> 16), 2246822507) ^ Math.imul(a ^ (a >>> 13), 3266489909);
+      return (4294967296 * (2097151 & b) + (a >>> 0)).toString(36);
     }
-    window.addEventListener("scroll", function () {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () { ticking = false; update(); });
-    }, { passive: true });
-    window.addEventListener("resize", update);
-    update();
+    function normalise(s) { return s.toUpperCase().replace(/[^A-Z]/g, ""); }
+
+    var state = load();
+    if (typeof state.step !== "number") state.step = 0;
+    var steps = document.querySelectorAll(".step");
+    var bars = document.querySelectorAll(".progress span");
+    var wrong = ["* That is still you talking.", "* Close. Closer than you were, anyway.", "* The program does not recognise that.", "* Try again, whoever you are.", "* No. Let that one go too."];
+
+    function fillName() {
+      document.querySelectorAll("[data-name]").forEach(function (el) { el.textContent = state.name || "unknown"; });
+      document.getElementById("gbFormer").hidden = !state.name;
+    }
+
+    /* typewriter */
+    var typing = null;
+    function speak(step, done) {
+      var el = step.querySelector(".say");
+      var text = el.dataset.say.replace(/\\n/g, "\n").replace("{NAME}", (state.name || "NO ONE").toUpperCase());
+      if (typing) { clearTimeout(typing); typing = null; }
+      el.textContent = "";
+      if (reduceMotion) { el.textContent = text; done(); return; }
+      var i = 0, span = document.createElement("span"); span.className = "cur"; el.appendChild(span);
+      function tick() {
+        if (i >= text.length) { span.classList.remove("cur"); done(); return; }
+        var ch = text[i++];
+        span.appendChild(document.createTextNode(ch));
+        typing = setTimeout(tick, ch === "\n" ? 180 : (/[.,]/.test(ch) ? 160 : 28));
+      }
+      tick();
+    }
+
+    function show(n, animate) {
+      var current = document.querySelector(".step.active");
+      var next = steps[n];
+      bars.forEach(function (b, i) { b.classList.toggle("done", i < n); b.classList.toggle("cur", i === n); });
+      fillName();
+      function reveal() {
+        steps.forEach(function (s) { s.classList.remove("active", "leaving", "ready"); });
+        next.classList.add("active");
+        armHint(next);
+        speak(next, function () {
+          next.classList.add("ready");
+          var f = next.querySelector("input, textarea");
+          if (f && animate) f.focus({ preventScroll: true });
+        });
+      }
+      if (current && animate && !reduceMotion) { current.classList.remove("active"); current.classList.add("leaving"); setTimeout(reveal, 420); }
+      else reveal();
+    }
+
+    function armHint(step) {
+      var btn = step.querySelector(".hint button");
+      if (!btn || btn.dataset.armed) return;
+      btn.dataset.armed = "1";
+      setTimeout(function () { btn.classList.add("ready"); }, 20000);
+      btn.addEventListener("click", function () { openHint(step); });
+    }
+    function openHint(step) {
+      var t = step.querySelector(".hint .text"); if (!t) return;
+      t.classList.add("on"); step.querySelector(".hint button").style.display = "none";
+    }
+
+    function advance(from) {
+      state.step = from + 1; save(state);
+      setTimeout(function () { show(state.step, true); }, 600);
+    }
+
+    document.querySelectorAll("form.answer").forEach(function (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var input = form.querySelector("input");
+        var fb = form.nextElementSibling;
+        var n = Number(form.closest(".step").dataset.step);
+        if (form.dataset.kind === "name") {
+          var name = input.value.trim(); if (!name) return;
+          state.name = name;
+        } else if (form.dataset.hash.split(" ").indexOf(hash(normalise(input.value))) === -1) {
+          form.misses = (form.misses || 0) + 1;
+          if (form.misses >= 3) openHint(form.closest(".step"));
+          fb.className = "feedback"; fb.textContent = wrong[Math.floor(Math.random() * wrong.length)];
+          form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+          input.select(); return;
+        }
+        fb.className = "feedback ok"; fb.textContent = n === 0 ? "* Noted." : "* Accepted.";
+        advance(n);
+      });
+    });
+
+    /* ---- Vessel builder ---- */
+    var PARTS = {
+      head: [
+        '<rect x="7" y="2" width="10" height="10" fill="#f2f2f2"/><rect x="9" y="5" width="2" height="3" fill="#000"/><rect x="13" y="5" width="2" height="3" fill="#000"/>',
+        '<rect x="6" y="3" width="12" height="8" fill="#f2f2f2"/><rect x="8" y="5" width="3" height="2" fill="#000"/><rect x="13" y="5" width="3" height="2" fill="#000"/><rect x="11" y="9" width="2" height="2" fill="#000"/>',
+        '<rect x="8" y="1" width="8" height="12" fill="#f2f2f2"/><rect x="10" y="4" width="1" height="4" fill="#000"/><rect x="13" y="4" width="1" height="4" fill="#000"/>'
+      ],
+      torso: [
+        '<rect x="7" y="1" width="10" height="14" fill="#f2f2f2"/><rect x="3" y="3" width="4" height="8" fill="#f2f2f2"/><rect x="17" y="3" width="4" height="8" fill="#f2f2f2"/>',
+        '<rect x="5" y="1" width="14" height="14" fill="#f2f2f2"/><rect x="11" y="5" width="2" height="6" fill="#000"/>',
+        '<rect x="9" y="1" width="6" height="14" fill="#f2f2f2"/><rect x="2" y="2" width="7" height="3" fill="#f2f2f2"/><rect x="15" y="2" width="7" height="3" fill="#f2f2f2"/>'
+      ],
+      legs: [
+        '<rect x="7" y="1" width="4" height="13" fill="#f2f2f2"/><rect x="13" y="1" width="4" height="13" fill="#f2f2f2"/>',
+        '<rect x="6" y="1" width="12" height="9" fill="#f2f2f2"/><rect x="4" y="10" width="16" height="3" fill="#f2f2f2"/>',
+        '<rect x="11" y="1" width="2" height="12" fill="#f2f2f2"/><rect x="5" y="13" width="14" height="2" fill="#f2f2f2"/>'
+      ]
+    };
+    var chosen = {};
+    var okBtn = document.getElementById("vesselOk");
+    Object.keys(PARTS).forEach(function (part) {
+      var row = document.querySelector('.vrow[data-part="' + part + '"] .opts');
+      PARTS[part].forEach(function (svg, i) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "opt"; b.setAttribute("aria-label", part + " option " + (i + 1));
+        b.innerHTML = '<svg viewBox="0 0 24 16" aria-hidden="true">' + svg + "</svg>";
+        b.addEventListener("click", function () {
+          row.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("sel"); });
+          b.classList.add("sel");
+          chosen[part] = i;
+          document.getElementById("pv" + part.charAt(0).toUpperCase() + part.slice(1)).innerHTML = svg;
+          okBtn.disabled = Object.keys(chosen).length < 3;
+        });
+        row.appendChild(b);
+      });
+    });
+    okBtn.addEventListener("click", function () { state.vessel = chosen; advance(1); });
+
+    /* ---- Empty space ---- */
+    var voidBox = document.querySelector(".void");
+    function lightVoid() { voidBox.classList.add("lit"); }
+    voidBox.addEventListener("click", lightVoid);
+    voidBox.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lightVoid(); } });
+    document.addEventListener("selectionchange", function () {
+      var sel = document.getSelection();
+      if (sel && !sel.isCollapsed && voidBox.contains(sel.anchorNode)) lightVoid();
+    });
+
+    /* ---- Guest book → FormSubmit → egodeathsquad@proton.me ---- */
+    document.getElementById("book").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = document.getElementById("gbName").value.trim();
+      var msg = document.getElementById("gbMsg").value.trim();
+      if (!msg) return;
+      if (document.getElementById("gbHoney").value) return;
+      var sig = name || "No one";
+      if (state.name && state.name !== name) sig += " (formerly " + state.name + ")";
+      var book = e.target, btn = document.getElementById("gbSend"), after = document.getElementById("after");
+      btn.disabled = true; btn.textContent = "TRANSMITTING…"; after.classList.remove("on");
+      fetch(RELAY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ _subject: SUBJECT, _template: "box", _captcha: "false", name: sig, message: msg })
+      }).then(function (r) {
+        return r.json().then(function (j) { if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status); });
+      }).then(function () {
+        book.classList.add("sent");
+        after.textContent = "* RECEIVED. NO ONE WILL READ IT. SOMEONE WILL.\n* DON'T FORGET.";
+        after.style.whiteSpace = "pre-line";
+        after.classList.add("on");
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = "TRANSMIT";
+        after.textContent = "* The signal did not get through. Try again, or ";
+        var a = document.createElement("a");
+        a.href = "mailto:" + ADDR + "?subject=" + encodeURIComponent(SUBJECT) + "&body=" + encodeURIComponent(msg + "\n\n— " + sig);
+        a.textContent = "send it by email";
+        after.appendChild(a); after.appendChild(document.createTextNode(".")); after.classList.add("on");
+      });
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      state = { step: 0 }; save(state); chosen = {};
+      document.querySelectorAll(".opt").forEach(function (o) { o.classList.remove("sel"); });
+      ["pvHead", "pvTorso", "pvLegs"].forEach(function (id) { document.getElementById(id).innerHTML = ""; });
+      okBtn.disabled = true;
+      document.querySelectorAll("form").forEach(function (f) { f.reset(); });
+      document.querySelectorAll(".feedback").forEach(function (f) { f.textContent = ""; });
+      document.getElementById("book").classList.remove("sent");
+      show(0, true);
+      document.getElementById("survey").scrollIntoView();
+    });
+
+    show(Math.min(state.step, steps.length - 1), false);
+
+    console.log("%c☜︎☠︎❄︎☼︎✡︎ ☠︎🕆︎💣︎👌︎☜︎☼︎ 💧︎☜︎✞︎☜︎☠︎❄︎☜︎☜︎☠︎", "font-size:18px");
+    console.log("* Looking under the hood? He did that too. The answers are not stored here in plain text.");
   })();
   </script>
 </body>

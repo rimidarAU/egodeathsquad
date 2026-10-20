@@ -288,7 +288,15 @@
       display: none;
     }
     .after.on { display: block; }
-    .after code { color: var(--fg); }
+    button.transmit:disabled { opacity: .5; cursor: wait; }
+    .book.sent > div, .book.sent button.transmit { display: none; }
+    .book.sent .after {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-style: italic;
+      line-height: 1.3;
+      color: var(--fg);
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .stage.active, .stage.leaving, .cipher, .blink, .shake { animation: none; }
@@ -415,12 +423,9 @@
           <label for="gbMsg">Message</label>
           <textarea id="gbMsg" required maxlength="4000" placeholder="Say something to no one in particular."></textarea>
         </div>
-        <button class="transmit" type="submit">Transmit</button>
-        <p class="after" id="after" aria-live="polite">
-          Your email app should open with the message ready to send.
-          If nothing happened, send it yourself to <code data-addr></code>
-          with the subject <code>Ego Death Squad Guest Book</code>.
-        </p>
+        <input type="text" id="gbHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        <button class="transmit" id="gbSend" type="submit">Transmit</button>
+        <p class="after" id="after" aria-live="polite"></p>
       </form>
     </section>
   </main>
@@ -436,6 +441,8 @@
     var SUBJECT = "Ego Death Squad Guest Book";
     // assembled at runtime to keep it away from the simplest scrapers
     var ADDR = ["egodeathsquad", "proton.me"].join("@");
+    // relay that emails form posts to ADDR (formsubmit.co)
+    var RELAY = "https://formsubmit.co/ajax/" + ADDR;
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     var wrong = [
@@ -543,12 +550,46 @@
       if (!msg) return;
       var sig = name || "No one";
       if (state.name && state.name !== name) sig += " (formerly " + state.name + ")";
-      var body = msg + "\n\n— " + sig;
-      window.location.href = "mailto:" + ADDR +
-        "?subject=" + encodeURIComponent(SUBJECT) +
-        "&body=" + encodeURIComponent(body);
-      document.querySelector("[data-addr]").textContent = ADDR;
-      document.getElementById("after").classList.add("on");
+      var book = e.target;
+      var btn = document.getElementById("gbSend");
+      var after = document.getElementById("after");
+      if (document.getElementById("gbHoney").value) return;
+
+      btn.disabled = true;
+      btn.textContent = "Transmitting…";
+      after.classList.remove("on");
+
+      fetch(RELAY, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          _subject: SUBJECT,
+          _template: "box",
+          _captcha: "false",
+          name: sig,
+          message: msg
+        })
+      }).then(function (r) {
+        return r.json().then(function (j) {
+          if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status);
+        });
+      }).then(function () {
+        book.classList.add("sent");
+        after.textContent = "Received. No one will read it. Someone will.";
+        after.classList.add("on");
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Transmit";
+        after.textContent = "The signal did not get through. Try again, or ";
+        var a = document.createElement("a");
+        a.href = "mailto:" + ADDR + "?subject=" + encodeURIComponent(SUBJECT) +
+          "&body=" + encodeURIComponent(msg + "\n\n— " + sig);
+        a.textContent = "send it by email";
+        a.style.color = "var(--accent)";
+        after.appendChild(a);
+        after.appendChild(document.createTextNode("."));
+        after.classList.add("on");
+      });
     });
 
     document.getElementById("reset").addEventListener("click", function () {

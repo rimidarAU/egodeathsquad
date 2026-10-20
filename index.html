@@ -88,6 +88,10 @@
       transition: background .15s, color .15s;
     }
     .nav .go:hover, .nav .go:focus-visible { background: var(--bone); color: var(--void); }
+    .nav .snd { background: none; color: var(--dim); border-color: var(--line); cursor: pointer; font-family: var(--pixel); }
+    .nav .snd[aria-pressed="true"] { color: var(--det); border-color: var(--det); }
+    .nav .snd.wait { opacity: .6; cursor: wait; }
+    #yt-wrap { position: fixed; left: -9999px; top: 0; width: 240px; height: 240px; opacity: 0; pointer-events: none; }
 
     /* ---------- Hero ---------- */
     .hero {
@@ -328,8 +332,12 @@
 
   <nav class="nav" aria-label="Main">
     <a class="pixel" style="font-size:.6rem" href="#top">E.D.S.</a>
-    <a class="go" href="#survey">BEGIN SURVEY</a>
+    <span style="display:flex;gap:10px;align-items:center">
+      <button class="go snd" id="snd" type="button" aria-pressed="false" title="Background sound">&#9834; SOUND OFF</button>
+      <a class="go" href="#survey">BEGIN SURVEY</a>
+    </span>
   </nav>
+  <div id="yt-wrap" aria-hidden="true"><div id="yt"></div></div>
 
   <header class="hero" id="top">
     <div class="water" aria-hidden="true"></div>
@@ -470,6 +478,53 @@
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     document.getElementById("y").textContent = new Date().getFullYear();
+
+    /* ---- Background sound: a YouTube video looped as hidden audio ---- */
+    var VIDEO = "hnFge7Xe08Q";
+    var sndBtn = document.getElementById("snd");
+    var player = null, wantSound = false;
+    function setSndLabel(on, wait) {
+      sndBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      sndBtn.classList.toggle("wait", !!wait);
+      sndBtn.innerHTML = wait ? "&#9834; LOADING" : (on ? "&#9834; SOUND ON" : "&#9834; SOUND OFF");
+    }
+    function loadPlayer() {
+      if (player || document.getElementById("yt-api")) return;
+      setSndLabel(false, true);
+      window.onYouTubeIframeAPIReady = function () {
+        player = new YT.Player("yt", {
+          videoId: VIDEO,
+          playerVars: { autoplay: 1, loop: 1, playlist: VIDEO, controls: 0, playsinline: 1, rel: 0 },
+          events: {
+            onReady: function (e) { e.target.setVolume(40); if (wantSound) e.target.playVideo(); setSndLabel(wantSound); },
+            onStateChange: function (e) { if (e.data === YT.PlayerState.ENDED) e.target.playVideo(); },
+            onError: function () { player = null; wantSound = false; setSndLabel(false); sndBtn.title = "This video could not be played here."; }
+          }
+        });
+      };
+      var tag = document.createElement("script");
+      tag.id = "yt-api"; tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    }
+    sndBtn.addEventListener("click", function () {
+      wantSound = !wantSound;
+      try { localStorage.setItem("eds-sound", wantSound ? "1" : "0"); } catch (e) {}
+      if (!player) { if (wantSound) loadPlayer(); return; }
+      if (wantSound) player.playVideo(); else player.pauseVideo();
+      setSndLabel(wantSound);
+    });
+    // If it was left on last time, start it at the first tap or keypress
+    // (browsers refuse sound before the visitor has touched the page).
+    var wasOn = false;
+    try { wasOn = localStorage.getItem("eds-sound") === "1"; } catch (e) {}
+    if (wasOn) {
+      var resume = function () {
+        document.removeEventListener("pointerdown", resume); document.removeEventListener("keydown", resume);
+        if (!wantSound) { wantSound = true; loadPlayer(); }
+      };
+      document.addEventListener("pointerdown", resume); document.addEventListener("keydown", resume);
+      sndBtn.innerHTML = "&#9834; TAP FOR SOUND";
+    }
 
     /* ---- Wingdings-style glyphs (he always spoke this way) ---- */
     var WD = { A:"✌", B:"👌", C:"👍", D:"👎", E:"☜", F:"☞", G:"☝", H:"☟", I:"✋", J:"☺", K:"😐", L:"☹", M:"💣", N:"☠", O:"⚐", P:"🏱", Q:"✈", R:"☼", S:"💧", T:"❄", U:"🕈", V:"✞", W:"✠", X:"✡", Y:"☪", Z:"☯", " ":"  " };

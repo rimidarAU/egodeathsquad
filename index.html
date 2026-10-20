@@ -275,6 +275,30 @@
     form.answer button:hover, form.answer button:focus-visible { background: var(--det); }
     .feedback { margin-top: 12px; min-height: 1.4em; color: var(--soul); font-size: 1.3rem; }
     .feedback.ok { color: var(--core); }
+    /* The note */
+    .artefact { margin: 0 0 22px; border: 2px solid var(--line); padding: 26px 20px; position: relative; background: #000; }
+    .artefact::before {
+      content: attr(data-label);
+      position: absolute; top: -.7em; left: 12px;
+      background: #000; padding: 0 8px;
+      font-family: var(--pixel); font-size: .5rem; color: var(--goner); letter-spacing: .12em;
+    }
+    .glyphs {
+      font-family: "Segoe UI Symbol", "Noto Sans Symbols", "Noto Sans Symbols 2", "Apple Symbols", var(--term);
+      font-size: clamp(1.5rem, 5vw, 2.6rem);
+      letter-spacing: .25em;
+      text-align: center;
+      color: var(--bone);
+      word-break: break-word;
+    }
+    .shake { animation: shakex .35s; }
+    @keyframes shakex { 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+    .hint { margin-top: 22px; font-size: 1.2rem; color: var(--goner); }
+    .hint button { background: none; border: 0; color: var(--dim); font: inherit; font-size: 1.2rem; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 1s; }
+    .hint button.ready { opacity: 1; pointer-events: auto; }
+    .hint .text { display: none; margin-top: 8px; color: var(--det); }
+    .hint .text.on { display: block; }
+
     /* Guest book */
     .book { display: grid; gap: 20px; max-width: 640px; }
     .book label { display: block; font-family: var(--pixel); font-size: .55rem; color: var(--dim); margin-bottom: 8px; letter-spacing: .1em; }
@@ -422,7 +446,7 @@
         <span class="tag">your choices don't matter // please disregard</span>
       </div>
       <div class="term">
-        <div class="progress" aria-hidden="true"><span></span><span></span></div>
+        <div class="progress" aria-hidden="true"><span></span><span></span><span></span></div>
 
         <!-- 0 Name -->
         <div class="step" data-step="0">
@@ -437,9 +461,27 @@
           </div>
         </div>
 
-        <!-- 1 Discard + guest book -->
+        <!-- 1 The note -->
         <div class="step" data-step="1">
-          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nNOW.\nIT IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
+          <p class="say" data-say="{NAME} IS A WONDERFUL NAME.\n\nBEFORE IT IS DISCARDED, ONE QUESTION.\nHE LEFT A NOTE. HE ALWAYS WROTE THIS WAY.\nWHAT DOES IT SAY?"></p>
+          <div class="ui">
+            <div class="artefact" data-label="THE NOTE">
+              <p class="glyphs" data-wd="THE EGO GOES" aria-hidden="true"></p>
+              <span class="sr">A line of Wingdings-style glyphs. The page title at the top is written in the same glyphs and can be used as a key.</span>
+            </div>
+            <form class="answer" data-hash="yn1tdzkutb" autocomplete="off">
+              <span class="prompt">&gt;</span>
+              <input name="a" aria-label="Answer" placeholder="WHAT IT SAYS" maxlength="40" required>
+              <button type="submit">OK</button>
+            </form>
+            <div class="feedback" aria-live="polite"></div>
+            <div class="hint"><button type="button">* need a hint?</button><div class="text">* The title at the top of the page is written in the same glyphs. Match them up. Three words.</div></div>
+          </div>
+        </div>
+
+        <!-- 2 Discard + guest book -->
+        <div class="step" data-step="2">
+          <p class="say" data-say="CORRECT.\n\nNOW.\nYOUR NAME IS DISCARDED.\n\nYOU CANNOT CHOOSE WHO YOU ARE IN THIS WORLD.\nBUT YOU MAY LEAVE A MESSAGE FOR WHOEVER IS LISTENING."></p>
           <div class="ui">
             <form class="book" id="book">
               <div>
@@ -530,7 +572,7 @@
     var WD = { A:"✌", B:"👌", C:"👍", D:"👎", E:"☜", F:"☞", G:"☝", H:"☟", I:"✋", J:"☺", K:"😐", L:"☹", M:"💣", N:"☠", O:"⚐", P:"🏱", Q:"✈", R:"☼", S:"💧", T:"❄", U:"🕈", V:"✞", W:"✠", X:"✡", Y:"☪", Z:"☯", " ":"  " };
     document.querySelectorAll("[data-wd]").forEach(function (el) {
       // U+FE0E asks for the text glyph, not the colour emoji
-      el.textContent = el.dataset.wd.toUpperCase().split("").map(function (c) { return WD[c] ? WD[c] + "\uFE0E" : c; }).join("");
+      el.textContent = el.dataset.wd.toUpperCase().split("").map(function (c) { return c === " " ? WD[c] : (WD[c] ? WD[c] + "\uFE0E" : c); }).join("");
     });
 
     /* ---- Entries: split into words so they can be let go ---- */
@@ -571,6 +613,16 @@
     function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
     function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
 
+    function hash(s) {
+      var a = 0xdeadbeef, b = 0x41c6ce57;
+      for (var i = 0; i < s.length; i++) { var k = s.charCodeAt(i); a = Math.imul(a ^ k, 2654435761); b = Math.imul(b ^ k, 1597334677); }
+      a = Math.imul(a ^ (a >>> 16), 2246822507) ^ Math.imul(b ^ (b >>> 13), 3266489909);
+      b = Math.imul(b ^ (b >>> 16), 2246822507) ^ Math.imul(a ^ (a >>> 13), 3266489909);
+      return (4294967296 * (2097151 & b) + (a >>> 0)).toString(36);
+    }
+    function normalise(s) { return s.toUpperCase().replace(/[^A-Z]/g, ""); }
+    var wrong = ["* That is still you talking.", "* Close. Closer than you were, anyway.", "* The program does not recognise that.", "* Try again, whoever you are.", "* He did not write that."];
+
     var state = load();
     if (typeof state.step !== "number") state.step = 0;
     var steps = document.querySelectorAll(".step");
@@ -607,6 +659,7 @@
       function reveal() {
         steps.forEach(function (s) { s.classList.remove("active", "leaving", "ready"); });
         next.classList.add("active");
+        armHint(next);
         speak(next, function () {
           next.classList.add("ready");
           var f = next.querySelector("input, textarea");
@@ -615,6 +668,18 @@
       }
       if (current && animate && !reduceMotion) { current.classList.remove("active"); current.classList.add("leaving"); setTimeout(reveal, 420); }
       else reveal();
+    }
+
+    function armHint(step) {
+      var btn = step.querySelector(".hint button");
+      if (!btn || btn.dataset.armed) return;
+      btn.dataset.armed = "1";
+      setTimeout(function () { btn.classList.add("ready"); }, 20000);
+      btn.addEventListener("click", function () { openHint(step); });
+    }
+    function openHint(step) {
+      var t = step.querySelector(".hint .text"); if (!t) return;
+      t.classList.add("on"); step.querySelector(".hint button").style.display = "none";
     }
 
     function advance(from) {
@@ -628,9 +693,17 @@
         var input = form.querySelector("input");
         var fb = form.nextElementSibling;
         var n = Number(form.closest(".step").dataset.step);
-        var name = input.value.trim(); if (!name) return;
-        state.name = name;
-        fb.className = "feedback ok"; fb.textContent = "* Noted.";
+        if (form.dataset.kind === "name") {
+          var name = input.value.trim(); if (!name) return;
+          state.name = name;
+        } else if (form.dataset.hash.split(" ").indexOf(hash(normalise(input.value))) === -1) {
+          form.misses = (form.misses || 0) + 1;
+          if (form.misses >= 3) openHint(form.closest(".step"));
+          fb.className = "feedback"; fb.textContent = wrong[Math.floor(Math.random() * wrong.length)];
+          form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+          input.select(); return;
+        }
+        fb.className = "feedback ok"; fb.textContent = n === 0 ? "* Noted." : "* Accepted.";
         advance(n);
       });
     });
@@ -679,7 +752,7 @@
     show(Math.min(state.step, steps.length - 1), false);
 
     console.log("%c☜︎☠︎❄︎☼︎✡︎ ☠︎🕆︎💣︎👌︎☜︎☼︎ 💧︎☜︎✞︎☜︎☠︎❄︎☜︎☜︎☠︎", "font-size:18px");
-    console.log("* Looking under the hood? He did that too.");
+    console.log("* Looking under the hood? He did that too. The answer is not stored here in plain text.");
   })();
   </script>
 </body>

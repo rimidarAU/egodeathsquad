@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -20,7 +20,7 @@
       --ink: #0d0d12;
       --panel: #121218;
       --line: #2a2a33;
-      --goner: #6b6b73;
+      --goner: #83838c;
       --bone: #f2f2f2;
       --dim: #a8a8b0;
       --soul: #ff3b3b;
@@ -30,7 +30,7 @@
       --term: "VT323", "Courier New", monospace;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; scroll-padding-top: 56px; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
     body {
       background: var(--void);
       color: var(--bone);
@@ -42,7 +42,6 @@
     ::selection { background: var(--soul); color: var(--void); }
     :focus-visible { outline: 3px solid var(--det); outline-offset: 3px; }
     a { color: inherit; }
-    img { max-width: 100%; display: block; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     /* CRT scanlines + vignette */
@@ -80,6 +79,8 @@
       backdrop-filter: blur(4px);
     }
     .nav a { text-decoration: none; }
+    .nav .brand { font-family: var(--pixel); font-size: .6rem; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
     .nav .go {
       font-family: var(--pixel);
       font-size: .6rem;
@@ -91,6 +92,7 @@
     .nav .snd { background: none; color: var(--dim); border-color: var(--line); cursor: pointer; font-family: var(--pixel); }
     .nav .snd[aria-pressed="true"] { color: var(--det); border-color: var(--det); }
     .nav .snd.wait { opacity: .6; cursor: wait; }
+    .nav .go { white-space: nowrap; }
     #yt-wrap { position: fixed; left: -9999px; top: 0; width: 240px; height: 240px; opacity: 0; pointer-events: none; }
 
     /* ---------- Hero ---------- */
@@ -155,7 +157,7 @@
     .btn.soul { border-color: var(--soul); color: var(--soul); }
     .btn.soul:hover, .btn.soul:focus-visible { background: var(--soul); color: var(--void); }
     .hero .btn { margin-top: 44px; }
-    .hero .hint { margin-top: 20px; color: var(--goner); font-size: 1.1rem; animation: blink 2.4s steps(1) infinite; }
+    .hero .scroll-hint { margin-top: 20px; color: var(--goner); font-size: 1.1rem; animation: blink 2.4s steps(1) infinite; }
     @keyframes blink { 50% { opacity: .25; } }
 
     /* ---------- Sections ---------- */
@@ -168,20 +170,22 @@
     .entries { list-style: none; display: grid; gap: 14px; }
     .entry {
       display: grid; grid-template-columns: 9.5rem 1fr; gap: 18px;
+      width: 100%;
       padding: 22px 20px;
       background: var(--panel);
       border: 1px solid var(--line);
+      color: inherit; font: inherit; text-align: left;
       cursor: pointer;
       transition: border-color .2s;
     }
     .entry:hover, .entry:focus-visible { border-color: var(--goner); }
     .entry .n { font-family: var(--pixel); font-size: .6rem; color: var(--goner); padding-top: .5em; }
-    .entry p { font-size: clamp(1.4rem, 3.2vw, 2rem); line-height: 1.25; }
+    .entry .txt { font-size: clamp(1.4rem, 3.2vw, 2rem); line-height: 1.25; }
     .entry .word { transition: opacity .4s, color .4s; }
     .entry.let-go .word:not(.keep) { opacity: .18; }
     .entry.let-go .keep { color: var(--det); }
     .entry.last { border-color: var(--goner); background: #16161d; }
-    .entry.last p { color: var(--dim); }
+    .entry.last .txt { color: var(--dim); }
     .entry.last .n { color: var(--det); }
 
     /* The one who fell */
@@ -256,8 +260,6 @@
       color: var(--bone);
     }
     .say .cur::after { content: "█"; animation: blink .8s steps(1) infinite; color: var(--goner); }
-    .say em { font-style: normal; color: var(--det); }
-    .say .wdline { display: block; color: var(--goner); font-size: 1rem; letter-spacing: .3em; margin-top: .4em; }
     .ui { margin-top: 30px; opacity: 0; transition: opacity .6s; }
     .step.ready .ui { opacity: 1; }
 
@@ -312,6 +314,7 @@
     .former { font-size: 1.15rem; color: var(--goner); margin-top: 6px; }
     .former s { color: var(--dim); }
     .book .btn { justify-self: start; }
+    .honey { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
     .book .btn:disabled { opacity: .5; cursor: wait; }
     .after { display: none; font-size: 1.3rem; color: var(--dim); line-height: 1.5; }
     .after.on { display: block; }
@@ -340,12 +343,14 @@
       .entry { grid-template-columns: 1fr; gap: 8px; }
     }
     @media (max-width: 480px) {
+      .nav .go { padding: 8px 10px; }
+      .nav .snd .l { display: none; }
       .fell { grid-template-columns: 1fr; }
       form.answer .prompt { padding-left: 10px; }
       form.answer button { padding: 0 10px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .hero .water, h1 .shake, .progress span.cur, .hero .hint, .say .cur::after { animation: none; }
+      .hero .water, h1 .shake, .progress span.cur, .hero .scroll-hint, .say .cur::after { animation: none; }
       .step.active, .step.leaving { animation: none; }
       .step.leaving { display: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
@@ -355,9 +360,9 @@
 <body>
 
   <nav class="nav" aria-label="Main">
-    <a class="pixel" style="font-size:.6rem" href="#top">E.D.S.</a>
-    <span style="display:flex;gap:10px;align-items:center">
-      <button class="go snd" id="snd" type="button" aria-pressed="false" title="Background sound">&#9834; SOUND OFF</button>
+    <a class="brand" href="#top">E.D.S.</a>
+    <span class="nav-right">
+      <button class="go snd" id="snd" type="button" aria-pressed="false" aria-label="Background sound off" title="Background sound">&#9834; <span class="l">SOUND OFF</span></button>
       <a class="go" href="#survey">BEGIN SURVEY</a>
     </span>
   </nav>
@@ -371,7 +376,7 @@
       <p class="wd" data-wd="EGO DEATH SQUAD" aria-hidden="true"></p>
       <p class="sub">Dark, darker, yet darker. A collective of no one in particular, for those who fell into their own creation.</p>
       <a class="btn" href="#survey">BEGIN SURVEY</a>
-      <p class="hint">* scroll to keep falling</p>
+      <p class="scroll-hint">* scroll to keep falling</p>
     </div>
   </header>
 
@@ -383,12 +388,12 @@
         <span class="tag">select an entry to let it go</span>
       </div>
       <ol class="entries">
-        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 01</span><p>You are not the voice reading <span class="keep">this</span> sentence.</p></li>
-        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 04</span><p>We do not recruit. We <span class="keep">subtract</span>.</p></li>
-        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 09</span><p>Membership is free. It costs everything you think you <span class="keep">are</span>.</p></li>
-        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 12</span><p>There is no leader. There was never anyone to <span class="keep">lead</span>.</p></li>
-        <li class="entry reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 16</span><p>What remains when the story stops is <span class="keep">enough</span>.</p></li>
-        <li class="entry last reveal" tabindex="0" role="button" aria-pressed="false"><span class="n">ENTRY 17</span><p>Dark, darker, yet darker. The darkness keeps growing. The shadows cutting <span class="keep">deeper</span>. Photon readings negative. This next experiment seems very, very interesting.</p></li>
+        <li class="reveal"><button type="button" class="entry" aria-pressed="false"><span class="n">ENTRY 01</span><span class="txt">You are not the voice reading <span class="keep">this</span> sentence.</span></button></li>
+        <li class="reveal"><button type="button" class="entry" aria-pressed="false"><span class="n">ENTRY 04</span><span class="txt">We do not recruit. We <span class="keep">subtract</span>.</span></button></li>
+        <li class="reveal"><button type="button" class="entry" aria-pressed="false"><span class="n">ENTRY 09</span><span class="txt">Membership is free. It costs everything you think you <span class="keep">are</span>.</span></button></li>
+        <li class="reveal"><button type="button" class="entry" aria-pressed="false"><span class="n">ENTRY 12</span><span class="txt">There is no leader. There was never anyone to <span class="keep">lead</span>.</span></button></li>
+        <li class="reveal"><button type="button" class="entry" aria-pressed="false"><span class="n">ENTRY 16</span><span class="txt">What remains when the story stops is <span class="keep">enough</span>.</span></button></li>
+        <li class="reveal"><button type="button" class="entry last" aria-pressed="false"><span class="n">ENTRY 17</span><span class="txt">Dark, darker, yet darker. The darkness keeps growing. The shadows cutting <span class="keep">deeper</span>. Photon readings negative. This next experiment seems very, very interesting.</span></button></li>
       </ol>
     </section>
 
@@ -454,7 +459,7 @@
           <div class="ui">
             <form class="answer" data-kind="name" autocomplete="off">
               <span class="prompt">&gt;</span>
-              <input name="a" aria-label="Your name" placeholder="NAME" maxlength="40" required>
+              <input type="text" name="a" aria-label="Your name" placeholder="NAME" maxlength="40" required>
               <button type="submit">OK</button>
             </form>
             <div class="feedback" aria-live="polite"></div>
@@ -471,7 +476,7 @@
             </div>
             <form class="answer" data-hash="yn1tdzkutb" autocomplete="off">
               <span class="prompt">&gt;</span>
-              <input name="a" aria-label="Answer" placeholder="WHAT IT SAYS" maxlength="40" required>
+              <input type="text" name="a" aria-label="Answer" placeholder="WHAT IT SAYS" maxlength="40" required>
               <button type="submit">OK</button>
             </form>
             <div class="feedback" aria-live="polite"></div>
@@ -486,14 +491,14 @@
             <form class="book" id="book">
               <div>
                 <label for="gbName">NAME, IF YOU STILL HAVE ONE</label>
-                <input id="gbName" maxlength="80" placeholder="optional">
+                <input type="text" id="gbName" maxlength="80" placeholder="optional">
                 <div class="former" id="gbFormer" hidden>* formerly known as <s data-name></s>.</div>
               </div>
               <div>
                 <label for="gbMsg">MESSAGE</label>
                 <textarea id="gbMsg" required maxlength="4000" placeholder="* say something to no one in particular."></textarea>
               </div>
-              <input type="text" id="gbHoney" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+              <input type="text" id="gbHoney" class="honey" tabindex="-1" autocomplete="off" aria-hidden="true">
               <button class="btn soul" id="gbSend" type="submit">TRANSMIT</button>
               <p class="after" id="after" aria-live="polite"></p>
             </form>
@@ -528,7 +533,9 @@
     function setSndLabel(on, wait) {
       sndBtn.setAttribute("aria-pressed", on ? "true" : "false");
       sndBtn.classList.toggle("wait", !!wait);
-      sndBtn.innerHTML = wait ? "&#9834; LOADING" : (on ? "&#9834; SOUND ON" : "&#9834; SOUND OFF");
+      var label = wait ? "LOADING" : (on ? "SOUND ON" : "SOUND OFF");
+      sndBtn.innerHTML = "&#9834; <span class=\"l\">" + label + "</span>";
+      sndBtn.setAttribute("aria-label", "Background sound " + (wait ? "loading" : (on ? "on" : "off")));
     }
     function loadPlayer() {
       if (player || document.getElementById("yt-api")) return;
@@ -546,6 +553,7 @@
       };
       var tag = document.createElement("script");
       tag.id = "yt-api"; tag.src = "https://www.youtube.com/iframe_api";
+      tag.onerror = function () { tag.remove(); wantSound = false; setSndLabel(false); sndBtn.title = "Sound could not be loaded."; };
       document.head.appendChild(tag);
     }
     sndBtn.addEventListener("click", function () {
@@ -565,18 +573,19 @@
         if (!wantSound) { wantSound = true; loadPlayer(); }
       };
       document.addEventListener("pointerdown", resume); document.addEventListener("keydown", resume);
-      sndBtn.innerHTML = "&#9834; TAP FOR SOUND";
+      sndBtn.innerHTML = "&#9834; <span class=\"l\">TAP FOR SOUND</span>";
+      sndBtn.setAttribute("aria-label", "Tap anywhere to resume background sound");
     }
 
     /* ---- Wingdings-style glyphs (he always spoke this way) ---- */
-    var WD = { A:"✌", B:"👌", C:"👍", D:"👎", E:"☜", F:"☞", G:"☝", H:"☟", I:"✋", J:"☺", K:"😐", L:"☹", M:"💣", N:"☠", O:"⚐", P:"🏱", Q:"✈", R:"☼", S:"💧", T:"❄", U:"🕈", V:"✞", W:"✠", X:"✡", Y:"☪", Z:"☯", " ":"  " };
+    var WD = { A:"✌", B:"👌", C:"👍", D:"👎", E:"☜", F:"☞", G:"☝", H:"☟", I:"✋", J:"☺", K:"😐", L:"☹", M:"💣", N:"☠", O:"⚐", P:"🏱", Q:"✈", R:"☼", S:"💧", T:"❄", U:"🕆", V:"✞", W:"🕈", X:"✠", Y:"✡", Z:"☪", " ":"  " };
     document.querySelectorAll("[data-wd]").forEach(function (el) {
       // U+FE0E asks for the text glyph, not the colour emoji
       el.textContent = el.dataset.wd.toUpperCase().split("").map(function (c) { return c === " " ? WD[c] : (WD[c] ? WD[c] + "\uFE0E" : c); }).join("");
     });
 
     /* ---- Entries: split into words so they can be let go ---- */
-    document.querySelectorAll(".entry p").forEach(function (el) {
+    document.querySelectorAll(".entry .txt").forEach(function (el) {
       var out = [];
       Array.prototype.slice.call(el.childNodes).forEach(function (node) {
         if (node.nodeType === 3) {
@@ -592,7 +601,6 @@
     document.querySelectorAll(".entry").forEach(function (row) {
       function toggle() { var on = row.classList.toggle("let-go"); row.setAttribute("aria-pressed", on ? "true" : "false"); }
       row.addEventListener("click", toggle);
-      row.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
     });
 
     /* ---- Reveal on scroll ---- */
@@ -742,9 +750,15 @@
 
     document.getElementById("reset").addEventListener("click", function () {
       state = { step: 0 }; save(state);
-      document.querySelectorAll("form").forEach(function (f) { f.reset(); });
+      document.querySelectorAll("form").forEach(function (f) { f.reset(); f.misses = 0; });
       document.querySelectorAll(".feedback").forEach(function (f) { f.textContent = ""; });
-      document.getElementById("book").classList.remove("sent");
+      document.querySelectorAll(".hint").forEach(function (h) {
+        var b = h.querySelector("button"); b.style.display = ""; b.classList.remove("ready"); delete b.dataset.armed;
+        h.querySelector(".text").classList.remove("on");
+      });
+      var book = document.getElementById("book"), send = document.getElementById("gbSend"), after = document.getElementById("after");
+      book.classList.remove("sent"); send.disabled = false; send.textContent = "TRANSMIT";
+      after.textContent = ""; after.className = "after";
       show(0, true);
       document.getElementById("survey").scrollIntoView();
     });

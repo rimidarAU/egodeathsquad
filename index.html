@@ -151,28 +151,36 @@
       color: var(--muted);
     }
     .void {
-      color: var(--bg);
+      color: #1d1c24;
+      cursor: pointer;
+      transition: color 1.2s ease;
       min-height: 7em;
       font-size: 1rem;
       line-height: 1.8;
       user-select: text;
       -webkit-user-select: text;
     }
+    .void:hover { color: #2c2a35; }
+    .void.lit { color: var(--fg); }
+    .void.lit b { color: var(--accent); }
+    .void:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
     .void::selection, .void *::selection { background: var(--accent); color: var(--bg); }
-    .cipher {
+    .mirror {
       font-family: var(--serif);
-      font-size: clamp(2.6rem, 10vw, 5rem);
+      font-size: clamp(3rem, 12vw, 5.5rem);
       letter-spacing: .12em;
       text-align: center;
+      transform: scaleX(-1);
       animation: jitter 4s infinite;
     }
     @keyframes jitter {
-      0%, 92%, 100% { transform: none; text-shadow: none; }
-      93% { transform: translateX(-2px); text-shadow: 2px 0 var(--accent); }
-      95% { transform: translateX(2px); text-shadow: -2px 0 var(--warn); }
+      0%, 92%, 100% { transform: scaleX(-1); text-shadow: none; }
+      93% { transform: scaleX(-1) translateX(-2px); text-shadow: 2px 0 var(--accent); }
+      95% { transform: scaleX(-1) translateX(2px); text-shadow: -2px 0 var(--warn); }
     }
     .lines { list-style: none; font-family: var(--serif); font-size: clamp(1.3rem, 3.6vw, 1.9rem); line-height: 1.35; }
     .lines li + li { margin-top: 12px; }
+    .lines b { font-weight: 400; color: var(--accent); }
 
     /* Answer form */
     form.answer {
@@ -299,7 +307,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .stage.active, .stage.leaving, .cipher, .blink, .shake { animation: none; }
+      .stage.active, .stage.leaving, .mirror, .blink, .shake { animation: none; }
       .stage.leaving { display: none; }
     }
   </style>
@@ -331,20 +339,42 @@
       <div class="feedback" aria-live="polite"></div>
     </section>
 
-    <!-- 1. Beneath -->
+    <!-- 1. Mirror -->
     <section class="stage" data-stage="1" aria-labelledby="s1">
-      <div class="kicker">Layer 01 / Beneath</div>
-      <h2 id="s1">Not everything<br>shows on the <em>surface</em>.</h2>
+      <div class="kicker">Layer 01 / Mirror</div>
+      <h2 id="s1">Your reflection<br>has <em>something</em> to say.</h2>
       <div class="body">
         <p>Your name has been noted, and discarded: <span class="former"><s data-name></s></span></p>
-        <p>The first key is in the empty space below. Nothing is there until you reach for it.</p>
+        <p>The self only ever sees itself backwards. Read what the mirror is telling you.</p>
       </div>
-      <div class="artefact void" data-label="Empty space">
+      <div class="artefact" data-label="Mirror">
+        <div class="mirror" aria-label="Mirrored text">LET GO</div>
+      </div>
+      <form class="answer" data-hash="4xfshy2ysz 15ku1ts1nwi" autocomplete="off">
+        <span class="prompt">&gt;</span>
+        <input name="a" aria-label="Answer" placeholder="what it says" maxlength="40" required>
+        <button class="go" type="submit">Enter</button>
+      </form>
+      <div class="feedback" aria-live="polite"></div>
+      <div class="hint">
+        <button type="button">Need a hint?</button>
+        <div class="text">It's written backwards, like in a mirror. Two words, read right to left.</div>
+      </div>
+    </section>
+
+    <!-- 2. Beneath -->
+    <section class="stage" data-stage="2" aria-labelledby="s2">
+      <div class="kicker">Layer 02 / Beneath</div>
+      <h2 id="s2">Not everything<br>shows on the <em>surface</em>.</h2>
+      <div class="body">
+        <p>Something is written in the dark below. Reach for it: <strong>tap or select the box</strong> to bring it up.</p>
+      </div>
+      <div class="artefact void" data-label="Empty space" role="button" tabindex="0" aria-label="Empty space. Tap to reveal.">
         Who is reading this?<br>
         Look closer. There is no one here.<br>
         The key is the one who is reading: <b>no one</b>.
       </div>
-      <form class="answer" data-hash="1pvffcx578" autocomplete="off">
+      <form class="answer" data-hash="1pvffcx578 1xsscnq88c8" autocomplete="off">
         <span class="prompt">&gt;</span>
         <input name="a" aria-label="Answer" placeholder="key" maxlength="40" required>
         <button class="go" type="submit">Enter</button>
@@ -352,29 +382,7 @@
       <div class="feedback" aria-live="polite"></div>
       <div class="hint">
         <button type="button">Need a hint?</button>
-        <div class="text">Select, or long-press and drag across, the empty box above.</div>
-      </div>
-    </section>
-
-    <!-- 2. Turn -->
-    <section class="stage" data-stage="2" aria-labelledby="s2">
-      <div class="kicker">Layer 02 / Turn</div>
-      <h2 id="s2">The instruction<br>arrived <em>scrambled</em>.</h2>
-      <div class="body">
-        <p>A message was intercepted on its way to you. Everything in it has been moved halfway around the wheel.</p>
-      </div>
-      <div class="artefact" data-label="Intercepted">
-        <div class="cipher">YRG &nbsp;TB</div>
-      </div>
-      <form class="answer" data-hash="4xfshy2ysz" autocomplete="off">
-        <span class="prompt">&gt;</span>
-        <input name="a" aria-label="Answer" placeholder="decoded" maxlength="40" required>
-        <button class="go" type="submit">Enter</button>
-      </form>
-      <div class="feedback" aria-live="polite"></div>
-      <div class="hint">
-        <button type="button">Need a hint?</button>
-        <div class="text">The alphabet has 26 letters. Halfway is 13. Shift each letter by 13 (Y becomes L).</div>
+        <div class="text">Tap the empty box. The key is in the last line: who is reading this?</div>
       </div>
     </section>
 
@@ -383,18 +391,18 @@
       <div class="kicker">Layer 03 / First things</div>
       <h2 id="s3">What is left<br>when you <em>let go</em>?</h2>
       <div class="body">
-        <p>Read the doctrine. The answer leads every line.</p>
+        <p>Read the doctrine. The answer is spelled down the side, one letter leading each line.</p>
       </div>
       <div class="artefact" data-label="Doctrine">
         <ol class="lines">
-          <li>Every name you answer to was given to you.</li>
-          <li>Memory is a story told by no one in particular.</li>
-          <li>Put down what you have been carrying.</li>
-          <li>The watcher was never separate from the watched.</li>
-          <li>You were already here before you arrived.</li>
+          <li><b>E</b>very name you answer to was given to you.</li>
+          <li><b>M</b>emory is a story told by no one in particular.</li>
+          <li><b>P</b>ut down what you have been carrying.</li>
+          <li><b>T</b>he watcher was never separate from the watched.</li>
+          <li><b>Y</b>ou were already here before you arrived.</li>
         </ol>
       </div>
-      <form class="answer" data-hash="d1p91fq5de" autocomplete="off">
+      <form class="answer" data-hash="d1p91fq5de 10c1jmp05w3" autocomplete="off">
         <span class="prompt">&gt;</span>
         <input name="a" aria-label="Answer" placeholder="what is left" maxlength="40" required>
         <button class="go" type="submit">Enter</button>
@@ -402,7 +410,7 @@
       <div class="feedback" aria-live="polite"></div>
       <div class="hint">
         <button type="button">Need a hint?</button>
-        <div class="text">Take the first letter of each line, top to bottom.</div>
+        <div class="text">Read the highlighted first letter of each line, top to bottom.</div>
       </div>
     </section>
 
@@ -508,12 +516,27 @@
       var btn = stage.querySelector(".hint button");
       if (!btn || btn.dataset.armed) return;
       btn.dataset.armed = "1";
-      setTimeout(function () { btn.classList.add("ready"); }, 25000);
-      btn.addEventListener("click", function () {
-        stage.querySelector(".hint .text").classList.add("on");
-        btn.style.display = "none";
-      });
+      setTimeout(function () { btn.classList.add("ready"); }, 10000);
+      btn.addEventListener("click", function () { openHint(stage); });
     }
+
+    function openHint(stage) {
+      var text = stage.querySelector(".hint .text");
+      if (!text) return;
+      text.classList.add("on");
+      stage.querySelector(".hint button").style.display = "none";
+    }
+
+    var voidBox = document.querySelector(".void");
+    function lightVoid() { voidBox.classList.add("lit"); }
+    voidBox.addEventListener("click", lightVoid);
+    voidBox.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); lightVoid(); }
+    });
+    document.addEventListener("selectionchange", function () {
+      var sel = document.getSelection();
+      if (sel && !sel.isCollapsed && voidBox.contains(sel.anchorNode)) lightVoid();
+    });
 
     document.querySelectorAll("form.answer").forEach(function (form) {
       form.addEventListener("submit", function (e) {
@@ -526,7 +549,10 @@
           var name = input.value.trim();
           if (!name) return;
           state.name = name;
-        } else if (hash(normalise(input.value)) !== form.dataset.hash) {
+        } else if (form.dataset.hash.split(" ").indexOf(hash(normalise(input.value))) === -1) {
+          form.misses = (form.misses || 0) + 1;
+          // after two misses, hand over the hint without being asked
+          if (form.misses >= 2) openHint(form.closest(".stage"));
           fb.className = "feedback";
           fb.textContent = wrong[Math.floor(Math.random() * wrong.length)];
           form.classList.remove("shake");

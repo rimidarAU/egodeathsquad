@@ -3,104 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>ego death squad</title>
-<meta name="description" content="Six riddles. No prizes.">
 <meta name="theme-color" content="#0A0A0B">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FF2D95'/%3E%3Cpath d='M8 8h16M8 16h12M8 24h16' fill='none' stroke='%230A0A0B' stroke-width='4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Space+Mono:wght@400;700&display=swap">
 <style>
-  :root {
-    --bg: #0A0A0B; --panel: #131315; --line: #2B2B2F; --text: #EDEDE6; --dim: #9A9A92;
-    --lime: #C8FF2E; --pink: #FF2D95; --cyan: #19E3FF;
-  }
+  :root { --bg: #0A0A0B; --line: #2B2B2F; --text: #EDEDE6; --dim: #9A9A92; --lime: #C8FF2E; --pink: #FF2D95; }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); }
   body { color: var(--text); font-family: 'Space Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.5; }
-  :focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
   .mono-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
-  .shell { max-width: 1200px; min-height: 100vh; margin: 0 auto; border-left: 1px solid var(--line); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
-
-  .status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding: 12px 24px; border-bottom: 1px solid var(--line); color: var(--dim); }
-  .status b { color: var(--lime); }
+  .shell { max-width: 1200px; min-height: 100vh; min-height: 100dvh; margin: 0 auto; display: flex; flex-direction: column; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .status, footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding: 12px 24px; color: var(--dim); }
+  .status { border-bottom: 1px solid var(--line); }
+  footer { border-top: 1px solid var(--line); }
   .status .live::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--pink); }
-
-  .hero { background: var(--lime); color: var(--bg); padding: 24px 24px 20px; display: flex; flex-direction: column; min-height: 260px; overflow: hidden; }
-  .hero .top { display: flex; justify-content: space-between; gap: 16px; }
+  main { flex: 1; display: flex; flex-direction: column; background: var(--lime); color: var(--bg); padding: 24px 24px 20px; min-height: 260px; overflow: hidden; }
+  .top { display: flex; justify-content: space-between; gap: 16px; }
   .barcode { width: 150px; height: 44px; flex: none; background: repeating-linear-gradient(90deg, var(--bg) 0 2px, transparent 2px 5px, var(--bg) 5px 6px, transparent 6px 10px, var(--bg) 10px 14px, transparent 14px 16px, var(--bg) 16px 17px, transparent 17px 21px); }
-  h1 { margin: auto 0 0; padding-top: 24px; font-family: 'Archivo', 'Arial Black', sans-serif; font-stretch: 125%; font-weight: 900; font-size: clamp(44px, 12.5vw, 170px); line-height: 0.84; letter-spacing: -0.045em; text-transform: uppercase; margin-left: -0.04em; }
+  h1 { margin: auto 0 0; padding-top: 24px; font-family: 'Archivo', 'Arial Black', sans-serif; font-stretch: 125%; font-weight: 900; font-size: clamp(44px, min(12.5vw, 26vh), 170px); line-height: 0.84; letter-spacing: -0.045em; text-transform: uppercase; margin-left: -0.04em; }
   h1 .dot { color: var(--pink); }
-  .hero .bottom { margin-top: 16px; padding-top: 12px; border-top: 3px solid var(--bg); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; }
-
+  .bottom { margin-top: 16px; padding-top: 12px; border-top: 3px solid var(--bg); }
   .hazard { height: 12px; background: repeating-linear-gradient(-45deg, var(--lime) 0 14px, var(--bg) 14px 28px); }
-
-  main { flex: 1; }
-  .intro { padding: 20px 24px; border-bottom: 1px solid var(--line); color: var(--dim); max-width: 70ch; }
-
-  #list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .slab-r { padding: 16px 24px 20px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; gap: 14px; }
-  .slab-r:nth-child(2n) { border-right: 0; }
-  .slab-r .meta { display: flex; justify-content: space-between; color: var(--dim); }
-  .slab-r .status-tag { color: var(--cyan); }
-  .slab-r.solved { background: var(--lime); color: var(--bg); }
-  .slab-r.solved .meta, .slab-r.solved .status-tag { color: var(--bg); }
-  .q { margin: 0; font-family: 'Archivo', Arial, sans-serif; font-stretch: 112%; font-weight: 800; font-size: clamp(20px, 2.4vw, 28px); line-height: 1.1; letter-spacing: -0.01em; text-transform: uppercase; }
-  .field { display: flex; margin-top: 6px; }
-  input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 12px; background: var(--bg); color: var(--text); border: 2px solid var(--line); border-right: 0; border-radius: 0; }
-  input:disabled { opacity: .7; }
-  button { font: inherit; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; border-radius: 0; }
-  .field button { background: var(--pink); color: var(--bg); border: 2px solid var(--pink); padding: 0 16px; }
-  .field button:hover { background: var(--text); border-color: var(--text); }
-  .slab-r.solved .field button { display: none; }
-  .foot { display: flex; align-items: center; gap: 16px; min-height: 28px; }
-  .hintbtn { background: none; border: 0; color: var(--cyan); padding: 0; text-decoration: underline; font-size: 12px; }
-  .slab-r.solved .hintbtn { display: none; }
-  .msg { font-size: 13px; color: var(--dim); }
-
-  .done { background: var(--pink); color: var(--bg); padding: 24px; font-family: 'Archivo', Arial, sans-serif; font-stretch: 125%; font-weight: 900; font-size: clamp(24px, 4vw, 48px); text-transform: uppercase; letter-spacing: -0.03em; line-height: .95; }
-  .done[hidden] { display: none; }
-
-  footer { padding: 14px 24px; border-top: 1px solid var(--line); color: var(--dim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 24px; }
-
-  @keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-  .shake { animation: shake 240ms ease; }
-  @media (prefers-reduced-motion: reduce) { .shake { animation: none; } }
-  @media (max-width: 720px) {
-    #list { grid-template-columns: 1fr; }
-    .slab-r { border-right: 0; }
-    .status, .hero, .intro, footer, .done { padding-left: 16px; padding-right: 16px; }
-    .slab-r { padding-left: 16px; padding-right: 16px; }
-  }
+  @media (max-width: 720px) { .status, footer, main { padding-left: 16px; padding-right: 16px; } }
 </style>
 </head>
 <body>
 <div class="shell">
-  <div class="status mono-label">
-    <span class="live">Site B</span>
-    <span>Solved <b id="count">00/06</b></span>
-    <span>egodeathsquad.au</span>
-  </div>
-  <header class="hero">
+  <div class="status mono-label"><span class="live">Online</span><span>egodeathsquad.au</span></div>
+  <main>
     <div class="top mono-label">
-      <div>File 002 / Riddles<br>Subject: ego death squad</div>
+      <div>File 001 / Public<br>Subject: ego death squad</div>
       <div class="barcode" aria-hidden="true"></div>
     </div>
     <h1>Ego death<br>squad<span class="dot">.</span></h1>
-    <div class="bottom mono-label"><span>Six riddles</span><span>No prizes</span></div>
-  </header>
-  <div class="hazard" aria-hidden="true"></div>
-  <main>
-    <p class="intro">Answer each riddle in a word or two. Articles don't matter, case doesn't matter. Progress is saved in this browser only.</p>
-    <section id="list" aria-label="Riddles"></section>
-    <div id="done" class="done" hidden>All six solved. Ego: deceased.</div>
+    <div class="bottom mono-label">Australia</div>
   </main>
+  <div class="hazard" aria-hidden="true"></div>
   <footer class="mono-label"><span>End of file</span><span>egodeathsquad.au///</span></footer>
 </div>
-<noscript><p style="padding:24px">This page needs JavaScript to show the riddles.</p></noscript>
-<script src="riddles.js"></script>
-<script src="app.js"></script>
 </body>
 </html>

@@ -64,7 +64,8 @@
   @keyframes spin { to { transform:rotate(360deg);} }
   @keyframes breathe { 0%,100% { transform:scale(1); opacity:.9;} 50% { transform:scale(1.03); opacity:1;} }
   .hero h1 { position:relative; z-index:2; margin:auto 0 0; padding-top:24px; font-size:clamp(46px, min(13vw,24vh), 176px); margin-left:-.04em; mix-blend-mode:difference; }
-  .hero h1 .dot { color:var(--pink); }
+  .hero h1 .dot { color:var(--pink); text-decoration:none; outline-offset:6px; }
+  .hero h1 .dot:hover { color:var(--red); }
   .hero .bottom { position:relative; z-index:2; margin-top:16px; padding-top:12px; border-top:3px solid var(--text); display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 32px; }
   .hero .lede { max-width:46ch; color:var(--dim); font-size:13px; letter-spacing:0; text-transform:none; font-weight:400; }
 
@@ -160,7 +161,7 @@
       <div>File 002 / Restricted<br>Subject: singularity</div>
       <div>Compactness: 100%</div>
     </div>
-    <h1 class="display">Singu-<br>larity<span class="dot">.</span></h1>
+    <h1 class="display">Singu-<br>larity<a class="dot" href="/singularity/subevent/" aria-label="Sub-event">.</a></h1>
     <div class="bottom mono-label">
       <span>Nothing you see here is the hole. It is the light that nearly escaped.</span>
       <span>/singularity</span>

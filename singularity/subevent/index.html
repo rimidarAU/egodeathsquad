@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>EgoDeathSquad</title>
 <meta name="description" content="A singularity with no horizon. What the universe is not supposed to see.">
@@ -14,15 +14,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Space+Mono:wght@400;700&display=swap">
 <style>
-  :root { --bg:#0A0A0B; --panel:#131315; --line:#2B2B2F; --text:#EDEDE6; --dim:#9A9A92; --lime:#C8FF2E; --pink:#FF2D95; --cyan:#19E3FF; --red:#FF3B3B; --blood:#5a0a1c; }
+  :root { --bg:#0A0A0B; --panel:#131315; --line:#2B2B2F; --text:#EDEDE6; --dim:#9A9A92; --lime:#C8FF2E; --pink:#FF2D95; --cyan:#19E3FF; --red:#FF3B3B; --blood:#5a0a1c; --decay:0; }
   * { box-sizing:border-box; }
   html, body { margin:0; background:var(--bg); }
-  html { scroll-behavior:smooth; }
-  body { color:var(--text); font-family:'Space Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; line-height:1.6; }
+  html { scroll-behavior:smooth; overflow-x:hidden; }
+  body { color:var(--text); font-family:'Space Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; line-height:1.6; overflow-x:hidden; }
   a { color:inherit; }
   a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; }
   .mono-label { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
   .display { font-family:'Archivo','Arial Black',sans-serif; font-stretch:125%; font-weight:900; text-transform:uppercase; letter-spacing:-.04em; line-height:.88; }
+  .serif { font-family:'Times New Roman',Times,Georgia,serif; font-weight:400; text-transform:none; letter-spacing:0; }
   .shell { max-width:1200px; margin:0 auto; border-left:1px solid var(--line); border-right:1px solid var(--line); }
   .status, footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 24px; padding:12px 24px; color:var(--dim); }
   .status { border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(10,10,11,.92); backdrop-filter:blur(6px); z-index:10; }
@@ -34,7 +35,6 @@
   .hazard { height:12px; background:repeating-linear-gradient(-45deg,var(--red) 0 14px,var(--bg) 14px 28px); }
   .hazard.pink { background:repeating-linear-gradient(-45deg,var(--pink) 0 14px,var(--bg) 14px 28px); }
 
-  /* redaction */
   .redact { background:var(--text); color:var(--text); padding:0 .2em; user-select:none; }
   .redact.r { background:var(--red); color:var(--red); }
   .warn { color:var(--red); }
@@ -50,7 +50,7 @@
       radial-gradient(1px 1px at 18% 92%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 95% 12%, #fff 50%, transparent 51%);
     background-size:100% 100%, 90% 90%, 80% 80%, 70% 70%, 60% 60%, 110% 110%, 95% 95%, 85% 85%, 75% 75%, 65% 65%, 120% 120%, 105% 105%; }
 
-  /* ===== HERO ===== */
+  /* ===== HERO (intact) ===== */
   .hero { position:relative; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; padding:24px; overflow:hidden; }
   .hero .top { position:relative; z-index:2; display:flex; justify-content:space-between; gap:16px; }
   .naked { position:absolute; left:50%; top:46%; width:min(70vmin,600px); aspect-ratio:1; transform:translate(-50%,-50%); pointer-events:none; }
@@ -72,7 +72,7 @@
   .hero .sub { position:relative; z-index:2; margin-top:10px; color:var(--pink); }
   .hero .bottom { position:relative; z-index:2; margin-top:16px; padding-top:12px; border-top:3px solid var(--text); display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 32px; }
   .glitch { position:relative; display:inline-block; }
-  .glitch::before, .glitch::after { content:attr(data-t); position:absolute; left:0; top:0; width:100%; overflow:hidden; mix-blend-mode:normal; }
+  .glitch::before, .glitch::after { content:attr(data-t); position:absolute; left:0; top:0; width:100%; overflow:hidden; }
   .glitch::before { color:var(--cyan); clip-path:inset(20% 0 60% 0); transform:translate(-3px,0); animation:gl 3.1s steps(1) infinite; }
   .glitch::after { color:var(--pink); clip-path:inset(60% 0 15% 0); transform:translate(3px,0); animation:gl 2.7s steps(1) infinite reverse; }
   @keyframes gl { 0%,88%,100% { opacity:0;} 89% { opacity:1; clip-path:inset(10% 0 70% 0);} 91% { opacity:1; clip-path:inset(60% 0 20% 0);} 93% { opacity:1; clip-path:inset(35% 0 45% 0);} 95% { opacity:0;} }
@@ -90,47 +90,118 @@
   .vis { position:relative; min-height:360px; border-left:1px solid var(--line); overflow:hidden; background:#000; display:grid; place-items:center; }
   .cap { position:absolute; left:16px; bottom:12px; color:var(--dim); font-size:11px; line-height:1.4; z-index:2; }
 
-  /* 01 censorship: redaction wall */
+  /* 01 (intact, one tell) */
   .wall { width:86%; display:grid; gap:10px; }
   .wall i { display:block; height:14px; background:var(--text); opacity:.9; }
   .wall i:nth-child(2n) { width:72%; } .wall i:nth-child(3n) { width:88%; } .wall i:nth-child(5n) { width:40%; background:var(--red); }
   .wall i.gap { height:14px; background:transparent; }
-  .wall .leak { height:14px; background:linear-gradient(90deg, var(--text) 0 55%, var(--pink) 55% 60%, var(--text) 60%); animation:leak 5s steps(1) infinite; }
+  .wall i.tell { transform:translateX(3px) rotate(.4deg); }
+  .wall .leak { height:14px; animation:leak 5s steps(1) infinite; }
   @keyframes leak { 0%,70%,100% { background:var(--text);} 72%,80% { background:linear-gradient(90deg, var(--text) 0 55%, var(--pink) 55% 61%, var(--text) 61%);} 82%,86% { background:linear-gradient(90deg, var(--text) 0 20%, var(--pink) 20% 70%, var(--text) 70%);} }
 
-  /* 02 exposure: ring that fails to form */
+  /* 02: slightly wrong */
+  #exposure .head { border-bottom-style:dashed; }
+  #exposure .copy { padding-top:34px; padding-left:31px; }
+  #exposure h2 { letter-spacing:-.02em; }
+  #exposure h2 .drift { display:inline-block; transform:translate(.08em,.06em) rotate(-1.5deg); }
+  #exposure p:nth-of-type(2) { max-width:58ch; margin-left:-6px; }
+  #exposure .vis { border-left-color:var(--pink); }
+  #exposure .failring { transform:translate(6%,-4%); }
+  #exposure .cap { left:auto; right:14px; text-align:right; }
   .failring { position:relative; width:min(62%,300px); aspect-ratio:1; border-radius:50%; }
   .failring::before { content:""; position:absolute; inset:0; border-radius:50%; box-shadow:0 0 0 2px rgba(237,237,230,.9), 0 0 24px 4px rgba(237,237,230,.4); animation:fail 6s ease-in-out infinite; }
   .failring .eye { position:absolute; left:50%; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%; background:#fff; box-shadow:0 0 14px 4px #fff, 0 0 50px 16px var(--pink); animation:jitter .2s steps(1) infinite; }
   .failring .iris { position:absolute; left:50%; top:50%; width:46%; aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, transparent 0 24%, rgba(255,45,149,.25) 30%, transparent 32%, rgba(25,227,255,.18) 40%, transparent 42%); animation:spin 12s linear infinite; }
   @keyframes fail { 0%,100% { transform:scale(1); opacity:1;} 40% { transform:scale(.55); opacity:.9;} 55% { transform:scale(.2); opacity:.3;} 60% { transform:scale(0); opacity:0;} 61% { transform:scale(1.2); opacity:0;} 75% { transform:scale(1); opacity:1;} }
 
-  /* 03 cauchy: equations tearing */
-  .tear { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:24px; font-size:12px; color:var(--dim); line-height:1.9; overflow:hidden; }
+  /* 03: broken */
+  #cauchy { border-bottom:2px dotted var(--pink); }
+  #cauchy .head { padding:16px 24px 9px 38px; border-bottom:1px solid var(--cyan); justify-content:flex-start; gap:48px; }
+  #cauchy .head b { color:var(--lime); }
+  #cauchy .head .wrong { text-decoration:line-through; opacity:.6; }
+  #cauchy .body { grid-template-columns:1.25fr .75fr; transform:rotate(-.8deg); transform-origin:left top; }
+  #cauchy .copy { padding:36px 24px 60px 24px; border-right:3px solid var(--red); margin-right:-22px; position:relative; z-index:2; background:rgba(10,10,11,.85); }
+  #cauchy h2 { font-size:clamp(30px,5.2vw,66px); line-height:.8; }
+  #cauchy h2 .up { display:inline-block; transform:translateY(-.18em); }
+  #cauchy h2 .dn { display:inline-block; transform:translateY(.14em) rotate(2deg); color:var(--pink); }
+  #cauchy p:nth-of-type(1) { max-width:46ch; }
+  #cauchy p:nth-of-type(2) { max-width:68ch; line-height:1.25; margin-left:18px; font-size:13px; }
+  #cauchy p.note { border-left-color:var(--cyan); border-left-width:7px; padding-left:18px; margin-left:-24px; padding-right:36px; }
+  #cauchy .stray { position:absolute; left:24px; bottom:14px; color:var(--dim); font-size:11px; white-space:nowrap; z-index:3; transform:rotate(-1.5deg); background:var(--bg); padding:2px 6px; }
+  #cauchy .vis { border-left:0; outline:1px solid var(--line); outline-offset:-7px; background:#050507; }
+  .tear { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:24px 24px 24px 30px; font-size:12px; color:var(--dim); line-height:1.9; overflow:hidden; }
   .tear div { white-space:nowrap; }
   .tear .x { color:var(--red); }
   .tear .q { color:var(--pink); animation:blink 1.6s steps(2) infinite; }
+  .tear .mirror { display:inline-block; transform:scaleX(-1); }
+  .tear .off { margin-left:-18px; letter-spacing:.3em; }
   .scan { position:absolute; left:0; right:0; height:40%; background:linear-gradient(transparent, rgba(255,45,149,.08) 50%, transparent); animation:scan 7s linear infinite; pointer-events:none; }
   @keyframes scan { from { top:-40%; } to { top:100%; } }
+  .hazard.broken { background:repeating-linear-gradient(-45deg,var(--red) 0 14px,var(--bg) 14px 28px) 0 0/100% 12px no-repeat, repeating-linear-gradient(-31deg,var(--pink) 0 9px,var(--bg) 9px 23px) 0 12px/100% 6px no-repeat, repeating-linear-gradient(-45deg,var(--red) 0 14px,var(--bg) 14px 28px) 37px 18px/100% 12px no-repeat; height:30px; }
 
-  /* 04 diagram */
-  .diagram { padding:24px; background:var(--panel); }
+  /* 04: wrecked */
+  #diagram .head { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; padding:0; border-bottom:0; }
+  #diagram .head > span { padding:16px 24px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); }
+  #diagram .head > span:nth-child(2) { border-bottom-color:var(--pink); transform:translateY(5px); background:var(--panel); }
+  #diagram .head > span:nth-child(3) { border-right:0; text-align:right; font-family:'Times New Roman',serif; text-transform:none; letter-spacing:0; font-style:italic; font-size:14px; }
+  .diagram { padding:24px 24px 24px 24px; background:var(--panel); position:relative; overflow:hidden;
+    background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size:48px 48px, 41px 41px; }
   .diagram svg { width:100%; height:auto; display:block; }
-  .legend { display:flex; flex-wrap:wrap; gap:8px 24px; padding:0 24px 20px; color:var(--dim); font-size:12px; }
+  .diagram svg.echo { position:absolute; inset:24px; width:calc(100% - 48px); height:auto; opacity:.22; transform:translate(14px,9px) rotate(.6deg); pointer-events:none; mix-blend-mode:screen; }
+  .legend { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px 24px; padding:14px 24px 20px; color:var(--dim); font-size:12px; }
   .legend i { display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:8px; }
+  .legend span:nth-child(2) { transform:translateY(9px); }
+  .legend span:nth-child(3) { text-transform:lowercase; letter-spacing:0; }
+  .legend span:nth-child(4) { grid-column:1 / -1; text-align:right; font-family:'Times New Roman',serif; text-transform:none; letter-spacing:0; font-size:15px; }
 
-  /* end */
-  .end { background:var(--red); color:var(--bg); padding:28px 24px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px 32px; align-items:end; }
-  .end .display { font-size:clamp(28px,5vw,64px); }
+  /* end: unhinged */
+  .end { background:var(--red); color:var(--bg); padding:28px 24px 20px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px 32px; align-items:end; position:relative; overflow:visible; margin-right:-36px; transform:rotate(.9deg); transform-origin:left bottom; }
+  .end .display { font-size:clamp(28px,5.6vw,72px); }
+  .end .display .ghost { display:block; color:rgba(10,10,11,.32); margin-top:-.5em; margin-left:.4em; font-stretch:62%; }
+  .end .display .ser { font-family:'Times New Roman',serif; font-weight:400; text-transform:lowercase; letter-spacing:0; font-style:italic; }
   .end a { text-decoration:none; border-bottom:3px solid var(--bg); }
   .end a:hover { color:var(--text); border-color:var(--text); }
+  .end .loop { position:absolute; right:52px; top:-14px; background:var(--bg); color:var(--red); padding:4px 10px; font-size:11px; transform:rotate(-3deg); }
   .notice { padding:14px 24px; border-bottom:1px solid var(--line); background:var(--blood); color:var(--text); display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 24px; }
+  footer.eof { display:block; padding-bottom:6px; }
+  footer.eof div { display:flex; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  footer.eof div:nth-child(2) { opacity:.75; margin-left:14px; }
+  footer.eof div:nth-child(3) { opacity:.55; margin-left:-9px; letter-spacing:.3em; }
+  footer.eof div:nth-child(4) { opacity:.4; font-family:'Times New Roman',serif; text-transform:none; letter-spacing:0; }
+  footer.eof div:nth-child(5) { opacity:.3; }
+  footer.eof div:nth-child(6) { opacity:.18; }
+  footer.eof div:nth-child(7) { opacity:.08; }
+  .after { height:48vh; background:var(--bg); position:relative; }
+  .after span { position:absolute; left:24px; top:40%; color:var(--line); font-size:11px; letter-spacing:.3em; }
+  .after span:nth-child(2) { left:auto; right:24px; top:62%; transform:rotate(180deg); }
+  .after span:nth-child(3) { left:38%; top:85%; color:var(--blood); }
+
+  /* ===== scroll-driven global decay (progressive, cumulative) ===== */
+  .shell { border-right-width:calc(1px + var(--decay) * 7px); }
+  .d2 .shell { border-left-color:var(--pink); }
+  .d2 .status { backdrop-filter:blur(calc(6px - var(--decay) * 6px)); }
+  .d2 .status .live { color:var(--text); }
+  .d3 .status { border-bottom:1px dashed var(--red); }
+  .d3 .status .live::before { background:var(--lime); animation-duration:.35s; }
+  .d3 .status a:nth-child(1) { text-decoration-style:wavy; }
+  .d3 .status .swap { color:var(--pink); }
+  .d4 .status { transform:translateX(calc(var(--decay) * -10px + 6px)); }
+  .d4 .status .swap::after { content:" / home / home"; color:var(--dim); }
+  .d4 .shell { filter:hue-rotate(calc((var(--decay) - .6) * 25deg)); }
+  .d5 .status .live { visibility:hidden; }
+  .d5 .status .live::before { visibility:visible; }
+  .d5 .shell { border-left-width:0; }
 
   @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
   @media (max-width:820px) {
-    .body { grid-template-columns:1fr; }
+    .body, #cauchy .body { grid-template-columns:1fr; }
     .vis { border-left:0; border-top:1px solid var(--line); min-height:300px; }
-    .end { grid-template-columns:1fr; }
+    #cauchy .copy { border-right:0; margin-right:0; border-bottom:3px solid var(--red); }
+    #cauchy .stray { right:8px; bottom:70px; }
+    .end { grid-template-columns:1fr; margin-right:-10px; }
+    #diagram .head { grid-template-columns:1fr; }
+    #diagram .head > span { border-right:0; }
+    .legend { grid-template-columns:1fr 1fr; }
     .status, footer, .hero, .copy, .head, .diagram, .end, .notice { padding-left:16px; padding-right:16px; }
     .legend { padding-left:16px; padding-right:16px; }
     .naked { top:42%; }
@@ -139,7 +210,7 @@
 </head>
 <body>
 <div class="shell">
-  <div class="status mono-label"><span class="live">Censorship failed</span><span><a href="/singularity/">&larr; /singularity</a>&nbsp;&nbsp;<a href="/">home</a></span></div>
+  <div class="status mono-label"><span class="live">Censorship failed</span><span><a href="/singularity/">&larr; /singularity</a>&nbsp;&nbsp;<a class="swap" href="/">home</a></span></div>
   <div class="notice mono-label"><span class="warn">Warning: this object has no horizon. Do not look directly at the centre.</span><span>It is already looking at you.</span></div>
 
   <header class="hero">
@@ -170,7 +241,7 @@
       </div>
       <div class="vis" aria-hidden="true">
         <div class="wall">
-          <i></i><i></i><i></i><i class="gap"></i><i></i><i class="leak"></i><i></i><i></i><i class="gap"></i><i></i><i></i><i class="leak"></i><i></i>
+          <i></i><i></i><i></i><i class="gap"></i><i></i><i class="leak"></i><i></i><i class="tell"></i><i class="gap"></i><i></i><i></i><i class="leak"></i><i></i>
         </div>
         <div class="cap">Redaction holding. Redaction holding. Redaction <span class="p">leaking</span>.</div>
       </div>
@@ -182,10 +253,10 @@
     <div class="head mono-label"><span><b>02</b> &nbsp;Observing the exposure</span><span>There is no safe distance</span></div>
     <div class="body">
       <div class="copy">
-        <h2 class="display">Nothing stalls.<br>Nothing fades.</h2>
+        <h2 class="display">Nothing stalls.<br>Nothing <span class="drift">fades.</span></h2>
         <p>At a black hole you watch things slow, redden and freeze at the edge; the horizon hides the ending. Here there is no edge. Light leaves the centre and arrives. Objects falling in do not freeze; they reach the point of infinite curvature while you watch, and the light of that arrival comes back out to you, not redshifted to nothing but <span class="c">blueshifted</span>, piled up, every moment of the collapse delivered at once.</p>
-        <p>Where a photon ring should be, light tries to orbit and finds no stable path. The ring forms, tightens, and collapses into the point, then there is only the point: a region smaller than anything, brighter than its surroundings, with no size you could measure and no edge you could point to. Telescopes do not resolve it. They <span class="p">report</span> it.</p>
-        <p class="dim">Look away. You already can't. The light is in your eye before you decide.</p>
+        <p>Where a photon ring should be, light tries to orbit and finds no stable path. The ring forms, tightens, and collapses into the point, then there is only the point: a region smaller than anything, brighter than its surroundings, with no size you could measure and no edge you could point to. Telescopes do not resolve it. They <span class="p">report</span> it. They report it.</p>
+        <p class="dim">Look away. You already can't. The light is in your eye before you <span class="serif">decide</span>.</p>
       </div>
       <div class="vis" aria-hidden="true">
         <div class="stars"></div>
@@ -197,91 +268,114 @@
 
   <!-- 03 -->
   <section id="cauchy">
-    <div class="head mono-label"><span><b>03</b> &nbsp;Beyond the Cauchy horizon</span><span>The end of prediction</span></div>
+    <div class="head mono-label"><span><b>03</b> &nbsp;Beyond the Cauchy horizon</span><span><span class="wrong">03</span> &nbsp;The end of prediction</span><span class="serif">(the end of prediction)</span></div>
     <div class="body">
       <div class="copy">
-        <h2 class="display">The equations<br>stop answering.</h2>
+        <h2 class="display">The <span class="up">equations</span><br>stop <span class="dn">answering.</span></h2>
         <p>Relativity is deterministic. Give it the universe at one instant and it hands you every instant after. That promise holds up to a surface called the <span class="k">Cauchy horizon</span>. Past it, the future is no longer fixed by the past. A naked singularity puts that surface in the open, so the region where the future is unwritten includes <span class="p">here</span>.</p>
-        <p>Anything consistent with the equations may emerge from the point. Not probably. Not eventually. Simply: may. Light. Matter. Field configurations that have never existed. The mathematics does not forbid it, because the mathematics has nothing to say. You are standing in a part of spacetime that the laws have declined to describe.</p>
-        <p class="note">The horror of a black hole is that you cannot know what is inside. The horror of a naked singularity is that you can, and it does not know either.</p>
+        <p>Anything consistent with the equations may emerge from the point. Not probably. Not eventually. Simply: may. Light. Matter. Field configurations that have never existed. The mathematics does not forbid it, because the mathematics has nothing to say. You are standing in a part of spacetime that the laws have declined to describe. You are standing in a part of spacetime. You are standing.</p>
+        <p class="note">The horror of a black hole is that you cannot know what is inside. The horror of a naked singularity is that you can, and it <span class="serif">does not know either.</span></p>
+        <div class="stray mono-label">this paragraph was not here before</div>
       </div>
       <div class="vis" aria-hidden="true">
         <div class="tear">
           <div>G<sub>μν</sub> + Λg<sub>μν</sub> = 8πG T<sub>μν</sub></div>
           <div>r<sub>±</sub> = M ± √(M² − a² − Q²)</div>
-          <div>a² + Q² > M² &nbsp;&nbsp;→&nbsp;&nbsp; r<sub>±</sub> ∈ <span class="x">ℂ ∖ ℝ</span></div>
+          <div class="off">a² + Q² > M² &nbsp;&nbsp;→&nbsp;&nbsp; r<sub>±</sub> ∈ <span class="x">ℂ ∖ ℝ</span></div>
           <div>horizon: <span class="x">none</span></div>
-          <div>Cauchy surface: <span class="x">incomplete</span></div>
+          <div><span class="mirror">Cauchy surface:</span> <span class="x">incomplete</span></div>
           <div>∂<sub>t</sub> ψ = <span class="q">?</span></div>
-          <div>ψ(t &gt; t<sub>c</sub>) = <span class="q">?</span></div>
+          <div>ψ(t &gt; t<sub>c</sub>) = <span class="q">?</span> <span class="q">?</span> <span class="q">?</span></div>
           <div>observer at ∞: <span class="x">not shielded</span></div>
+          <div>predictability: <span class="x">false</span></div>
           <div>predictability: <span class="x">false</span></div>
           <div>&nbsp;</div>
           <div class="redact">this line has been removed for your protection</div>
           <div class="redact r">this line removed itself</div>
+          <div class="serif" style="color:var(--pink)">this line is not in the source</div>
         </div>
         <div class="scan"></div>
       </div>
     </div>
   </section>
+  <div class="hazard broken" aria-hidden="true"></div>
 
   <!-- 04 -->
   <section id="diagram">
-    <div class="head mono-label"><span><b>04</b> &nbsp;Spacetime diagram</span><span>Collapse without a horizon</span></div>
+    <div class="head mono-label"><span><b>04</b> &nbsp;Spacetime diagram</span><span><b>04</b> &nbsp;Spacetime diagram</span><span>collapse, without a horizon, without a diagram</span></div>
     <div class="diagram">
-      <svg viewBox="0 0 1000 360" role="img" aria-label="Spacetime diagram of a collapse producing a naked singularity: the star's surface shrinks to a point, no event horizon forms, and light rays from the singularity reach distant observers.">
+      <svg viewBox="0 0 1000 360" role="img" aria-label="Spacetime diagram of a collapse producing a naked singularity: the star's surface shrinks to a point, no event horizon forms, and light rays from the singularity reach distant observers. The diagram is drawn as if damaged.">
         <defs>
           <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#C8FF2E" opacity=".35"/><circle cx="4" cy="4" r=".8" fill="#C8FF2E" opacity=".2"/></pattern>
         </defs>
         <path d="M60 60 C 260 60, 420 100, 560 180 C 420 260, 260 300, 60 300 Z" fill="url(#grain)"/>
         <path d="M60 60 C 260 60, 420 100, 560 180" fill="none" stroke="#C8FF2E" stroke-width="2.5"/>
-        <path d="M60 300 C 260 300, 420 260, 560 180" fill="none" stroke="#C8FF2E" stroke-width="2.5"/>
-        <!-- where the horizon should be -->
+        <path d="M60 300 C 260 300, 420 260, 560 180" fill="none" stroke="#C8FF2E" stroke-width="2.5" stroke-dasharray="40 6 2 6"/>
         <path d="M440 180 L 520 130 L 960 130" fill="none" stroke="#FF3B3B" stroke-width="1.5" stroke-dasharray="3 9" opacity=".5"/>
-        <path d="M440 180 L 520 230 L 960 230" fill="none" stroke="#FF3B3B" stroke-width="1.5" stroke-dasharray="3 9" opacity=".5"/>
-        <!-- singularity -->
+        <path d="M440 180 L 520 230 L 700 230" fill="none" stroke="#FF3B3B" stroke-width="1.5" stroke-dasharray="3 9" opacity=".5"/>
         <polyline points="560,180 575,172 590,188 605,172 620,188 635,172 650,188 665,172 680,188 695,172 710,188 725,172 740,188 755,172 770,188 785,172 800,188 815,172 830,188 845,172 860,188 875,172 890,188 905,172 920,188 935,172 950,188 960,180" fill="none" stroke="#FF2D95" stroke-width="2.5"/>
-        <!-- light escaping FROM the singularity -->
+        <polyline points="560,180 575,172 590,188 605,172 620,188 635,172 650,188 665,172 680,188 695,172 710,188 725,172 740,188" fill="none" stroke="#FF2D95" stroke-width="2.5" transform="translate(-6,22) rotate(-4 560 180)" opacity=".55"/>
         <g stroke="#FF2D95" stroke-width="1.2" opacity=".85">
           <line x1="600" y1="180" x2="760" y2="40"/><line x1="660" y1="180" x2="820" y2="40"/><line x1="720" y1="180" x2="880" y2="40"/><line x1="780" y1="180" x2="940" y2="40"/>
           <line x1="600" y1="180" x2="760" y2="320"/><line x1="660" y1="180" x2="820" y2="320"/><line x1="720" y1="180" x2="880" y2="320"/><line x1="780" y1="180" x2="940" y2="320"/>
+          <line x1="600" y1="180" x2="300" y2="40" opacity=".5"/><line x1="600" y1="180" x2="120" y2="330" opacity=".4"/>
         </g>
-        <!-- cauchy horizon -->
         <path d="M560 180 L 960 60" fill="none" stroke="#19E3FF" stroke-width="1.5" stroke-dasharray="6 6"/>
         <path d="M560 180 L 960 300" fill="none" stroke="#19E3FF" stroke-width="1.5" stroke-dasharray="6 6"/>
-        <!-- observer -->
         <line x1="880" y1="40" x2="880" y2="320" stroke="#EDEDE6" stroke-width="1.5"/>
+        <line x1="862" y1="60" x2="896" y2="300" stroke="#EDEDE6" stroke-width="1" opacity=".4"/>
         <circle cx="880" cy="180" r="4" fill="#EDEDE6"/>
+        <circle cx="880" cy="180" r="11" fill="none" stroke="#EDEDE6" stroke-width="1" opacity=".5"/>
         <line x1="60" y1="330" x2="960" y2="330" stroke="#EDEDE6" stroke-width="1.5"/>
-        <polygon points="960,330 948,324 948,336" fill="#EDEDE6"/>
+        <polygon points="60,330 72,324 72,336" fill="#EDEDE6"/>
+        <polygon points="960,330 948,324 948,336" fill="#EDEDE6" opacity=".3"/>
         <g font-family="Space Mono, monospace" font-size="13" font-weight="700" letter-spacing="1.5">
           <text x="120" y="48" fill="#C8FF2E">SURFACE OF THE STAR</text>
+          <text x="128" y="318" fill="#C8FF2E" opacity=".45" transform="rotate(180 220 314)">SURFACE OF THE STAR</text>
           <text x="300" y="118" fill="#FF3B3B" opacity=".75">HORIZON (DOES NOT FORM) →</text>
           <text x="600" y="210" fill="#FF2D95">SINGULARITY, EXPOSED</text>
+          <text x="608" y="226" fill="#FF2D95" opacity=".35">SINGULARITY, EXPOSED</text>
           <text x="760" y="70" fill="#19E3FF" font-size="11">cauchy horizon</text>
           <text x="890" y="176" fill="#EDEDE6" font-size="11">you</text>
+          <text x="890" y="196" fill="#EDEDE6" font-size="11" opacity=".5">you</text>
+          <text x="890" y="216" fill="#EDEDE6" font-size="11" opacity=".25">you</text>
           <text x="905" y="352" fill="#EDEDE6">TIME</text>
+          <text x="60" y="352" fill="#EDEDE6" opacity=".5">TIME</text>
+          <text x="400" y="352" fill="#EDEDE6" font-family="Times New Roman, serif" font-weight="400" letter-spacing="0" font-style="italic" font-size="14">(which direction)</text>
         </g>
+      </svg>
+      <svg class="echo" viewBox="0 0 1000 360" aria-hidden="true">
+        <path d="M60 60 C 260 60, 420 100, 560 180 C 420 260, 260 300, 60 300" fill="none" stroke="#C8FF2E" stroke-width="2"/>
+        <polyline points="560,180 575,172 590,188 605,172 620,188 635,172 650,188 665,172 680,188 695,172 710,188 725,172 740,188 755,172 770,188 785,172 800,188 815,172 830,188 845,172 860,188 875,172 890,188 905,172 920,188 935,172 950,188 960,180" fill="none" stroke="#FF2D95" stroke-width="2"/>
+        <line x1="880" y1="40" x2="880" y2="320" stroke="#EDEDE6" stroke-width="1.5"/>
       </svg>
     </div>
     <div class="legend mono-label">
       <span><i style="background:#C8FF2E"></i>Collapsing star</span>
       <span><i style="background:#FF3B3B;opacity:.6"></i>Where a horizon should be</span>
-      <span><i style="background:#FF2D95"></i>Singularity and its light, reaching you</span>
-      <span><i style="background:#19E3FF"></i>Cauchy horizon: prediction ends</span>
+      <span><i style="background:#FF2D95"></i>singularity and its light, reaching you</span>
+      <span><i style="background:#19E3FF"></i>Cauchy horizon: prediction ends. <span class="redact">prediction ends.</span> prediction</span>
     </div>
   </section>
 
   <div class="hazard pink" aria-hidden="true"></div>
   <div class="end">
-    <div class="display">A black hole keeps its secret.<br>This one keeps nothing.</div>
+    <span class="loop mono-label">you have read this before</span>
+    <div class="display">A black hole keeps its secret.<br>This one keeps <span class="ser">nothing.</span><span class="ghost">This one keeps nothing. This one keeps</span></div>
     <a class="mono-label" href="/singularity/">&larr; Back behind the horizon</a>
   </div>
 
-  <footer class="mono-label">
-    <span>End of file<span class="redact r"> </span></span>
-    <span>egodeathsquad.au/singularity/subevent///</span>
+  <footer class="mono-label eof">
+    <div><span>End of file<span class="redact r"> </span></span><span>egodeathsquad.au/singularity/subevent///</span></div>
+    <div><span>End of file</span><span>egodeathsquad.au/singularity/subevent//</span></div>
+    <div><span>End of f▯le</span><span>egodeathsquad.au/singularity/sub</span></div>
+    <div><span>end of file</span><span>egodeathsquad.au/singularity/</span></div>
+    <div><span>End ▯f ▯ile</span><span>egodeathsquad.au/</span></div>
+    <div><span>E▯d</span><span>egodeathsq</span></div>
+    <div><span>▯</span><span>e</span></div>
   </footer>
+  <div class="after" aria-hidden="true"><span>there is no end of file</span><span>there is no end of file</span><span>file</span></div>
 </div>
+<script src="decay.js"></script>
 </body>
 </html>

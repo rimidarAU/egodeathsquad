@@ -27,6 +27,10 @@
   .status, footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 24px; padding:12px 24px; color:var(--dim); }
   .status { border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(10,10,11,.92); backdrop-filter:blur(6px); z-index:10; }
   footer { border-top:1px solid var(--line); }
+  .addendum { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 24px; padding:18px 24px; border-top:1px solid var(--line); background:var(--panel); }
+  .addendum .mono-label { color:var(--dim); }
+  .addendum a { color:var(--text); text-decoration:underline; text-decoration-color:var(--pink); text-underline-offset:4px; }
+  .addendum a:hover { color:var(--pink); }
   .status .live::before { content:""; display:inline-block; width:8px; height:8px; margin-right:8px; background:var(--pink); }
   .status a { text-decoration:underline; }
   .status a:hover { color:var(--lime); }
@@ -144,7 +148,7 @@
     .cell:nth-child(3) { border-right:0; }
     .cell:nth-child(-n+3) { border-bottom:1px solid var(--line); }
     .end { grid-template-columns:1fr; }
-    .status, footer, .hero, .copy, .head, .diagram, .end { padding-left:16px; padding-right:16px; }
+    .status, footer, .hero, .copy, .head, .diagram, .end, .addendum { padding-left:16px; padding-right:16px; }
     .legend { padding-left:16px; padding-right:16px; }
     .hole { top:42%; }
   }
@@ -280,6 +284,11 @@
   <div class="end">
     <div class="display">The horizon is a one-way door.<br>The singularity is when it closes.</div>
     <a class="mono-label" href="/">&larr; Back to egodeathsquad.au</a>
+  </div>
+
+  <div class="addendum">
+    <span class="mono-label">Addendum</span>
+    <a href="/singularity/subevent/">Learn more about the centre of a black hole here &rarr;</a>
   </div>
 
   <footer class="mono-label">

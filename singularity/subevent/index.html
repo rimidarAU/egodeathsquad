@@ -31,6 +31,9 @@
   .status .live::before { content:""; display:inline-block; width:8px; height:8px; margin-right:8px; background:var(--pink); }
   .status a { text-decoration:underline; }
   .status a:hover { color:var(--lime); }
+  #snd { background:none; border:1px solid var(--line); color:var(--dim); padding:2px 8px; cursor:pointer; font:inherit; letter-spacing:.14em; text-transform:uppercase; font-size:11px; }
+  #snd:hover, #snd[aria-pressed="true"] { color:var(--pink); border-color:var(--pink); }
+  .d5 #snd { animation:blink .9s steps(2) infinite; }
   .hazard { height:12px; background:repeating-linear-gradient(-45deg,var(--lime) 0 14px,var(--bg) 14px 28px); }
   .hazard.pink { background:repeating-linear-gradient(-45deg,var(--pink) 0 14px,var(--bg) 14px 28px); }
   .redact { background:var(--text); color:var(--text); padding:0 .2em; user-select:none; }
@@ -245,7 +248,7 @@
 </head>
 <body>
 <div class="shell">
-  <div class="status mono-label"><span class="live"><span>Point of no return</span></span><span><a href="/singularity/">&larr; /singularity</a>&nbsp;&nbsp;<a class="swap" href="/">home</a></span></div>
+  <div class="status mono-label"><span class="live"><span>Point of no return</span></span><span><button id="snd" type="button" class="mono-label" aria-pressed="false">☉ sound</button>&nbsp;&nbsp;<a href="/singularity/">&larr; /singularity</a>&nbsp;&nbsp;<a class="swap" href="/">home</a></span></div>
 
   <header class="hero">
     <div class="stars" aria-hidden="true"></div>
@@ -282,7 +285,7 @@
   </section>
 
   <!-- 02 -->
-  <section id="exposure">
+  <section id="exposure" data-corrupt=".35">
     <div class="head mono-label"><span><b>02</b> &nbsp;Observing the exposure</span><span>There is no safe distance <span class="g">· Lection II</span></span></div>
     <div class="body">
       <div class="copy">
@@ -300,14 +303,14 @@
     </div>
   </section>
 
-  <div class="lection mono-label">
+  <div class="lection mono-label" data-corrupt=".5">
     <span>Tzimtzum: the withdrawal that makes room for a world.</span>
     <span class="heb">אין סוף</span>
     <span class="r">Here nothing withdrew. <i>The boundless did not step back.</i></span>
   </div>
 
   <!-- 03 -->
-  <section id="cauchy">
+  <section id="cauchy" data-corrupt=".7">
     <div class="head mono-label"><span><b>03</b> &nbsp;Beyond the Cauchy horizon</span><span><span class="wrong">03</span> &nbsp;The end of prediction</span><span class="serif g">Third Mystery</span></div>
     <div class="body">
       <div class="copy">
@@ -411,7 +414,7 @@
         </g>
       </svg>
     </div>
-    <div class="legend mono-label">
+    <div class="legend mono-label" data-corrupt=".9">
       <span><i style="background:#C8FF2E"></i>Collapsing star</span>
       <span><i style="background:#FF3B3B;opacity:.6"></i>Where a horizon should be</span>
       <span><i style="background:#FF2D95"></i>singularity and its light, reaching you</span>
@@ -421,7 +424,7 @@
   </section>
 
   <!-- 05 -->
-  <section id="litany">
+  <section id="litany" data-corrupt="1.1">
     <div class="head mono-label"><span>05 ∴ Litany</span><span>to be said facing the point</span></div>
     <div class="lit">
       <div class="circle" aria-hidden="true">
@@ -461,13 +464,13 @@
   </section>
 
   <div class="hazard pink" aria-hidden="true"></div>
-  <div class="end">
+  <div class="end" data-corrupt="1.3">
     <span class="loop mono-label">you have read this before · you will read this again</span>
     <div class="display">Benediction<span class="sym">.</span><br>A black hole keeps its secret.<br>This one keeps <span class="ser">nothing.</span><span class="ghost">This one keeps nothing. This one keeps you. This one</span></div>
     <a class="mono-label" href="/singularity/">&larr; Back behind the horizon</a>
   </div>
 
-  <footer class="mono-label eof">
+  <footer class="mono-label eof" data-corrupt="1.6">
     <div><span>End of file<span class="redact r"> </span></span><span>egodeathsquad.au/singularity/subevent///</span></div>
     <div><span>End of file ∴</span><span>egodeathsquad.au/singularity/subevent//</span></div>
     <div><span>End of f▯le ⊙</span><span>egodeathsquad.au/singularity/sub</span></div>

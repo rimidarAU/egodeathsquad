@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>singularity</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A0A0B'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23C8FF2E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  :root { --bg: #0A0A0B; --line: #2B2B2F; --text: #EDEDE6; --dim: #9A9A92; --lime: #C8FF2E; --pink: #FF2D95; --cyan: #19E3FF; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body { color: var(--text); font-family: 'Space Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--lime); }
+  a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+  .mono-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .shell { max-width: 1200px; min-height: 100vh; min-height: 100dvh; margin: 0 auto; display: flex; flex-direction: column; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .status, footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding: 12px 24px; color: var(--dim); }
+  .status { border-bottom: 1px solid var(--line); }
+  footer { border-top: 1px solid var(--line); }
+  .status .live::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--lime); }
+  .status a { text-decoration: underline; }
+
+  main { flex: 1; position: relative; display: flex; flex-direction: column; padding: 24px; min-height: 420px; overflow: hidden; }
+  .rays { position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 50%, var(--lime) 0 5px, transparent 6px),
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(237,237,230,.14) 0 1deg, transparent 1deg 7.5deg);
+    -webkit-mask: radial-gradient(circle at 50% 50%, #000 0, #000 30%, transparent 70%);
+            mask: radial-gradient(circle at 50% 50%, #000 0, #000 30%, transparent 70%);
+    animation: spin 90s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .rays { animation: none; } }
+  .top, h1, .bottom { position: relative; z-index: 2; }
+  .top { display: flex; justify-content: space-between; gap: 16px; }
+  h1 { margin: auto 0 0; padding-top: 24px; font-family: 'Archivo', 'Arial Black', sans-serif; font-stretch: 125%; font-weight: 900; font-size: clamp(44px, min(12.5vw, 26vh), 170px); line-height: 0.84; letter-spacing: -0.045em; text-transform: uppercase; margin-left: -0.04em; }
+  h1 .dot { color: var(--lime); }
+  .bottom { margin-top: 16px; padding-top: 12px; border-top: 3px solid var(--text); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; }
+  .hazard { height: 12px; background: repeating-linear-gradient(-45deg, var(--lime) 0 14px, var(--bg) 14px 28px); }
+  @media (max-width: 720px) { .status, footer, main { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="status mono-label"><span class="live">Point of no return</span><a href="/">&larr; egodeathsquad.au</a></div>
+  <main>
+    <div class="rays" aria-hidden="true"></div>
+    <div class="top mono-label">
+      <div>File 002 / Restricted<br>Subject: singularity</div>
+      <div>Density: infinite</div>
+    </div>
+    <h1>Singu-<br>larity<span class="dot">.</span></h1>
+    <div class="bottom mono-label"><span>Everything converges</span><span>/singularity</span></div>
+  </main>
+  <div class="hazard" aria-hidden="true"></div>
+  <footer class="mono-label"><span>End of file</span><span>egodeathsquad.au/singularity///</span></footer>
+</div>
+</body>
+</html>

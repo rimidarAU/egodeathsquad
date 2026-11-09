@@ -6,61 +6,288 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>singularity</title>
+<meta name="description" content="What a black hole looks like from outside the horizon, and from inside it.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0A0A0B">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A0A0B'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23C8FF2E'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A0A0B'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23EDEDE6' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Space+Mono:wght@400;700&display=swap">
 <style>
-  :root { --bg: #0A0A0B; --line: #2B2B2F; --text: #EDEDE6; --dim: #9A9A92; --lime: #C8FF2E; --pink: #FF2D95; --cyan: #19E3FF; }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); }
-  body { color: var(--text); font-family: 'Space Mono', ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.5; }
-  a { color: inherit; text-decoration: none; }
-  a:hover { color: var(--lime); }
-  a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
-  .mono-label { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
-  .shell { max-width: 1200px; min-height: 100vh; min-height: 100dvh; margin: 0 auto; display: flex; flex-direction: column; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
-  .status, footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; padding: 12px 24px; color: var(--dim); }
-  .status { border-bottom: 1px solid var(--line); }
-  footer { border-top: 1px solid var(--line); }
-  .status .live::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--lime); }
-  .status a { text-decoration: underline; }
+  :root { --bg:#0A0A0B; --panel:#131315; --line:#2B2B2F; --text:#EDEDE6; --dim:#9A9A92; --lime:#C8FF2E; --pink:#FF2D95; --cyan:#19E3FF; --sun:#FFD36B; --red:#FF3B3B; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); }
+  html { scroll-behavior:smooth; }
+  body { color:var(--text); font-family:'Space Mono',ui-monospace,Menlo,Consolas,monospace; font-size:14px; line-height:1.6; }
+  a { color:inherit; }
+  a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; }
+  .mono-label { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+  .display { font-family:'Archivo','Arial Black',sans-serif; font-stretch:125%; font-weight:900; text-transform:uppercase; letter-spacing:-.04em; line-height:.88; }
+  .shell { max-width:1200px; margin:0 auto; border-left:1px solid var(--line); border-right:1px solid var(--line); }
+  .status, footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 24px; padding:12px 24px; color:var(--dim); }
+  .status { border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(10,10,11,.92); backdrop-filter:blur(6px); z-index:10; }
+  footer { border-top:1px solid var(--line); }
+  .status .live::before { content:""; display:inline-block; width:8px; height:8px; margin-right:8px; background:var(--pink); }
+  .status a { text-decoration:underline; }
+  .status a:hover { color:var(--lime); }
+  .hazard { height:12px; background:repeating-linear-gradient(-45deg,var(--lime) 0 14px,var(--bg) 14px 28px); }
+  .hazard.pink { background:repeating-linear-gradient(-45deg,var(--pink) 0 14px,var(--bg) 14px 28px); }
 
-  main { flex: 1; position: relative; display: flex; flex-direction: column; padding: 24px; min-height: 420px; overflow: hidden; }
-  .rays { position: absolute; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(circle at 50% 50%, var(--lime) 0 5px, transparent 6px),
-      repeating-conic-gradient(from 0deg at 50% 50%, rgba(237,237,230,.14) 0 1deg, transparent 1deg 7.5deg);
-    -webkit-mask: radial-gradient(circle at 50% 50%, #000 0, #000 30%, transparent 70%);
-            mask: radial-gradient(circle at 50% 50%, #000 0, #000 30%, transparent 70%);
-    animation: spin 90s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .rays { animation: none; } }
-  .top, h1, .bottom { position: relative; z-index: 2; }
-  .top { display: flex; justify-content: space-between; gap: 16px; }
-  h1 { margin: auto 0 0; padding-top: 24px; font-family: 'Archivo', 'Arial Black', sans-serif; font-stretch: 125%; font-weight: 900; font-size: clamp(44px, min(12.5vw, 26vh), 170px); line-height: 0.84; letter-spacing: -0.045em; text-transform: uppercase; margin-left: -0.04em; }
-  h1 .dot { color: var(--lime); }
-  .bottom { margin-top: 16px; padding-top: 12px; border-top: 3px solid var(--text); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; }
-  .hazard { height: 12px; background: repeating-linear-gradient(-45deg, var(--lime) 0 14px, var(--bg) 14px 28px); }
-  @media (max-width: 720px) { .status, footer, main { padding-left: 16px; padding-right: 16px; } }
+  /* starfield */
+  .stars { position:absolute; inset:0; pointer-events:none; overflow:hidden;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 37% 72%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 63% 28%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 83% 81%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 48% 9%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 91% 41%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 7% 58%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 72% 62%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 26% 39%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 55% 88%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 18% 92%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 95% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 41% 51%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 66% 5%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 3% 33%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 78% 23%, #fff 50%, transparent 51%);
+    background-size: 100% 100%, 90% 90%, 80% 80%, 70% 70%, 60% 60%, 110% 110%, 95% 95%, 85% 85%, 75% 75%, 65% 65%, 120% 120%, 105% 105%, 88% 88%, 77% 77%, 93% 93%, 69% 69%;
+    opacity:.55; }
+
+  /* ===== HERO ===== */
+  .hero { position:relative; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; padding:24px; overflow:hidden; }
+  .hero .top { position:relative; z-index:2; display:flex; justify-content:space-between; gap:16px; }
+  .hole { position:absolute; left:50%; top:46%; width:min(66vmin,560px); aspect-ratio:1; transform:translate(-50%,-50%); pointer-events:none; }
+  .hole .halo { position:absolute; inset:-34%; border-radius:50%;
+    background:radial-gradient(circle, transparent 36%, rgba(237,237,230,.09) 37%, rgba(237,237,230,.16) 41%, rgba(237,237,230,.05) 48%, transparent 60%);
+    filter:blur(2px); animation:breathe 9s ease-in-out infinite; }
+  .hole .ring { position:absolute; inset:0; border-radius:50%;
+    box-shadow:0 0 0 2px rgba(237,237,230,.95), 0 0 18px 4px rgba(237,237,230,.55), 0 0 60px 14px rgba(237,237,230,.18), inset 0 0 40px 8px rgba(237,237,230,.12); }
+  .hole .ring::after { content:""; position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 200deg, transparent 0 55%, rgba(255,255,255,.75) 68%, transparent 80% 100%);
+    -webkit-mask:radial-gradient(circle, transparent 97.5%, #000 98.5%); mask:radial-gradient(circle, transparent 97.5%, #000 98.5%);
+    animation:spin 22s linear infinite; }
+  .hole .shadow { position:absolute; inset:1.5%; border-radius:50%; background:#000; box-shadow:inset 0 0 40px 10px #000; }
+  @keyframes spin { to { transform:rotate(360deg);} }
+  @keyframes breathe { 0%,100% { transform:scale(1); opacity:.9;} 50% { transform:scale(1.03); opacity:1;} }
+  .hero h1 { position:relative; z-index:2; margin:auto 0 0; padding-top:24px; font-size:clamp(46px, min(13vw,24vh), 176px); margin-left:-.04em; mix-blend-mode:difference; }
+  .hero h1 .dot { color:var(--pink); }
+  .hero .bottom { position:relative; z-index:2; margin-top:16px; padding-top:12px; border-top:3px solid var(--text); display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 32px; }
+  .hero .lede { max-width:46ch; color:var(--dim); font-size:13px; letter-spacing:0; text-transform:none; font-weight:400; }
+
+  /* ===== generic section ===== */
+  section { position:relative; border-bottom:1px solid var(--line); }
+  .head { display:flex; justify-content:space-between; gap:16px; padding:16px 24px; border-bottom:1px solid var(--line); color:var(--dim); }
+  .head b { color:var(--lime); }
+  .body { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .body.one { grid-template-columns:1fr; }
+  .body.one .copy { columns:2; column-gap:40px; }
+  .body.one .copy h2 { column-span:all; }
+  .copy { padding:28px 24px 32px; }
+  .copy h2 { margin:0 0 18px; font-size:clamp(30px,4.5vw,56px); }
+  .copy p { margin:0 0 14px; max-width:52ch; }
+  .copy p.dim { color:var(--dim); }
+  .copy .k { color:var(--lime); }
+  .copy .p { color:var(--pink); }
+  .copy .c { color:var(--cyan); }
+  .vis { position:relative; min-height:360px; border-left:1px solid var(--line); overflow:hidden; background:#000; display:grid; place-items:center; }
+  .cap { position:absolute; left:16px; bottom:12px; color:var(--dim); font-size:11px; line-height:1.4; z-index:2; }
+
+  /* ===== 01 compactness strip ===== */
+  .strip { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); border-top:1px solid var(--line); }
+  .cell { position:relative; aspect-ratio:1; display:grid; place-items:center; border-right:1px solid var(--line); background:#000; overflow:hidden; }
+  .cell:last-child { border-right:0; }
+  .cell .lbl { position:absolute; left:12px; top:10px; font-size:11px; color:var(--dim); line-height:1.35; }
+  .cell .lbl b { display:block; color:var(--text); }
+  .body-disc { position:relative; border-radius:50%; width:var(--d); aspect-ratio:1; background:radial-gradient(circle at 40% 38%, #fff6d6, var(--sun) 55%, #e07a1f 100%); box-shadow:0 0 var(--g) rgba(255,211,107,.5); }
+  .lens { position:absolute; border-radius:50%; width:var(--r); aspect-ratio:1; left:50%; top:50%; transform:translate(-50%,-50%);
+    box-shadow:0 0 0 1px rgba(237,237,230,var(--a)), 0 0 10px 1px rgba(237,237,230,calc(var(--a) * .5)); }
+  .cell.dark .body-disc { background:radial-gradient(circle, #1a0d08 0 48%, #6b2a12 58%, #ffb35c 70%, #fff6d6 74%, transparent 76%); box-shadow:none; }
+  .cell.bh .body-disc { background:#000; box-shadow:0 0 0 1.5px rgba(237,237,230,.95), 0 0 14px 3px rgba(237,237,230,.5); }
+
+  /* ===== 02 frozen star ===== */
+  .frozen { position:relative; width:min(60%,300px); aspect-ratio:1; border-radius:50%;
+    background:radial-gradient(circle, #050505 0 10%, #2a1a12 36%, #a6512a 58%, #f3d9b8 70%, #ffffff 76%, transparent 78%);
+    animation:fade 10s ease-in-out infinite alternate; }
+  .frozen::after { content:""; position:absolute; inset:-3%; border-radius:50%; box-shadow:0 0 0 1px rgba(255,255,255,.9), 0 0 24px 4px rgba(190,220,255,.35); }
+  @keyframes fade { from { filter:brightness(1.1) saturate(1.1);} to { filter:brightness(.55) saturate(.6) hue-rotate(-18deg);} }
+  .apple { position:absolute; left:50%; top:50%; width:12px; height:12px; border-radius:50%; background:var(--pink); transform:translate(140px,-20px);
+    animation:fall 8s cubic-bezier(.2,.8,.2,1) infinite; }
+  @keyframes fall { 0% { transform:translate(150px,-30px) scale(1); opacity:1; background:var(--pink);} 55% { transform:translate(62px,-8px) scale(.9); opacity:1; background:#ff2d4d;} 85% { transform:translate(56px,-6px) scale(.85); opacity:.5; background:#7a0f1f;} 100% { transform:translate(55px,-6px) scale(.8); opacity:0; background:#300;} }
+
+  /* ===== 03 crossing ===== */
+  .inside { position:relative; width:100%; height:100%; min-height:360px; background:#000; overflow:hidden; }
+  .skydisc { position:absolute; left:50%; top:50%; width:72%; aspect-ratio:1; border-radius:50%; transform:translate(-50%,-50%);
+    background:radial-gradient(circle, #0b0b10 0 55%, #11131c 56% 100%);
+    box-shadow:0 0 0 2px rgba(25,227,255,.9), 0 0 28px 6px rgba(25,227,255,.35), 0 0 80px 20px rgba(25,227,255,.12);
+    animation:shrink 12s ease-in-out infinite alternate; }
+  .skydisc .stars { opacity:.9; }
+  @keyframes shrink { from { width:78%; } to { width:34%; } }
+  .tidal { position:absolute; left:50%; bottom:14%; width:4px; height:28%; background:linear-gradient(var(--lime), var(--pink)); transform:translateX(-50%);
+    animation:stretch 6s ease-in-out infinite alternate; transform-origin:bottom; }
+  @keyframes stretch { from { transform:translateX(-50%) scaleY(1) scaleX(1);} to { transform:translateX(-50%) scaleY(1.8) scaleX(.5);} }
+
+  /* ===== 04 spacetime diagram ===== */
+  .diagram { padding:24px; background:var(--panel); }
+  .diagram svg { width:100%; height:auto; display:block; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 24px; padding:0 24px 20px; color:var(--dim); font-size:12px; }
+  .legend i { display:inline-block; width:14px; height:3px; vertical-align:middle; margin-right:8px; }
+
+  /* ===== end slab ===== */
+  .end { background:var(--pink); color:var(--bg); padding:28px 24px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px 32px; align-items:end; }
+  .end .display { font-size:clamp(28px,5vw,64px); }
+  .end a { text-decoration:none; border-bottom:3px solid var(--bg); }
+  .end a:hover { color:var(--text); border-color:var(--text); }
+
+  @media (prefers-reduced-motion:reduce) { .hole .ring::after, .hole .halo, .frozen, .apple, .skydisc, .tidal { animation:none; } }
+  @media (max-width:820px) {
+    .body { grid-template-columns:1fr; }
+    .vis { border-left:0; border-top:1px solid var(--line); min-height:300px; }
+    .strip { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .body.one .copy { columns:1; }
+    .cell .body-disc, .cell .lens { transform:translate(0,6%) scale(.82); }
+    .cell .lens { transform:translate(-50%,-44%) scale(.82); }
+    .cell:nth-child(3) { border-right:0; }
+    .cell:nth-child(-n+3) { border-bottom:1px solid var(--line); }
+    .end { grid-template-columns:1fr; }
+    .status, footer, .hero, .copy, .head, .diagram, .end { padding-left:16px; padding-right:16px; }
+    .legend { padding-left:16px; padding-right:16px; }
+    .hole { top:42%; }
+  }
 </style>
 </head>
 <body>
 <div class="shell">
   <div class="status mono-label"><span class="live">Point of no return</span><a href="/">&larr; egodeathsquad.au</a></div>
-  <main>
-    <div class="rays" aria-hidden="true"></div>
+
+  <header class="hero">
+    <div class="stars" aria-hidden="true"></div>
+    <div class="hole" aria-hidden="true"><div class="halo"></div><div class="ring"></div><div class="shadow"></div></div>
     <div class="top mono-label">
       <div>File 002 / Restricted<br>Subject: singularity</div>
-      <div>Density: infinite</div>
+      <div>Compactness: 100%</div>
     </div>
-    <h1>Singu-<br>larity<span class="dot">.</span></h1>
-    <div class="bottom mono-label"><span>Everything converges</span><span>/singularity</span></div>
-  </main>
+    <h1 class="display">Singu-<br>larity<span class="dot">.</span></h1>
+    <div class="bottom mono-label">
+      <span>Nothing you see here is the hole. It is the light that nearly escaped.</span>
+      <span>/singularity</span>
+    </div>
+  </header>
   <div class="hazard" aria-hidden="true"></div>
-  <footer class="mono-label"><span>End of file</span><span>egodeathsquad.au/singularity///</span></footer>
+
+  <!-- 01 -->
+  <section id="compactness">
+    <div class="head mono-label"><span><b>01</b> &nbsp;Compactness</span><span>Same mass. Smaller radius.</span></div>
+    <div class="body one">
+      <div class="copy">
+        <h2 class="display">Squeeze a star<br>until light bends.</h2>
+        <p>Take the Sun and shrink it, keeping its mass. At its real size, gravity bends starlight passing its edge by under two arcseconds, the shift Eddington measured during the 1919 eclipse. Compress it to a few thousand kilometres and the bending becomes visible: stars behind it slide outward and smear into arcs.</p>
+        <p>Squeeze further and a background star sitting exactly behind becomes an <span class="k">Einstein ring</span>. The surface itself distorts; light from the far side is bent around to the front so you see the back of the star past its own edges. Its colour drains to red as light climbs out of the deepening well.</p>
+        <p class="dim">At 100% compactness, nothing on the surface can leave. The sphere where that happens is the event horizon.</p>
+      </div>
+    </div>
+    <div class="strip" aria-hidden="true">
+<div class="cell"><div class="lbl">Ø 1,390,000 km<b>0.0002%</b></div><div class="body-disc" style="--d:58%;--g:20px"></div></div>
+          <div class="cell"><div class="lbl">Ø 2,780 km<b>0.1%</b></div><div class="body-disc" style="--d:40%;--g:16px"></div><div class="lens" style="--r:76%;--a:.25"></div></div>
+          <div class="cell"><div class="lbl">Ø 139 km<b>2%</b></div><div class="body-disc" style="--d:30%;--g:14px"></div><div class="lens" style="--r:70%;--a:.6"></div></div>
+          <div class="cell dark"><div class="lbl">Ø 9 km<b>32%</b></div><div class="body-disc" style="--d:62%"></div><div class="lens" style="--r:80%;--a:.5"></div></div>
+          <div class="cell dark"><div class="lbl">Ø 6 km<b>50%</b></div><div class="body-disc" style="--d:66%;filter:saturate(.7) brightness(.8)"></div><div class="lens" style="--r:84%;--a:.4"></div></div>
+          <div class="cell bh"><div class="lbl">Ø 3 km<b>100%</b></div><div class="body-disc" style="--d:56%"></div><div class="lens" style="--r:80%;--a:.2"></div></div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section id="outside">
+    <div class="head mono-label"><span><b>02</b> &nbsp;Observing the horizon</span><span>From a safe distance</span></div>
+    <div class="body">
+      <div class="copy">
+        <h2 class="display">You never see<br>anything fall in.</h2>
+        <p>Watch a star collapse. Its surface races inward, but the light leaving it has to climb an ever steeper well. Each photon arrives later and <span class="p">redder</span> than the last. The surface slows in your view, stalls at the horizon, and fades. It does not vanish; it dims toward black over a handful of microseconds, centre first, edges last.</p>
+        <p>The dark disc you then see is not the horizon. It is the <span class="k">shadow</span>, about 2.6 times wider than the horizon, bounded by the <span class="k">photon ring</span>: a thin bright line where light has circled the hole once or many times before reaching you. Just outside it the whole background sky is folded into a lensed halo; every star appears twice, once on each side.</p>
+        <p class="dim">Drop an apple in. It slows, freezes against the dark, turns red, and fades. On your clock it never crosses. On its own, it already has.</p>
+      </div>
+      <div class="vis" aria-hidden="true">
+        <div class="stars"></div>
+        <div class="frozen"></div>
+        <div class="apple"></div>
+        <div class="cap">Surface frozen at the horizon, redshifting to black.<br>The dot: something falling in, as seen from outside.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section id="inside">
+    <div class="head mono-label"><span><b>03</b> &nbsp;Crossing the horizon</span><span>From the inside</span></div>
+    <div class="body">
+      <div class="copy">
+        <h2 class="display">Nothing marks<br>the line.</h2>
+        <p>Fall in yourself and the horizon is not a surface you hit. Locally, spacetime looks ordinary. No wall, no flash, no alarm; you cross in finite time on your own watch, and if the hole is large enough you feel nothing at all.</p>
+        <p>What changes is the sky. The universe outside does not disappear. It gathers <span class="c">behind</span> you into a shrinking, brightening disc, rimmed by the photon ring, while the black region swells to fill everything ahead. Light from outside still reaches you; it is only your light that cannot go back.</p>
+        <p>Inside, the radial direction becomes time. The <span class="p">singularity</span> is not a place at the centre you could steer around. It is a moment in your future, as unavoidable as next Tuesday. Nearer to it, the difference in pull between your head and feet grows without limit: you are stretched along the fall and squeezed across it.</p>
+        <p class="dim">The sky disc narrows to a point. Then there is no then.</p>
+      </div>
+      <div class="vis" aria-hidden="true">
+        <div class="inside">
+          <div class="skydisc"><div class="stars"></div></div>
+          <div class="tidal"></div>
+        </div>
+        <div class="cap">The outside universe, seen from inside: a shrinking disc of sky behind you.<br>The bar: tidal stretching along the fall.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section id="diagram">
+    <div class="head mono-label"><span><b>04</b> &nbsp;Spacetime diagram</span><span>Collapse, horizon, singularity</span></div>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 360" role="img" aria-label="Spacetime diagram of a collapsing star forming a black hole: the star's surface shrinks, an event horizon forms inside it before the surface reaches it, and a singularity continues into the future.">
+        <defs>
+          <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#C8FF2E" opacity=".35"/><circle cx="4" cy="4" r=".8" fill="#C8FF2E" opacity=".2"/></pattern>
+        </defs>
+        <!-- star interior -->
+        <path d="M60 60 C 260 60, 420 100, 560 180 C 420 260, 260 300, 60 300 Z" fill="url(#grain)" stroke="none"/>
+        <path d="M60 60 C 260 60, 420 100, 560 180" fill="none" stroke="#C8FF2E" stroke-width="2.5"/>
+        <path d="M60 300 C 260 300, 420 260, 560 180" fill="none" stroke="#C8FF2E" stroke-width="2.5"/>
+        <!-- horizon -->
+        <path d="M440 180 L 520 130 L 960 130" fill="none" stroke="#FF3B3B" stroke-width="2"/>
+        <path d="M440 180 L 520 230 L 960 230" fill="none" stroke="#FF3B3B" stroke-width="2"/>
+        <rect x="560" y="131" width="400" height="98" fill="#FF3B3B" opacity=".08"/>
+        <!-- singularity -->
+        <polyline points="560,180 575,172 590,188 605,172 620,188 635,172 650,188 665,172 680,188 695,172 710,188 725,172 740,188 755,172 770,188 785,172 800,188 815,172 830,188 845,172 860,188 875,172 890,188 905,172 920,188 935,172 950,188 960,180" fill="none" stroke="#FF2D95" stroke-width="2.5"/>
+        <!-- light rays -->
+        <g stroke="#9A9A92" stroke-width="1" opacity=".7">
+          <line x1="300" y1="200" x2="420" y2="90"/><line x1="360" y1="190" x2="460" y2="95"/>
+          <line x1="470" y1="175" x2="540" y2="165"/><line x1="490" y1="200" x2="560" y2="195"/>
+          <line x1="300" y1="160" x2="420" y2="270"/><line x1="360" y1="170" x2="460" y2="265"/>
+        </g>
+        <!-- axis -->
+        <line x1="60" y1="330" x2="960" y2="330" stroke="#EDEDE6" stroke-width="1.5"/>
+        <polygon points="960,330 948,324 948,336" fill="#EDEDE6"/>
+        <!-- labels -->
+        <g font-family="Space Mono, monospace" font-size="13" font-weight="700" letter-spacing="1.5">
+          <text x="120" y="48" fill="#C8FF2E">SURFACE OF THE STAR</text>
+          <text x="560" y="118" fill="#FF3B3B">EVENT HORIZON</text>
+          <text x="700" y="162" fill="#FF2D95">SINGULARITY</text>
+          <text x="300" y="215" fill="#9A9A92" font-size="11">light escaping</text>
+          <text x="470" y="150" fill="#9A9A92" font-size="11">light trapped</text>
+          <text x="905" y="352" fill="#EDEDE6">TIME</text>
+        </g>
+      </svg>
+    </div>
+    <div class="legend mono-label">
+      <span><i style="background:#C8FF2E"></i>Collapsing star</span>
+      <span><i style="background:#FF3B3B"></i>Horizon (forms before the surface reaches it)</span>
+      <span><i style="background:#FF2D95"></i>Singularity (a time, not a place)</span>
+      <span><i style="background:#9A9A92"></i>Light rays</span>
+    </div>
+  </section>
+
+  <div class="hazard pink" aria-hidden="true"></div>
+  <div class="end">
+    <div class="display">The horizon is a one-way door.<br>The singularity is when it closes.</div>
+    <a class="mono-label" href="/">&larr; Back to egodeathsquad.au</a>
+  </div>
+
+  <footer class="mono-label">
+    <span>End of file</span>
+    <span>egodeathsquad.au/singularity///</span>
+  </footer>
+  <footer style="border-top:0;padding-top:0;font-size:11px;letter-spacing:0;text-transform:none;font-weight:400">
+    <span>Visual sequence informed by ScienceClic English, “Visualizing the birth of a Black Hole” (simulation Alessandro Roussel). Rendered here in CSS; no footage used.</span>
+  </footer>
 </div>
 </body>
 </html>

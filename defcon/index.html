@@ -63,6 +63,24 @@
     .board small { display:none; }
     .about { font-size:11px; }
   }
+  @media (max-width:360px) {
+    .board { grid-template-columns:repeat(2,1fr); }
+    .board div { padding:5px 8px; font-size:10px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+    .board div:nth-child(2n) { border-right:0; } .board div:nth-child(3) { border-right:1px solid var(--line); }
+    .board div:nth-child(n+5) { border-bottom:0; }
+    .board b { font-size:13px; }
+  }
+  @media (max-height:480px) {
+    .about span:first-child { display:none; }
+    .about { padding:4px 12px; }
+    .board { grid-template-columns:repeat(6,1fr); }
+    .board div { padding:3px 8px; font-size:10px; border-bottom:0; }
+    .board div:nth-child(3) { border-right:1px solid var(--line); }
+    .board small { display:none; }
+    .board b { font-size:12px; }
+    .bar { padding:4px 12px; }
+    .bar .lvl b { font-size:14px; }
+  }
   @media (prefers-reduced-motion:reduce) { #sim .u .sweep { animation:none; } }
 </style>
 </head>

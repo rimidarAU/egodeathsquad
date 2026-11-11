@@ -54,24 +54,58 @@
       for (i = 0; i < nSub; i++) { var p3 = sample(r, t.sea, false, [X(t.sea[0][0] + 2), Y(t.sea[0][1] + 2)]); var s = { t: ti, kind: 'sub', x: p3[0], y: p3[1], nukes: 5, born: 6 + r() * 5 }; tt.subs.push(s); M.units.push(s); }
       M.terr.push(tt);
     });
-    /* hostility: each territory picks enemies; alliances are informal and short-lived */
-    M.terr.forEach(function (tt, ti) { var pool = M.terr.map(function (_, j) { return j; }).filter(function (j) { return j !== ti; }); tt.enemies = []; var n = 2 + ((r() * 3) | 0); while (tt.enemies.length < n && pool.length) tt.enemies.push(pool.splice((r() * pool.length) | 0, 1)[0]); });
-    /* launches: DEFCON 1 begins at 28 min; everything is in the air by 52 */
-    var id = 0;
+    /* 1980s Cold War alignment. NATO: North America, Europe. Warsaw Pact: Russia.
+       The other three align themselves each match, weighted by the period's leanings;
+       non-aligned territories hold fire unless struck, then answer the striker's bloc. */
+    var W = { LA: [0.55, 0.20, 0.25], AF: [0.30, 0.35, 0.35], AS: [0.35, 0.25, 0.40] };  /* NATO, PACT, NON */
+    M.terr.forEach(function (tt) {
+      if (tt.id === 'NA' || tt.id === 'EU') tt.bloc = 'NATO';
+      else if (tt.id === 'RU') tt.bloc = 'PACT';
+      else { var w = W[tt.id], x = r(); tt.bloc = x < w[0] ? 'NATO' : x < w[0] + w[1] ? 'PACT' : 'NON'; }
+    });
+    var opp = { NATO: 'PACT', PACT: 'NATO' };
     M.terr.forEach(function (tt, ti) {
-      var all = tt.silos.concat(tt.subs);
-      all.forEach(function (u) {
-        var first = 28 + r() * 10;                       /* a territory's first strike moment */
-        for (var k = 0; k < u.nukes; k++) {
-          var en = M.terr[tt.enemies[(r() * tt.enemies.length) | 0]];
-          var cs = en.cities, tot = 0; cs.forEach(function (c) { tot += c.pop0; });
-          var pick = r() * tot, city = cs[0]; for (var j = 0; j < cs.length; j++) { pick -= cs[j].pop0; if (pick <= 0) { city = cs[j]; break; } }
-          var t0 = Math.min(52, first + k * (0.6 + r() * 1.8) + r() * 6);
-          var d = Math.hypot(city.x - u.x, city.y - u.y);
-          var fl = (0.9 + d / 400) * (u.kind === 'sub' ? 0.7 : 1);  /* minutes of flight */
-          M.launches.push({ id: id++, from: u, to: city, t0: t0, fl: fl, abm: null });
-        }
+      tt.enemies = []; M.terr.forEach(function (o, j) { if (j !== ti && tt.bloc !== 'NON' && o.bloc === opp[tt.bloc]) tt.enemies.push(j); });
+    });
+    /* who goes first: one bloc initiates, the other launches on warning a few minutes later */
+    M.initiator = r() < 0.5 ? 'NATO' : 'PACT';
+    var t_first = 28 + r() * 4, t_resp = t_first + 1.5 + r() * 1.5;
+    M.terr.forEach(function (tt) { tt.t0 = tt.bloc === M.initiator ? t_first : tt.bloc === 'NON' ? null : t_resp; });
+    /* pre-emption: a bloc may strike a non-aligned territory it suspects of leaning the other way */
+    M.terr.forEach(function (tt, ti) {
+      if (tt.bloc !== 'NON') return;
+      var by = r() < 0.5 ? 'NATO' : 'PACT';
+      if (r() < 0.45) { tt.preemptedBy = by; M.terr.forEach(function (o) { if (o.bloc === by) o.sideTargets = (o.sideTargets || []).concat([ti]); }); }
+    });
+    /* launches */
+    var id = 0;
+    function schedule(u, startMin, targetsIdx, count) {
+      for (var k = 0; k < count; k++) {
+        var en = M.terr[targetsIdx[(r() * targetsIdx.length) | 0]];
+        var cs = en.cities, tot = 0; cs.forEach(function (c) { tot += c.pop0; });
+        var pick = r() * tot, city = cs[0]; for (var j = 0; j < cs.length; j++) { pick -= cs[j].pop0; if (pick <= 0) { city = cs[j]; break; } }
+        var t0 = Math.min(52, startMin + k * (0.6 + r() * 1.8) + r() * 5);
+        var d = Math.hypot(city.x - u.x, city.y - u.y);
+        var fl = (0.9 + d / 400) * (u.kind === 'sub' ? 0.7 : 1);
+        M.launches.push({ id: id++, from: u, to: city, t0: t0, fl: fl, abm: null });
+      }
+    }
+    M.terr.forEach(function (tt) {
+      if (tt.bloc === 'NON' || !tt.enemies.length) return;
+      tt.silos.concat(tt.subs).forEach(function (u) {
+        var side = tt.sideTargets && r() < 0.5 ? Math.max(1, Math.round(u.nukes * 0.15)) : 0;
+        if (side) schedule(u, tt.t0 + 2 + r() * 4, tt.sideTargets, side);
+        schedule(u, tt.t0, tt.enemies, u.nukes - side);
       });
+    });
+    /* non-aligned retaliation: everything, at the bloc that struck first, two minutes after the first impact */
+    M.terr.forEach(function (tt, ti) {
+      if (tt.bloc !== 'NON') return;
+      var first = null; M.launches.forEach(function (L) { if (L.to.t === ti) { var e = L.t0 + L.fl; if (first === null || e < first) first = e; } });
+      if (first === null) return;
+      var by = tt.preemptedBy, tg = []; M.terr.forEach(function (o, j) { if (o.bloc === by) tg.push(j); });
+      tt.retaliates = by; tt.t0 = first + 2;
+      tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); });
     });
     /* ABM: a defending silo near the target may intercept, less often as the barrage thickens */
     M.launches.sort(function (a, b) { return a.t0 - b.t0; });
@@ -146,9 +180,9 @@
     hud.next.textContent = fmt(MIN - min);
     hud.readout.forEach(function (b) { b.className = (parseInt(b.textContent, 10) === lv) ? 'on' + (lv === 1 ? ' one' : '') : ''; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
-    hud.board.innerHTML = rows.map(function (r) { return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + '</span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
+    hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 7).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div>';
+    hud.log.innerHTML = logs.slice(0, 7).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);

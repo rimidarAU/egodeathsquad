@@ -52,6 +52,7 @@
   .board i { width:8px; height:8px; display:inline-block; }
   .board b { font-family:'Archivo',sans-serif; font-stretch:112%; font-weight:900; font-size:16px; }
   .board small { grid-column:2 / -1; color:var(--dim); font-size:10px; }
+  .board em { font-style:normal; color:var(--dim); font-size:9px; letter-spacing:.1em; text-transform:uppercase; margin-left:4px; }
   .about { padding:10px 16px; color:var(--dim); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .about span:first-child { max-width:90ch; }
   .hidden { display:none; }
@@ -104,7 +105,7 @@
   <div class="foot">
     <div class="board" id="board" aria-label="Scoreboard"></div>
     <div class="about">
-      <span>A simulated match in the style of Introversion's <i>DEFCON</i>. Six territories place silos, radar and submarines, count down from DEFCON 5, then fire at DEFCON 1. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one. Nothing here is the real game.</span>
+      <span>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America and Europe are NATO; Russia is the Warsaw Pact. Latin America, Africa and Asia align themselves each match, or stay non-aligned and fire only if struck. One bloc launches first at DEFCON 1; the other launches on warning. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one. Nothing here is the real game.</span>
       <span class="mono">Everybody dies.</span>
     </div>
   </div>

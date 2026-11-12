@@ -237,13 +237,14 @@
     var M = build((idx * 2654435761) >>> 0), dead = 0;
     M.launches.forEach(function (L) { if (L.abm) return; M.terr[L.from.t].kills += L.kills; M.terr[L.to.t].lost += L.kills; dead += L.kills; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
-    var tag = function (t) { return t.bloc === 'NATO' ? 'NATO' : t.bloc === 'PACT' ? 'Pact' : 'Non-al.'; };
-    return { id: idx % 100000, first: M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'Pact' : 'Non-aligned', dead: dead, top: rows.slice(0, 3).map(function (r) { return r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') + ' ' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0); }) };
+    /* the faction of the top-scoring territory wins; that territory is its MVP */
+    var mvp = rows[0], side = { NATO: 'NATO', PACT: 'Warsaw Pact', NON: 'Non-aligned' };
+    return { id: idx % 100000, first: M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'Pact' : 'Non-aligned', dead: dead, winner: side[mvp.t.bloc], mvp: mvp.t.name + ' ' + (mvp.sc >= 0 ? '+' : '') + mvp.sc.toFixed(0) };
   }
   function renderHistory(idx) {
     if (idx === histIdx || !hud.hist) return; histIdx = idx;
     var out = '';
-    for (var i = 1; i <= 5; i++) { var h = summarize(idx - i); out += '<div><span>#' + h.id + ' \u00b7 ' + h.first + ' struck first \u00b7 ' + h.dead.toFixed(0) + 'M dead</span><span>' + h.top.join(' \u00b7 ') + '</span></div>'; }
+    for (var i = 1; i <= 5; i++) { var h = summarize(idx - i); out += '<div><span>#' + h.id + ' \u00b7 ' + h.first + ' struck first \u00b7 ' + h.dead.toFixed(0) + 'M dead</span><span><b>' + h.winner + ' won</b> \u00b7 MVP ' + h.mvp + '</span></div>'; }
     hud.hist.innerHTML = out;
   }
   var help = document.getElementById('help'), about = document.getElementById('about');

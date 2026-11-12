@@ -59,7 +59,7 @@
     /* 1980s Cold War alignment. NATO: North America, Europe. Warsaw Pact: Russia.
        The other three align themselves each match, weighted by the period's leanings;
        non-aligned territories hold fire unless struck, then answer the striker's bloc. */
-    var W = { LA: [0.55, 0.20, 0.25], AF: [0.30, 0.35, 0.35], AS: [0.35, 0.25, 0.40] };  /* NATO, PACT, NON */
+    var W = { LA: [0.60, 0.15, 0.25], AF: [0.20, 0.50, 0.30], AS: [0.20, 0.50, 0.30] };  /* NATO, PACT, NON */
     M.terr.forEach(function (tt) {
       if (tt.id === 'NA' || tt.id === 'EU') tt.bloc = 'NATO';
       else if (tt.id === 'RU') tt.bloc = 'PACT';
@@ -87,9 +87,11 @@
         var cs = en.cities, tot = 0; cs.forEach(function (c) { tot += c.pop0; });
         var pick = r() * tot, city = cs[0]; for (var j = 0; j < cs.length; j++) { pick -= cs[j].pop0; if (pick <= 0) { city = cs[j]; break; } }
         var t0 = Math.min(52, startMin + k * (0.6 + r() * 1.8) + r() * 5);
-        var d = Math.hypot(city.x - u.x, city.y - u.y);
+        /* shortest way round: cross the antimeridian when that is nearer */
+        var dxr = city.x - u.x, dx = Math.abs(dxr) > 720 ? dxr - Math.sign(dxr) * 1440 : dxr;
+        var tx = u.x + dx, d = Math.hypot(dx, city.y - u.y);
         var fl = (0.9 + d / 400) * (u.kind === 'sub' ? 0.7 : 1);
-        M.launches.push({ id: id++, from: u, to: city, t0: t0, fl: fl, abm: null });
+        M.launches.push({ id: id++, from: u, to: city, tx: tx, wrap: tx < 0 || tx > 1440, t0: t0, fl: fl, abm: null });
       }
     }
     M.terr.forEach(function (tt) {
@@ -100,15 +102,15 @@
         schedule(u, tt.t0, tt.enemies, u.nukes - side);
       });
     });
-    /* non-aligned retaliation: everything, at the bloc that struck first, two minutes after the first impact */
-    M.terr.forEach(function (tt, ti) {
-      if (tt.bloc !== 'NON') return;
-      var first = null; M.launches.forEach(function (L) { if (L.to.t === ti) { var e = L.t0 + L.fl; if (first === null || e < first) first = e; } });
-      if (first === null) return;
-      var by = tt.preemptedBy, tg = []; M.terr.forEach(function (o, j) { if (o.bloc === by) tg.push(j); });
-      tt.retaliates = by; tt.t0 = first + 2;
-      tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); });
-    });
+    /* the non-aligned keep a pact among themselves: if any one of them is struck by a bloc,
+       all of them answer that bloc with everything, two minutes after the first impact */
+    var firstHit = null, hitBy = null;
+    M.launches.forEach(function (L) { if (M.terr[L.to.t].bloc === 'NON') { var e = L.t0 + L.fl; if (firstHit === null || e < firstHit) { firstHit = e; hitBy = M.terr[L.from.t].bloc; } } });
+    if (firstHit !== null) {
+      var tg = []; M.terr.forEach(function (o, j) { if (o.bloc === hitBy) tg.push(j); });
+      M.nonStrikeBy = hitBy; M.nonStrikeAt = firstHit + 2;
+      M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
+    }
     /* ABM: a defending silo near the target may intercept, less often as the barrage thickens */
     M.launches.sort(function (a, b) { return a.t0 - b.t0; });
     M.launches.forEach(function (L, i) {
@@ -139,7 +141,7 @@
       M.gUnits.appendChild(u.el);
     });
     M.launches.forEach(function (L) { L.el = null; L.hit = null; });
-    state = M;
+    state = M; window.DEFCON_MATCH = M;
   }
 
   var hud = { lvl: document.getElementById('lvl'), clock: document.getElementById('clock'), match: document.getElementById('match'), next: document.getElementById('next'), board: document.getElementById('board'), log: document.getElementById('log'), over: document.getElementById('over'), readout: document.querySelectorAll('.readout b') };
@@ -160,12 +162,18 @@
       var end = L.t0 + L.fl, dead = L.abm ? L.t0 + L.fl * L.abm : end, live = min >= L.t0 && min < dead + 0.35;
       if (min >= L.t0 && logs.length < 400) logs.push({ t: L.t0, s: M.terr[L.from.t].id + ' → ' + L.to.name.toUpperCase(), c: 'l' });
       if (live) {
-        if (!L.el) { var mx = (L.from.x + L.to.x) / 2, my = Math.min(L.from.y, L.to.y) - Math.abs(L.to.x - L.from.x) * 0.22 - 10; L.el = el('path', { 'class': 'arc', d: 'M' + L.from.x + ',' + L.from.y + ' Q' + mx + ',' + my + ' ' + L.to.x + ',' + L.to.y, style: 'stroke:' + M.terr[L.from.t].col }); M.gArcs.appendChild(L.el); L.len = L.el.getTotalLength(); L.el.setAttribute('stroke-dasharray', L.len); }
+        if (!L.el) {
+          var mx = (L.from.x + L.tx) / 2, my = Math.min(L.from.y, L.to.y) - Math.abs(L.tx - L.from.x) * 0.18 - 10;
+          var d = 'M' + L.from.x + ',' + L.from.y + ' Q' + mx + ',' + my + ' ' + L.tx + ',' + L.to.y, st = 'stroke:' + M.terr[L.from.t].col;
+          L.el = el('path', { 'class': 'arc', d: d, style: st }); M.gArcs.appendChild(L.el); L.len = L.el.getTotalLength(); L.el.setAttribute('stroke-dasharray', L.len);
+          if (L.wrap) { L.el2 = el('path', { 'class': 'arc', d: d, style: st, transform: 'translate(' + (L.tx > 1440 ? -1440 : 1440) + ',0)', 'stroke-dasharray': L.len }); M.gArcs.appendChild(L.el2); }
+        }
         var p = Math.min(1, (min - L.t0) / L.fl); if (L.abm) p = Math.min(p, L.abm);
-        L.el.setAttribute('stroke-dashoffset', L.len * (1 - p));
-        L.el.setAttribute('opacity', min < dead ? 0.9 : 0.9 * (1 - (min - dead) / 0.35));
-      } else if (L.el) { L.el.remove(); L.el = null; }
-      if (L.abm) { if (min >= dead && min < dead + 0.25) { if (!L.hit) { L.hit = el('circle', { 'class': 'abm', cx: L.from.x + (L.to.x - L.from.x) * L.abm, cy: Math.min(L.from.y, L.to.y) + 4, r: 3 }); M.gHits.appendChild(L.hit); } } else if (L.hit) { L.hit.remove(); L.hit = null; } return; }
+        var op = min < dead ? 0.9 : 0.9 * (1 - (min - dead) / 0.35);
+        L.el.setAttribute('stroke-dashoffset', L.len * (1 - p)); L.el.setAttribute('opacity', op);
+        if (L.el2) { L.el2.setAttribute('stroke-dashoffset', L.len * (1 - p)); L.el2.setAttribute('opacity', op); }
+      } else if (L.el) { L.el.remove(); L.el = null; if (L.el2) { L.el2.remove(); L.el2 = null; } }
+      if (L.abm) { if (min >= dead && min < dead + 0.25) { if (!L.hit) { L.hit = el('circle', { 'class': 'abm', cx: ((L.from.x + (L.tx - L.from.x) * L.abm) % 1440 + 1440) % 1440, cy: Math.min(L.from.y, L.to.y) + 4, r: 3 }); M.gHits.appendChild(L.hit); } } else if (L.hit) { L.hit.remove(); L.hit = null; } return; }
       if (min >= end) {
         var c = L.to, k = L.kills; c.pop = Math.max(0, c.pop - k); c.hits++; M.terr[L.from.t].kills += k; M.terr[c.t].lost += k;
         if (logs.length < 400) logs.push({ t: end, s: c.name.toUpperCase() + ': ' + k.toFixed(1) + 'M DEAD', c: 'd' });
@@ -184,7 +192,7 @@
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 16).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>';
+    hud.log.innerHTML = logs.slice(0, 16).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);

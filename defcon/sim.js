@@ -339,7 +339,20 @@
     hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' \u00b7 ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'awaiting launch') + '</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
-    if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);
+    if (min >= END_MIN) {
+      /* final result over the whole match, the same rule as the previous-matches panel:
+         the faction of the top-scoring territory wins and that territory is its MVP */
+      if (!M.final) {
+        var fk = M.terr.map(function () { return 0; }), fl = fk.slice();
+        M.launches.forEach(function (L) { if (L.abm) return; fk[L.from.t] += L.kills; fl[L.to.t] += L.kills; });
+        var top = 0; M.terr.forEach(function (t, j) { if (2 * fk[j] - fl[j] > 2 * fk[top] - fl[top]) top = j; });
+        var ft = M.terr[top], fs = 2 * fk[top] - fl[top];
+        M.final = { side: ft.bloc === 'NATO' ? 'NATO' : ft.bloc === 'PACT' ? 'Warsaw Pact' : 'Non-aligned', cls: ft.bloc.toLowerCase(), mvp: ft.name + ' ' + (fs >= 0 ? '+' : '') + fs.toFixed(0), dead: fl.reduce(function (a, b) { return a + b; }, 0) };
+      }
+      var w = hud.over.querySelector('i'); w.textContent = M.final.side + ' wins'; w.className = M.final.cls;
+      hud.over.querySelector('em').textContent = 'MVP ' + M.final.mvp;
+      hud.over.querySelector('b').textContent = M.final.dead.toFixed(0) + 'M dead \u00b7 next match in ' + fmt(MIN - min);
+    }
     document.getElementById('toll').textContent = dead.toFixed(1) + 'M';
   }
 

@@ -1,10 +1,11 @@
 /* Soundtrack for /defcon/: an endless drone with occasional morse, numbers-station
-   and drum/horn events. Events are chosen from the clock in 20-second slots, so
-   everyone listening hears the same thing at the same time. Nothing plays until
+   and drum/horn events. Events fall on average every 80 seconds (standard deviation
+   10 seconds) at moments worked out from the clock, so everyone listening hears the
+   same thing at the same time. Nothing plays until
    the visitor presses the sound button. */
 (function () {
   'use strict';
-  var SLOT = 20, PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];
+  var EVERY = 80, SD = 10, LANGS = ['de', 'en', 'ru'], PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];
   var MORSE = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
     0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.' };
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -83,18 +84,20 @@
     ns.connect(nf); nf.connect(ng); ng.connect(B.ev); ns.start(t); ns.stop(end + 0.6);
     return inp;
   }
-  function numbers(ctx, B, t, seed, voice) {
+  function numbers(ctx, B, t, seed, voices, lang) {
     var r = rng(seed), scale = [392, 440, 494, 523.3, 587.3, 659.3], tune = [], i, x = t + 0.4;
     for (i = 0; i < 5; i++) tune.push(scale[(r() * scale.length) | 0]);
     var digits = []; for (i = 0; i < 10; i++) digits.push((r() * 10) | 0);
-    var est = 0.4 + 2 * (5 * 0.26 + 0.35) + 10 * 0.62 + 1.2, inp = shortwave(ctx, B, t, t + est);
+    var pick = LANGS[(r() * LANGS.length) | 0], voice = voices && voices[lang || pick], RATE = 0.94, talk = 0.55;
+    digits.forEach(function (d) { talk += voice && voice[d] ? voice[d].duration / RATE + 0.13 : 0.4; });
+    var inp = shortwave(ctx, B, t, t + 0.4 + 2 * (5 * 0.26 + 0.35) + 0.3 + talk + 0.3);
     for (var rep = 0; rep < 2; rep++) {
       tune.forEach(function (f) { var o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0, x); g.gain.linearRampToValueAtTime(0.5, x + 0.015); g.gain.exponentialRampToValueAtTime(0.02, x + 0.24); o.connect(g); g.connect(inp); o.start(x); o.stop(x + 0.26); x += 0.26; });
       x += 0.35;
     }
     x += 0.3;
     digits.forEach(function (d, k) {
-      if (voice && voice[d]) { var s = ctx.createBufferSource(); s.buffer = voice[d]; s.playbackRate.value = 0.94; s.connect(inp); s.start(x); x += voice[d].duration / 0.94 + 0.13; }
+      if (voice && voice[d]) { var sb = ctx.createBufferSource(); sb.buffer = voice[d]; sb.playbackRate.value = RATE; sb.connect(inp); sb.start(x); x += voice[d].duration / RATE + 0.13; }
       else { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 300 + d * 60; g.gain.setValueAtTime(0.4, x); g.gain.setValueAtTime(0, x + 0.2); o.connect(g); g.connect(inp); o.start(x); o.stop(x + 0.22); x += 0.4; }
       if (k === 4) x += 0.55;
     });
@@ -147,33 +150,43 @@
   }
 
   function loadVoice(ctx) {
-    var jobs = []; for (var i = 0; i < 10; i++) jobs.push(fetch('voice/' + i + '.mp3').then(function (r) { return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).catch(function () { return null; }));
-    return Promise.all(jobs);
+    var out = {}, jobs = [];
+    LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
+    return Promise.all(jobs).then(function () { return out; });
   }
-  /* which event, if any, belongs to a 20-second slot: the same answer for everyone */
-  function slotEvent(slot) {
-    var seed = (Math.imul((slot % 4294967296) ^ 0x9E3779B9, 2246822519) ^ Math.floor(slot / 4294967296)) >>> 0, r = rng(seed), x = r();
-    return { kind: x < 0.52 ? null : x < 0.72 ? 'morse' : x < 0.86 ? 'numbers' : 'march', seed: (r() * 4294967296) >>> 0 };
+  /* Event k happens at k * 80 s plus a jitter drawn from a normal distribution with standard
+     deviation 10 / sqrt(2). The gap between neighbours then has mean 80 s and standard
+     deviation 10 s, and any event can be worked out on its own, the same for everyone. */
+  function eventAt(k) {
+    var r = rng(Math.imul(k ^ 0x9E3779B9, 2246822519) >>> 0), u = Math.max(r(), 1e-9), v = r();
+    var z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v), j = Math.max(-25, Math.min(25, z * SD / Math.SQRT2)), x = r();
+    return { k: k, time: (k * EVERY + EVERY / 2 + j) * 1000, kind: x < 0.40 ? 'morse' : x < 0.70 ? 'numbers' : 'march', seed: (r() * 4294967296) >>> 0 };
   }
-  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, horns: horns, loadVoice: loadVoice, slotEvent: slotEvent, rng: rng };
+  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, horns: horns, loadVoice: loadVoice, eventAt: eventAt, rng: rng, EVERY: EVERY };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;
-  var AC = window.AudioContext || window.webkitAudioContext, ctx = null, B = null, D = null, voice = null, on = false, lastSlot = -1, timer = null;
+  var AC = window.AudioContext || window.webkitAudioContext, ctx = null, B = null, D = null, voice = null, on = false, lastK = -1, timer = null;
   function tick() {
     if (!on) return;
     var now = Date.now(), lv = level((now % 3600000) / 60000); tension(D, lv, ctx.currentTime);
-    var slot = Math.floor(now / (SLOT * 1000)); if (slot === lastSlot) return; lastSlot = slot;
-    var e = slotEvent(slot), t = ctx.currentTime + 0.4; if (!e.kind) return;
-    if (e.kind === 'morse') morse(ctx, B, t, e.seed, morseText(rng(e.seed ^ 0x55), lv, Math.floor(now / 3600000) % 100000));
-    else if (e.kind === 'numbers') numbers(ctx, B, t, e.seed, voice);
-    else march(ctx, B, t, e.seed);
+    var k0 = Math.floor(now / (EVERY * 1000));
+    for (var k = k0 - 1; k <= k0 + 1; k++) {
+      if (k <= lastK) continue;
+      var e = eventAt(k), wait = (e.time - now) / 1000;
+      if (wait <= 0) { lastK = k; continue; }            /* already past: never play late */
+      if (wait > 1.5) break;                             /* not yet */
+      lastK = k; var t = ctx.currentTime + wait;
+      if (e.kind === 'morse') morse(ctx, B, t, e.seed, morseText(rng(e.seed ^ 0x55), lv, Math.floor(now / 3600000) % 100000));
+      else if (e.kind === 'numbers') numbers(ctx, B, t, e.seed, voice);
+      else march(ctx, B, t, e.seed);
+    }
   }
   btn.addEventListener('click', function () {
     if (!AC) { btn.disabled = true; return; }
     if (!ctx) { ctx = new AC(); B = bus(ctx); D = drone(ctx, B, ctx.currentTime); loadVoice(ctx).then(function (v) { voice = v; }); }
     on = !on; btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    if (on) { ctx.resume(); D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0.55, ctx.currentTime, 1.2); B.ev.gain.setTargetAtTime(1, ctx.currentTime, 0.2); lastSlot = Math.floor(Date.now() / (SLOT * 1000)); if (!timer) timer = setInterval(tick, 500); tick(); }
+    if (on) { ctx.resume(); D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0.55, ctx.currentTime, 1.2); B.ev.gain.setTargetAtTime(1, ctx.currentTime, 0.2); if (!timer) timer = setInterval(tick, 500); tick(); }
     else { D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.2); B.ev.gain.setTargetAtTime(0, ctx.currentTime, 0.2); setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 1200); }
   });
 })();

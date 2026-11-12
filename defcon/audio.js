@@ -16,6 +16,11 @@
     for (var i = 0; i < n; i++) { var w = r() * 2 - 1; if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w; }
     return b;
   }
+  function crackleBuffer(ctx, seconds) {
+    var n = Math.floor(ctx.sampleRate * seconds), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), r = rng(31337), i = 0;
+    while (i < n) { i += Math.floor(ctx.sampleRate * (0.03 + r() * r() * 1.1)); var len = 20 + ((r() * 160) | 0), amp = 0.25 + r() * 0.75; for (var k = 0; k < len && i + k < n; k++) d[i + k] = (r() * 2 - 1) * amp * (1 - k / len); }
+    return b;
+  }
   function impulse(ctx, seconds) {
     var n = Math.floor(ctx.sampleRate * seconds), b = ctx.createBuffer(2, n, ctx.sampleRate), r = rng(4242);
     for (var c = 0; c < 2; c++) { var d = b.getChannelData(c); for (var i = 0; i < n; i++) d[i] = (r() * 2 - 1) * Math.pow(1 - i / n, 2.6); }
@@ -37,7 +42,7 @@
     ev.connect(hp); hp.connect(lp); lp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(fade);
     fade.connect(out); fade.connect(verb); verb.connect(wet); wet.connect(out);
     out.connect(comp); comp.connect(ctx.destination);
-    return { out: out, ev: ev, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true) };
+    return { out: out, ev: ev, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true), crackle: crackleBuffer(ctx, 11) };
   }
 
   /* ---- the drone ---- */
@@ -51,6 +56,11 @@
     var ns = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain(); ns.buffer = B.brown; ns.loop = true; nf.type = 'bandpass'; nf.frequency.value = 240; nf.Q.value = 0.5; ng.gain.value = 0.10; ns.connect(nf); nf.connect(ng); ng.connect(g); ns.start(t);
     var lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 0.047; lg.gain.value = 45; lfo.connect(lg); lg.connect(lp.frequency); lfo.start(t);
     var lfo2 = ctx.createOscillator(), lg2 = ctx.createGain(), sw = ctx.createGain(); lfo2.frequency.value = 0.083; lg2.gain.value = 0.12; sw.gain.value = 0.88; lfo2.connect(lg2); lg2.connect(sw.gain); lfo2.start(t);
+    /* a constant bed of static: band-limited hiss that swells and thins, plus sparse crackle */
+    var hs = ctx.createBufferSource(), hh = ctx.createBiquadFilter(), hl = ctx.createBiquadFilter(), hg = ctx.createGain(); hs.buffer = B.white; hs.loop = true;
+    hh.type = 'highpass'; hh.frequency.value = 1100; hl.type = 'lowpass'; hl.frequency.value = 5200; hg.gain.value = 0.06; hs.connect(hh); hh.connect(hl); hl.connect(hg); hg.connect(g); hs.start(t);
+    [[0.13, 0.018], [0.031, 0.014], [1.7, 0.006]].forEach(function (f) { var o = ctx.createOscillator(), og = ctx.createGain(); o.frequency.value = f[0]; og.gain.value = f[1]; o.connect(og); og.connect(hg.gain); o.start(t); });
+    var cs = ctx.createBufferSource(), cf = ctx.createBiquadFilter(), cg = ctx.createGain(); cs.buffer = B.crackle; cs.loop = true; cf.type = 'bandpass'; cf.frequency.value = 2400; cf.Q.value = 0.6; cg.gain.value = 0.16; cs.connect(cf); cf.connect(cg); cg.connect(g); cs.start(t);
     lp.connect(sw); sw.connect(g); g.connect(B.out);
     return { gain: g, lp: lp, tens: tens };
   }

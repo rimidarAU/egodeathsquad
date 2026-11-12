@@ -236,6 +236,11 @@
     for (var i = 1; i <= 5; i++) { var h = summarize(idx - i); out += '<div><span>#' + h.id + ' \u00b7 ' + h.first + ' struck first \u00b7 ' + h.dead.toFixed(0) + 'M dead</span><span>' + h.top.join(' \u00b7 ') + '</span></div>'; }
     hud.hist.innerHTML = out;
   }
+  var help = document.getElementById('help'), about = document.getElementById('about');
+  if (help && about) {
+    help.addEventListener('click', function () { var open = about.hidden; about.hidden = !open; help.setAttribute('aria-expanded', open ? 'true' : 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !about.hidden) { about.hidden = true; help.setAttribute('aria-expanded', 'false'); } });
+  }
   var last = 0;
   function frame(ts) { if (ts - last > 120) { last = ts; try { render(Date.now()); } catch (e) { /* keep the loop alive */ } } requestAnimationFrame(frame); }
   requestAnimationFrame(frame);

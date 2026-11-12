@@ -39,20 +39,28 @@
   #sim .arc { fill:none; stroke-width:1.3; stroke-linecap:round; }
   #sim .boom { fill:var(--pink); }
   #sim .abm { fill:var(--lime); }
-  .log { position:fixed; right:16px; top:52px; width:280px; max-height:190px; overflow:hidden; background:rgba(6,8,12,.75); border:1px solid var(--line); padding:6px 10px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); white-space:pre; }
-  .log div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .log .l { color:var(--cyan); } .log .d { color:var(--pink); }
-  .hist { position:fixed; left:16px; top:52px; width:330px; max-height:230px; overflow:hidden; background:rgba(6,8,12,.75); border:1px solid var(--line); padding:6px 10px; font-size:10px; letter-spacing:.04em; color:var(--dim); }
-  .hist div { padding:4px 0; border-bottom:1px solid var(--line); }
+  .panels { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--line); }
+  .hist, .log { padding:6px 12px; font-size:10px; color:var(--dim); overflow:hidden; min-width:0; }
+  .hist { border-right:1px solid var(--line); letter-spacing:.04em; }
+  .hist div { padding:3px 0; border-bottom:1px solid var(--line); }
   .hist div:last-child { border-bottom:0; }
   .hist span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .hist span:first-child { color:var(--text); text-transform:uppercase; letter-spacing:.08em; }
+  .log { letter-spacing:.06em; text-transform:uppercase; line-height:1.75; }
+  .log div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .log .l { color:var(--cyan); } .log .d { color:var(--pink); }
+  #help { width:22px; height:22px; border:1px solid var(--line); background:none; color:var(--dim); font:inherit; font-weight:700; cursor:pointer; vertical-align:middle; }
+  #help:hover, #help[aria-expanded="true"] { color:var(--cyan); border-color:var(--cyan); }
+  .explain { position:fixed; right:16px; top:48px; width:min(420px, calc(100vw - 32px)); background:rgba(6,8,12,.96); border:1px solid var(--cyan); padding:12px 16px 14px; z-index:20; font-size:12px; line-height:1.6; color:var(--text); }
+  .explain p { margin:6px 0 0; }
+  .explain[hidden] { display:none; }
   .over { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(6,8,12,.92); border:2px solid var(--pink); padding:16px 26px; text-align:center; }
   .over span { display:block; font-family:'Archivo',sans-serif; font-stretch:125%; font-weight:900; text-transform:uppercase; letter-spacing:-.03em; font-size:clamp(26px,5vw,52px); color:var(--pink); line-height:1; }
   .over b { display:block; margin-top:6px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:700; }
   .over[hidden] { display:none; }
   .foot { border-top:1px solid var(--line); display:flex; flex-direction:column; min-height:0; }
-  .board, .about { flex:none; }
+  .board, .about, .panels { flex:none; }
+  .panels { max-height:150px; }
   .board { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--line); }
   .board div { display:grid; grid-template-columns:8px 1fr auto; gap:0 8px; align-items:baseline; padding:8px 12px; border-right:1px solid var(--line); font-size:11px; }
   .board div:last-child { border-right:0; }
@@ -60,43 +68,13 @@
   .board b { font-family:'Archivo',sans-serif; font-stretch:112%; font-weight:900; font-size:16px; }
   .board small { grid-column:2 / -1; color:var(--dim); font-size:10px; }
   .board em { font-style:normal; color:var(--dim); font-size:9px; letter-spacing:.1em; text-transform:uppercase; margin-left:4px; }
-  .about { padding:10px 16px; color:var(--dim); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .about span:first-child { max-width:90ch; }
+  .about { padding:8px 16px; color:var(--dim); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .hidden { display:none; }
   @media (max-width:820px) {
-    .log, .hist { display:none; }
-    .bar { flex-wrap:wrap; gap:4px 12px; padding:8px 12px; font-size:10px; }
-    .bar > span:last-child { display:none; }
-    .board { grid-template-columns:repeat(3,1fr); }
-    .board div { padding:6px 10px; } .board div:nth-child(3) { border-right:0; } .board div:nth-child(-n+3) { border-bottom:1px solid var(--line); }
-    .board small { display:none; }
-    .about { font-size:11px; }
-  }
-  @media (max-width:360px) {
-    .board { grid-template-columns:repeat(2,1fr); }
-    .board div { padding:5px 8px; font-size:10px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
-    .board div:nth-child(2n) { border-right:0; } .board div:nth-child(3) { border-right:1px solid var(--line); }
-    .board div:nth-child(n+5) { border-bottom:0; }
-    .board b { font-size:13px; }
-  }
-  @media (max-height:480px) {
-    .hist { display:none; }
-    .about span:first-child { display:none; }
-    .about { padding:4px 12px; }
-    .board { grid-template-columns:repeat(6,1fr); }
-    .board div { padding:3px 8px; font-size:10px; border-bottom:0; }
-    .board div:nth-child(3) { border-right:1px solid var(--line); }
-    .board small { display:none; }
-    .board b { font-size:12px; }
-    .bar { padding:4px 12px; }
-    .bar .lvl b { font-size:14px; }
-  }
-  @media (orientation:portrait) and (max-width:820px) {
-    .map { object-fit:contain; }
-    .stage { flex:0 0 auto; height:calc(100vw / 2.2); min-height:0; background:var(--bg); }
-    .stage .map { position:absolute; inset:0; }
-    .foot { flex:1 1 0; }
-    .bar { padding:8px 12px; font-size:10px; gap:4px 12px; }
+    .bar { padding:8px 12px; font-size:10px; gap:4px 12px; flex-wrap:wrap; }
+    .bar { position:relative; padding-right:40px; }
+    .bar > span:last-child a { display:none; }
+    .bar > span:last-child { position:absolute; right:10px; top:50%; transform:translateY(-50%); }
     .bar .lvl b { font-size:16px; }
     .board { grid-template-columns:1fr 1fr; }
     .board div { grid-template-columns:7px 1fr auto; gap:0 6px; padding:4px 10px; font-size:10px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); align-items:center; }
@@ -106,15 +84,25 @@
     .board em { margin-left:5px; font-size:8px; }
     .board small { display:none; }
     .board b { font-size:13px; }
-    .hist { display:block; position:static; width:auto; max-height:none; flex:0 0 auto; order:2; border:0; border-bottom:1px solid var(--line); padding:4px 12px; font-size:9px; }
-    .hist div { padding:3px 0; }
-    .hist div:nth-child(n+4) { display:none; }
-    .log { order:3; } .about { order:4; } .board { order:1; }
-    .about span:first-child { display:none; }
-    .about .short { display:block; }
-    .log { display:block; position:static; width:auto; max-height:none; flex:1 1 0; min-height:0; overflow:hidden; border:0; border-bottom:1px solid var(--line); padding:6px 12px; line-height:1.6; -webkit-mask-image:linear-gradient(#000 75%, transparent); mask-image:linear-gradient(#000 75%, transparent); }
   }
-  .about .short { display:none; }
+  @media (orientation:portrait) and (max-width:820px) {
+    .map { object-fit:contain; }
+    .stage { flex:0 0 auto; height:calc(100vw / 2.2); min-height:0; }
+    .foot { flex:1 1 0; display:flex; flex-direction:column; min-height:0; }
+    .panels { display:flex; flex-direction:column; flex:1 1 auto; min-height:0; max-height:none; }
+    .hist { flex:0 0 auto; border-right:0; border-bottom:1px solid var(--line); font-size:9px; }
+    .hist div:nth-child(n+4) { display:none; }
+    .log { flex:1 1 0; min-height:0; overflow:hidden; -webkit-mask-image:linear-gradient(#000 75%, transparent); mask-image:linear-gradient(#000 75%, transparent); }
+  }
+  @media (max-height:480px) {
+    .panels { grid-template-columns:1fr; }
+    .hist { display:none; }
+    .log { max-height:40px; line-height:1.5; padding:2px 12px; }
+    .about { font-size:10px; }
+    .board div { padding:3px 8px; font-size:10px; }
+    .about { padding:3px 12px; }
+    .bar { padding:4px 12px; }
+  }
   @media (prefers-reduced-motion:reduce) { #sim .u .sweep { animation:none; } }
 </style>
 </head>
@@ -122,7 +110,7 @@
   <div class="bar mono">
     <span class="lvl">DEFCON <b id="lvl" class="lv5">5</b> <span id="clock">00:00</span></span>
     <span><span id="toll">0.0M</span> dead · match <span id="match">#</span> · next in <span id="next">60:00</span></span>
-    <span><a href="/">egodeathsquad.au</a></span>
+    <span><button id="help" type="button" aria-expanded="false" aria-controls="about" title="About">?</button>&nbsp;&nbsp;<a href="/">egodeathsquad.au</a></span>
   </div>
   <div class="stage">
     <svg class="map" viewBox="0 0 1440 576" preserveAspectRatio="xMidYMid slice" role="img" aria-label="World map with a simulated nuclear exchange in progress.">
@@ -135,13 +123,16 @@
   </div>
   <div class="foot">
     <div class="board" id="board" aria-label="Scoreboard"></div>
-    <div class="log" id="log" aria-live="off"></div>
-    <div class="hist" id="hist" aria-label="Previous matches"></div>
-    <div class="about">
-      <span>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America and Europe are NATO; Russia is the Warsaw Pact. Latin America, Africa and Asia align themselves each match, or stay non-aligned and fire only if struck. At DEFCON 1 someone launches first: NATO 40% of the time, the Pact 35%, the non-aligned 25%; everyone else launches on warning. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one. Nothing here is the real game.</span>
-      <span class="short">Simulated <i>DEFCON</i>-style match, 1980s blocs. One per hour, the same for everyone. Not the real game.</span>
-      <span class="mono">Everybody dies.</span>
+    <div class="panels">
+      <div class="hist" id="hist" aria-label="Previous matches"></div>
+      <div class="log" id="log" aria-live="off"></div>
     </div>
+    <div class="about"><span>Nothing here is the real game.</span><span class="mono">Everybody dies.</span></div>
+  </div>
+  <div class="explain" id="about" hidden>
+    <span class="mono">About</span>
+    <p>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America and Europe are NATO; Russia is the Warsaw Pact. Latin America, Africa and Asia align themselves each match, or stay non-aligned and fire only if struck. At DEFCON 1 someone launches first: NATO 40% of the time, the Pact 35%, the non-aligned 25%; everyone else launches on warning. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one.</p>
+  </div>
   </div>
 <script src="sim.js"></script>
 </body>

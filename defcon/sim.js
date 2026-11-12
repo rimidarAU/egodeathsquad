@@ -7,6 +7,8 @@
   var map = document.querySelector('.map'); if (!map) return;
   var layer = document.getElementById('sim'); if (!layer) return;
   var land = Array.prototype.slice.call(map.querySelectorAll('.land path'));
+  function fit() { var portrait = window.matchMedia('(orientation: portrait) and (max-width: 820px)').matches; map.setAttribute('preserveAspectRatio', portrait ? 'xMidYMid meet' : 'xMidYMid slice'); }
+  fit(); window.addEventListener('resize', fit); window.addEventListener('orientationchange', fit);
   var MATCH_MS = 3600000, MIN = 60;
   var PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];      /* minute, level */
   var END_MIN = 56;
@@ -182,7 +184,7 @@
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 7).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>';
+    hud.log.innerHTML = logs.slice(0, 16).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);

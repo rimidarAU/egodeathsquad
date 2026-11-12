@@ -17,7 +17,7 @@
   function Y(lat) { return (84 - lat) * 4; }
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-  /* Territories follow the game's six-way split, not any political map. Populations are the game's abstraction: ~100M each. */
+  /* Territories follow the game's six-way split, plus Australia carved out of Asia; not any political map. Populations are the game's abstraction: ~100M each. */
   var T = [
     { id: 'NA', name: 'North America', col: '#C8FF2E', land: [[-125, 28, -70, 55]], sea: [[-70, 25, -30, 45], [-160, 20, -125, 45]],
       cities: [['New York', -74.0, 40.7, 18], ['Los Angeles', -118.2, 34.0, 12], ['Chicago', -87.6, 41.9, 9], ['Houston', -95.4, 29.8, 7], ['Dallas', -96.8, 32.8, 7], ['Toronto', -79.4, 43.7, 6], ['Miami', -80.2, 25.8, 6], ['Atlanta', -84.4, 33.7, 6], ['Washington', -77.0, 38.9, 5], ['San Francisco', -122.4, 37.8, 5], ['Boston', -71.1, 42.4, 5], ['Phoenix', -112.1, 33.4, 5], ['Seattle', -122.3, 47.6, 4], ['Montreal', -73.6, 45.5, 4], ['Denver', -105.0, 39.7, 3]] },
@@ -29,8 +29,10 @@
       cities: [['Moscow', 37.6, 55.8, 20], ['St Petersburg', 30.3, 59.9, 8], ['Kyiv', 30.5, 50.5, 7], ['Tashkent', 69.2, 41.3, 6], ['Novosibirsk', 82.9, 55.0, 5], ['Baku', 49.9, 40.4, 5], ['Yekaterinburg', 60.6, 56.8, 4], ['Almaty', 76.9, 43.2, 4], ['Minsk', 27.6, 53.9, 4], ['Kazan', 49.1, 55.8, 3], ['Nizhny Novgorod', 44.0, 56.3, 3], ['Samara', 50.2, 53.2, 3], ['Omsk', 73.4, 55.0, 3], ['Rostov', 39.7, 47.2, 3], ['Vladivostok', 131.9, 43.1, 3], ['Kharkiv', 36.2, 50.0, 3], ['Krasnoyarsk', 92.9, 56.0, 3], ['Chelyabinsk', 61.4, 55.2, 3], ['Perm', 56.2, 58.0, 3], ['Volgograd', 44.5, 48.7, 3]] },
     { id: 'AF', name: 'Africa', col: '#FF8A3D', land: [[-12, -28, 40, 30]], sea: [[-30, -20, -5, 10], [42, -30, 70, -5]],
       cities: [['Cairo', 31.2, 30.0, 21], ['Lagos', 3.4, 6.5, 15], ['Kinshasa', 15.3, -4.3, 15], ['Johannesburg', 28.0, -26.2, 10], ['Luanda', 13.2, -8.8, 8], ['Nairobi', 36.8, -1.3, 6], ['Khartoum', 32.5, 15.6, 6], ['Dar es Salaam', 39.3, -6.8, 6], ['Casablanca', -7.6, 33.6, 5], ['Addis Ababa', 38.7, 9.0, 5], ['Algiers', 3.1, 36.7, 4]] },
-    { id: 'AS', name: 'Asia', col: '#EDEDE6', land: [[70, 10, 125, 45], [116, -36, 150, -16]], sea: [[132, 5, 170, 35], [60, -10, 95, 10]],
-      cities: [['Tokyo', 139.7, 35.7, 14], ['Delhi', 77.2, 28.6, 12], ['Shanghai', 121.5, 31.2, 11], ['Beijing', 116.4, 39.9, 9], ['Mumbai', 72.9, 19.1, 9], ['Seoul', 127.0, 37.6, 6], ['Jakarta', 106.8, -6.2, 6], ['Manila', 121.0, 14.6, 5], ['Bangkok', 100.5, 13.8, 5], ['Karachi', 67.0, 24.9, 5], ['Dhaka', 90.4, 23.8, 5], ['Kolkata', 88.4, 22.6, 4], ['Tehran', 51.4, 35.7, 4], ['Hong Kong', 114.2, 22.3, 3], ['Sydney', 151.2, -33.9, 2], ['Melbourne', 145.0, -37.8, 2]] }
+    { id: 'AS', name: 'Asia', col: '#EDEDE6', land: [[70, 10, 125, 45]], sea: [[132, 5, 170, 35], [60, -10, 95, 10]],
+      cities: [['Tokyo', 139.7, 35.7, 14], ['Delhi', 77.2, 28.6, 12], ['Shanghai', 121.5, 31.2, 11], ['Beijing', 116.4, 39.9, 9], ['Mumbai', 72.9, 19.1, 9], ['Seoul', 127.0, 37.6, 6], ['Jakarta', 106.8, -6.2, 6], ['Manila', 121.0, 14.6, 5], ['Bangkok', 100.5, 13.8, 5], ['Karachi', 67.0, 24.9, 5], ['Dhaka', 90.4, 23.8, 5], ['Kolkata', 88.4, 22.6, 4], ['Tehran', 51.4, 35.7, 4], ['Hong Kong', 114.2, 22.3, 3]] },
+    { id: 'AU', name: 'Australia', col: '#9D7BFF', land: [[115, -37, 152, -14]], sea: [[154, -42, 172, -12], [95, -40, 112, -14]],
+      cities: [['Sydney', 151.2, -33.9, 28], ['Melbourne', 145.0, -37.8, 26], ['Brisbane', 153.0, -27.5, 14], ['Perth', 115.9, -31.95, 12], ['Adelaide', 138.6, -34.9, 8], ['Auckland', 174.8, -36.85, 8], ['Darwin', 130.8, -12.5, 4]] }
   ];
 
   function onLand(x, y) { var pt = map.createSVGPoint(); pt.x = x; pt.y = y; for (var i = 0; i < land.length; i++) if (land[i].isPointInFill(pt)) return true; return false; }
@@ -56,13 +58,14 @@
       for (i = 0; i < nSub; i++) { var p3 = sample(r, t.sea, false, [X(t.sea[0][0] + 2), Y(t.sea[0][1] + 2)]); var s = { t: ti, kind: 'sub', x: p3[0], y: p3[1], nukes: 5, born: 6 + r() * 5 }; tt.subs.push(s); M.units.push(s); }
       M.terr.push(tt);
     });
-    /* 1980s Cold War alignment. NATO: North America, Europe. Warsaw Pact: Russia.
-       The other three align themselves each match, weighted by the period's leanings;
+    /* 1980s Cold War alignment. NATO: North America, Europe, Australia. Warsaw Pact: Russia, Asia.
+       Russia and Asia are always allies, so neither ever targets the other.
+       The other two align themselves each match, weighted by the period's leanings;
        non-aligned territories hold fire unless struck, then answer the striker's bloc. */
-    var W = { LA: [0.42, 0.53, 0.05], AF: [0.10, 0.50, 0.40], AS: [0.05, 0.49, 0.46] };  /* NATO, PACT, NON */
+    var W = { LA: [40 / 110, 35 / 110, 35 / 110], AF: [0.20, 0.35, 0.45] };  /* NATO, PACT, NON */
     M.terr.forEach(function (tt) {
-      if (tt.id === 'NA' || tt.id === 'EU') tt.bloc = 'NATO';
-      else if (tt.id === 'RU') tt.bloc = 'PACT';
+      if (tt.id === 'NA' || tt.id === 'EU' || tt.id === 'AU') tt.bloc = 'NATO';
+      else if (tt.id === 'RU' || tt.id === 'AS') tt.bloc = 'PACT';
       else { var w = W[tt.id], x = r(); tt.bloc = x < w[0] ? 'NATO' : x < w[0] + w[1] ? 'PACT' : 'NON'; }
     });
     var opp = { NATO: 'PACT', PACT: 'NATO' };
@@ -180,7 +183,7 @@
     M.cities.forEach(function (c) { c.pop = c.pop0; c.hits = 0; });
     var logs = [];
     /* alignment declarations at the start of the match */
-    ['LA', 'AF', 'AS'].forEach(function (id, i) {
+    ['LA', 'AF'].forEach(function (id, i) {
       var t = M.terr.filter(function (x) { return x.id === id; })[0], at = 0.25 + i * 0.25;
       if (min >= at) logs.push({ t: at, s: t.name.toUpperCase() + ': ' + (t.bloc === 'NATO' ? 'JOINS NATO' : t.bloc === 'PACT' ? 'JOINS THE WARSAW PACT' : 'DECLARES NON-ALIGNED'), c: 'a' });
     });

@@ -1,8 +1,8 @@
 /* Soundtrack for /defcon/: an endless drone with occasional morse, numbers-station
    and drum/horn events. Events fall on average every 80 seconds (standard deviation
    10 seconds) at moments worked out from the clock, so everyone listening hears the
-   same thing at the same time. Nothing plays until
-   the visitor presses the sound button. */
+   same thing at the same time. Sound is on by default and starts at the
+   visitor's first touch, click or key press; the sound button mutes it. */
 (function () {
   'use strict';
   var EVERY = 80, SD = 10, LANGS = ['de', 'en', 'ru'], PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];
@@ -182,11 +182,21 @@
       else march(ctx, B, t, e.seed);
     }
   }
-  btn.addEventListener('click', function () {
-    if (!AC) { btn.disabled = true; return; }
-    if (!ctx) { ctx = new AC(); B = bus(ctx); D = drone(ctx, B, ctx.currentTime); loadVoice(ctx).then(function (v) { voice = v; }); }
-    on = !on; btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    if (on) { ctx.resume(); D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0.55, ctx.currentTime, 1.2); B.ev.gain.setTargetAtTime(1, ctx.currentTime, 0.2); if (!timer) timer = setInterval(tick, 500); tick(); }
-    else { D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.2); B.ev.gain.setTargetAtTime(0, ctx.currentTime, 0.2); setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 1200); }
-  });
+  /* Sound is on by default. Browsers will not start audio until the visitor has touched,
+     clicked or pressed a key, so it begins at the first such action anywhere on the page
+     (or at once where the browser allows it). The button mutes; the choice is remembered. */
+  function saved() { try { return localStorage.getItem('defcon-muted') === '1'; } catch (e) { return false; } }
+  function save(m) { try { localStorage.setItem('defcon-muted', m ? '1' : '0'); } catch (e) {} }
+  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); D = drone(ctx, B, ctx.currentTime); loadVoice(ctx).then(function (v) { voice = v; }); }
+  function play() {
+    ensure(); var go = function () { if (!on || ctx.state !== 'running') return; D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0.55, ctx.currentTime, 1.2); B.ev.gain.setTargetAtTime(1, ctx.currentTime, 0.2); if (!timer) timer = setInterval(tick, 500); tick(); };
+    var pr = ctx.resume(); if (pr && pr.then) pr.then(go, function () {}); go();
+  }
+  function stop() { if (!ctx) return; D.gain.gain.cancelScheduledValues(ctx.currentTime); D.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.2); B.ev.gain.setTargetAtTime(0, ctx.currentTime, 0.2); setTimeout(function () { if (!on && ctx) ctx.suspend(); }, 1200); }
+  if (!AC) { btn.disabled = true; return; }
+  on = !saved(); btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  btn.addEventListener('click', function () { on = !on; save(!on); btn.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on) play(); else stop(); });
+  function gesture(e) { if (!on || (ctx && ctx.state === 'running')) return; if (e.target && e.target.closest && e.target.closest('#snd')) return; play(); }
+  ['pointerdown', 'pointerup', 'touchend', 'keydown', 'click'].forEach(function (n) { document.addEventListener(n, gesture, true); });
+  if (on) { try { ensure(); if (ctx.state === 'running') play(); } catch (e) {} }
 })();

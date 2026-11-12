@@ -179,6 +179,9 @@
     M.terr.forEach(function (t) { t.kills = 0; t.lost = 0; });
     M.cities.forEach(function (c) { c.pop = c.pop0; c.hits = 0; });
     var logs = [];
+    var firstL = null; M.launches.forEach(function (L) { if (firstL === null || L.t0 < firstL.t0) firstL = L; });
+    if (firstL && min >= firstL.t0) { var who = M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED'; logs.push({ t: firstL.t0, s: who + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST', c: 'f' }); }
+    if (M.nonStrikeAt && min >= M.nonStrikeAt) logs.push({ t: M.nonStrikeAt, s: 'NON-ALIGNED ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT'), c: 'f' });
     M.launches.forEach(function (L) {
       var end = L.t0 + L.fl, dead = L.abm ? L.t0 + L.fl * L.abm : end, live = min >= L.t0 && min < dead + 0.35;
       if (min >= L.t0 && logs.length < 400) logs.push({ t: L.t0, s: M.terr[L.from.t].id + ' → ' + L.to.name.toUpperCase(), c: 'l' });
@@ -214,7 +217,7 @@
     var narrow = window.innerWidth < 360;
     hud.board.innerHTML = rows.map(function (r) { var tag = narrow ? (r.t.bloc === 'NON' ? 'N-A' + (r.t.strikesFirst || r.t.retaliates ? '*' : '') : r.t.bloc === 'NATO' ? 'NATO' : 'WP') : r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED') + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST' + (M.nonTarget ? ' AT ' + (M.nonTarget === 'NATO' ? 'NATO' : 'THE PACT') : '') + '</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
+    hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' \u00b7 ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'awaiting launch') + '</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);

@@ -55,6 +55,7 @@
   #help:hover, #help[aria-expanded="true"] { color:var(--cyan); border-color:var(--cyan); }
   .explain { position:fixed; right:16px; top:48px; width:min(420px, calc(100vw - 32px)); background:rgba(6,8,12,.96); border:1px solid var(--cyan); padding:12px 16px 14px; z-index:20; font-size:12px; line-height:1.6; color:var(--text); }
   .explain p { margin:6px 0 0; }
+  .explain { max-height:calc(100vh - 60px); max-height:calc(100dvh - 60px); overflow-y:auto; }
   .explain[hidden] { display:none; }
   .over { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(6,8,12,.92); border:2px solid var(--pink); padding:16px 26px; text-align:center; }
   .over span { display:block; font-family:'Archivo',sans-serif; font-stretch:125%; font-weight:900; text-transform:uppercase; letter-spacing:-.03em; font-size:clamp(26px,5vw,52px); color:var(--pink); line-height:1; }
@@ -102,7 +103,7 @@
     .about { font-size:10px; }
     .board div { padding:3px 8px; font-size:10px; }
     .about { padding:3px 12px; }
-    .bar { padding:4px 12px; }
+    .bar { padding:4px 44px 4px 12px; }
   }
   @media (prefers-reduced-motion:reduce) { #sim .u .sweep { animation:none; } }
 </style>
@@ -131,7 +132,7 @@
   </div>
   <div class="explain" id="about" hidden>
     <span class="mono">About</span>
-    <p>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America, Europe and Australia are NATO; Russia and Asia are the Warsaw Pact. Latin America and Africa align themselves each match, or stay non-aligned and fire only if struck. At DEFCON 1 someone launches first: NATO 40% of the time, the Pact 35%, the non-aligned 25%; everyone else launches on warning. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one.</p>
+    <p>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America, Europe and Australia are NATO; Russia and Asia are the Warsaw Pact. Latin America joins the Pact in 95% of matches and NATO in 5%. Africa stays non-aligned in 75% and joins the Pact in 25%. At DEFCON 1 someone launches first: NATO 43% of the time, the Pact 38%, a non-aligned Africa 19%; everyone else launches on warning. Otherwise a non-aligned Africa fires only if struck. Score: +2 per million killed, −1 per million of your own lost. In the long run NATO wins about 49% of matches, the Pact 48% and a non-aligned Africa 3%; an average match kills about 530M of 700M. One match every hour, generated from the clock, so everyone watching sees the same one.</p>
   </div>
 <script src="sim.js"></script>
 </body>

@@ -69,17 +69,13 @@
     M.terr.forEach(function (tt, ti) {
       tt.enemies = []; M.terr.forEach(function (o, j) { if (j !== ti && tt.bloc !== 'NON' && o.bloc === opp[tt.bloc]) tt.enemies.push(j); });
     });
-    /* who goes first: one bloc initiates, the other launches on warning a few minutes later */
-    M.initiator = r() < 0.5 ? 'NATO' : 'PACT';
+    /* who goes first: NATO 40%, Warsaw Pact 35%, the non-aligned 25% (if any exist that hour;
+       otherwise the 25% falls back to the blocs in 40:35 proportion) */
+    var nons = []; M.terr.forEach(function (t, j) { if (t.bloc === 'NON') nons.push(j); });
+    var x = r();
+    M.initiator = x < 0.40 ? 'NATO' : x < 0.75 ? 'PACT' : nons.length ? 'NON' : (r() < 0.40 / 0.75 ? 'NATO' : 'PACT');
+    var opp2 = { NATO: 'PACT', PACT: 'NATO' };
     var t_first = 28 + r() * 4, t_resp = t_first + 1.5 + r() * 1.5;
-    M.terr.forEach(function (tt) { tt.t0 = tt.bloc === M.initiator ? t_first : tt.bloc === 'NON' ? null : t_resp; });
-    /* pre-emption: a bloc may strike a non-aligned territory it suspects of leaning the other way */
-    M.terr.forEach(function (tt, ti) {
-      if (tt.bloc !== 'NON') return;
-      var by = r() < 0.5 ? 'NATO' : 'PACT';
-      if (r() < 0.45) { tt.preemptedBy = by; M.terr.forEach(function (o) { if (o.bloc === by) o.sideTargets = (o.sideTargets || []).concat([ti]); }); }
-    });
-    /* launches */
     var id = 0;
     function schedule(u, startMin, targetsIdx, count) {
       for (var k = 0; k < count; k++) {
@@ -87,29 +83,54 @@
         var cs = en.cities, tot = 0; cs.forEach(function (c) { tot += c.pop0; });
         var pick = r() * tot, city = cs[0]; for (var j = 0; j < cs.length; j++) { pick -= cs[j].pop0; if (pick <= 0) { city = cs[j]; break; } }
         var t0 = Math.min(52, startMin + k * (0.6 + r() * 1.8) + r() * 5);
-        /* shortest way round: cross the antimeridian when that is nearer */
         var dxr = city.x - u.x, dx = Math.abs(dxr) > 720 ? dxr - Math.sign(dxr) * 1440 : dxr;
         var tx = u.x + dx, d = Math.hypot(dx, city.y - u.y);
         var fl = (0.9 + d / 400) * (u.kind === 'sub' ? 0.7 : 1);
         M.launches.push({ id: id++, from: u, to: city, tx: tx, wrap: tx < 0 || tx > 1440, t0: t0, fl: fl, abm: null });
       }
     }
-    M.terr.forEach(function (tt) {
-      if (tt.bloc === 'NON' || !tt.enemies.length) return;
-      tt.silos.concat(tt.subs).forEach(function (u) {
-        var side = tt.sideTargets && r() < 0.5 ? Math.max(1, Math.round(u.nukes * 0.15)) : 0;
-        if (side) schedule(u, tt.t0 + 2 + r() * 4, tt.sideTargets, side);
-        schedule(u, tt.t0, tt.enemies, u.nukes - side);
+    var members = function (b) { var o = []; M.terr.forEach(function (t, j) { if (t.bloc === b) o.push(j); }); return o; };
+    if (M.initiator === 'NON') {
+      /* the non-aligned pact strikes a bloc of its choosing; both blocs then launch on warning,
+         and the struck bloc divides its fire between the other bloc and the non-aligned */
+      M.nonTarget = r() < 0.5 ? 'NATO' : 'PACT';
+      var tgN = members(M.nonTarget);
+      M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.t0 = t_first; tt.strikesFirst = true; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, t_first, tgN, u.nukes); }); });
+      M.terr.forEach(function (tt) {
+        if (tt.bloc === 'NON') return;
+        tt.t0 = t_resp + (tt.bloc === M.nonTarget ? 0 : 0.8);
+        var en = members(opp2[tt.bloc]), split = tt.bloc === M.nonTarget;
+        tt.silos.concat(tt.subs).forEach(function (u) {
+          var toNon = split ? Math.round(u.nukes * 0.5) : 0;
+          if (toNon) schedule(u, tt.t0, nons, toNon);
+          if (en.length) schedule(u, tt.t0, en, u.nukes - toNon); else if (!toNon) schedule(u, tt.t0, nons, u.nukes);
+        });
       });
-    });
-    /* the non-aligned keep a pact among themselves: if any one of them is struck by a bloc,
-       all of them answer that bloc with everything, two minutes after the first impact */
-    var firstHit = null, hitBy = null;
-    M.launches.forEach(function (L) { if (M.terr[L.to.t].bloc === 'NON') { var e = L.t0 + L.fl; if (firstHit === null || e < firstHit) { firstHit = e; hitBy = M.terr[L.from.t].bloc; } } });
-    if (firstHit !== null) {
-      var tg = []; M.terr.forEach(function (o, j) { if (o.bloc === hitBy) tg.push(j); });
-      M.nonStrikeBy = hitBy; M.nonStrikeAt = firstHit + 2;
-      M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
+    } else {
+      M.terr.forEach(function (tt) { tt.t0 = tt.bloc === M.initiator ? t_first : tt.bloc === 'NON' ? null : t_resp; });
+      /* pre-emption: a bloc may strike a non-aligned territory it suspects of leaning the other way */
+      M.terr.forEach(function (tt, ti) {
+        if (tt.bloc !== 'NON') return;
+        var by = r() < 0.5 ? 'NATO' : 'PACT';
+        if (r() < 0.45) { tt.preemptedBy = by; M.terr.forEach(function (o) { if (o.bloc === by) o.sideTargets = (o.sideTargets || []).concat([ti]); }); }
+      });
+      M.terr.forEach(function (tt) {
+        if (tt.bloc === 'NON' || !tt.enemies.length) return;
+        tt.silos.concat(tt.subs).forEach(function (u) {
+          var side = tt.sideTargets && r() < 0.5 ? Math.max(1, Math.round(u.nukes * 0.15)) : 0;
+          if (side) schedule(u, tt.t0 + 2 + r() * 4, tt.sideTargets, side);
+          schedule(u, tt.t0, tt.enemies, u.nukes - side);
+        });
+      });
+      /* the non-aligned keep a pact among themselves: if any one of them is struck by a bloc,
+         all of them answer that bloc with everything, two minutes after the first impact */
+      var firstHit = null, hitBy = null;
+      M.launches.forEach(function (L) { if (M.terr[L.to.t].bloc === 'NON') { var e = L.t0 + L.fl; if (firstHit === null || e < firstHit) { firstHit = e; hitBy = M.terr[L.from.t].bloc; } } });
+      if (firstHit !== null) {
+        var tg = members(hitBy);
+        M.nonStrikeBy = hitBy; M.nonStrikeAt = firstHit + 2;
+        M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
+      }
     }
     /* ABM: a defending silo near the target may intercept, less often as the barrage thickens */
     M.launches.sort(function (a, b) { return a.t0 - b.t0; });
@@ -190,9 +211,9 @@
     hud.next.textContent = fmt(MIN - min);
     hud.readout.forEach(function (b) { b.className = (parseInt(b.textContent, 10) === lv) ? 'on' + (lv === 1 ? ' one' : '') : ''; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
-    hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
+    hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
+    hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED') + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST' + (M.nonTarget ? ' AT ' + (M.nonTarget === 'NATO' ? 'NATO' : 'THE PACT') : '') + '</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);
@@ -206,7 +227,7 @@
     M.launches.forEach(function (L) { if (L.abm) return; M.terr[L.from.t].kills += L.kills; M.terr[L.to.t].lost += L.kills; dead += L.kills; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     var tag = function (t) { return t.bloc === 'NATO' ? 'NATO' : t.bloc === 'PACT' ? 'Pact' : 'Non-al.'; };
-    return { id: idx % 100000, first: M.initiator === 'NATO' ? 'NATO' : 'Pact', dead: dead, top: rows.slice(0, 3).map(function (r) { return r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') + ' ' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0); }) };
+    return { id: idx % 100000, first: M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'Pact' : 'Non-aligned', dead: dead, top: rows.slice(0, 3).map(function (r) { return r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') + ' ' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0); }) };
   }
   function renderHistory(idx) {
     if (idx === histIdx || !hud.hist) return; histIdx = idx;

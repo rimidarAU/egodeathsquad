@@ -7,7 +7,7 @@
   var map = document.querySelector('.map'); if (!map) return;
   var layer = document.getElementById('sim'); if (!layer) return;
   var land = Array.prototype.slice.call(map.querySelectorAll('.land path'));
-  function fit() { var portrait = window.matchMedia('(orientation: portrait) and (max-width: 820px)').matches; map.setAttribute('preserveAspectRatio', portrait ? 'xMidYMid meet' : 'xMidYMid slice'); }
+  function fit() { var portrait = window.matchMedia('(orientation: portrait) and (max-width: 820px)').matches; var par = portrait ? 'xMidYMid meet' : 'xMidYMid slice', grid = document.querySelector('.mapgrid'); map.setAttribute('preserveAspectRatio', par); if (grid) grid.setAttribute('preserveAspectRatio', par); }
   fit(); window.addEventListener('resize', fit); window.addEventListener('orientationchange', fit);
   var MATCH_MS = 3600000, MIN = 60;
   var PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];      /* minute, level */

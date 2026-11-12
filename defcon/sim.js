@@ -144,13 +144,13 @@
     state = M; window.DEFCON_MATCH = M;
   }
 
-  var hud = { lvl: document.getElementById('lvl'), clock: document.getElementById('clock'), match: document.getElementById('match'), next: document.getElementById('next'), board: document.getElementById('board'), log: document.getElementById('log'), over: document.getElementById('over'), readout: document.querySelectorAll('.readout b') };
+  var hud = { hist: document.getElementById('hist'), lvl: document.getElementById('lvl'), clock: document.getElementById('clock'), match: document.getElementById('match'), next: document.getElementById('next'), board: document.getElementById('board'), log: document.getElementById('log'), over: document.getElementById('over'), readout: document.querySelectorAll('.readout b') };
   function fmt(m) { var s = Math.max(0, Math.floor(m * 60)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
   function level(min) { var l = 5; PHASES.forEach(function (p) { if (min >= p[0]) l = p[1]; }); return l; }
 
   function render(now) {
     var idx = Math.floor(now / MATCH_MS), seed = (idx * 2654435761) >>> 0;
-    if (!state || state.seed !== seed) mount(build(seed));
+    if (!state || state.seed !== seed) { mount(build(seed)); renderHistory(idx); }
     var M = state, min = (now - idx * MATCH_MS) / 60000, lv = level(min);
     /* units appear during placement */
     M.units.forEach(function (u) { u.el.setAttribute('opacity', min >= u.born ? 1 : 0); });
@@ -192,13 +192,28 @@
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     hud.board.innerHTML = rows.map(function (r) { var tag = r.t.bloc === 'NON' ? (r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
-    hud.log.innerHTML = logs.slice(0, 16).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
+    hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' · ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'exchange') + '</div><div>' + (M.initiator === 'NATO' ? 'NATO' : 'WARSAW PACT') + ' STRIKES FIRST</div>' + (M.nonStrikeBy ? '<div>NON-ALIGNED WILL ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT') + '</div>' : '');
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);
     if (min >= END_MIN) hud.over.querySelector('b').textContent = dead.toFixed(0) + 'M dead · next match in ' + fmt(MIN - min);
     document.getElementById('toll').textContent = dead.toFixed(1) + 'M';
   }
 
+  /* previous matches: rebuilt from their seeds, so the history is the same for everyone too */
+  var histIdx = -1;
+  function summarize(idx) {
+    var M = build((idx * 2654435761) >>> 0), dead = 0;
+    M.launches.forEach(function (L) { if (L.abm) return; M.terr[L.from.t].kills += L.kills; M.terr[L.to.t].lost += L.kills; dead += L.kills; });
+    var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
+    var tag = function (t) { return t.bloc === 'NATO' ? 'NATO' : t.bloc === 'PACT' ? 'Pact' : 'Non-al.'; };
+    return { id: idx % 100000, first: M.initiator === 'NATO' ? 'NATO' : 'Pact', dead: dead, top: rows.slice(0, 3).map(function (r) { return r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') + ' ' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0); }) };
+  }
+  function renderHistory(idx) {
+    if (idx === histIdx || !hud.hist) return; histIdx = idx;
+    var out = '';
+    for (var i = 1; i <= 5; i++) { var h = summarize(idx - i); out += '<div><span>#' + h.id + ' \u00b7 ' + h.first + ' struck first \u00b7 ' + h.dead.toFixed(0) + 'M dead</span><span>' + h.top.join(' \u00b7 ') + '</span></div>'; }
+    hud.hist.innerHTML = out;
+  }
   var last = 0;
   function frame(ts) { if (ts - last > 120) { last = ts; try { render(Date.now()); } catch (e) { /* keep the loop alive */ } } requestAnimationFrame(frame); }
   requestAnimationFrame(frame);

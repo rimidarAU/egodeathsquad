@@ -39,8 +39,14 @@
   #sim .arc { fill:none; stroke-width:1.3; stroke-linecap:round; }
   #sim .boom { fill:var(--pink); }
   #sim .abm { fill:var(--lime); }
-  .log { position:fixed; right:16px; top:52px; width:260px; max-height:150px; overflow:hidden; background:rgba(6,8,12,.75); border:1px solid var(--line); padding:6px 10px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); white-space:pre; }
+  .log { position:fixed; right:16px; top:52px; width:280px; max-height:190px; overflow:hidden; background:rgba(6,8,12,.75); border:1px solid var(--line); padding:6px 10px; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); white-space:pre; }
+  .log div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .log .l { color:var(--cyan); } .log .d { color:var(--pink); }
+  .hist { position:fixed; left:16px; top:52px; width:330px; max-height:230px; overflow:hidden; background:rgba(6,8,12,.75); border:1px solid var(--line); padding:6px 10px; font-size:10px; letter-spacing:.04em; color:var(--dim); }
+  .hist div { padding:4px 0; border-bottom:1px solid var(--line); }
+  .hist div:last-child { border-bottom:0; }
+  .hist span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hist span:first-child { color:var(--text); text-transform:uppercase; letter-spacing:.08em; }
   .over { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:rgba(6,8,12,.92); border:2px solid var(--pink); padding:16px 26px; text-align:center; }
   .over span { display:block; font-family:'Archivo',sans-serif; font-stretch:125%; font-weight:900; text-transform:uppercase; letter-spacing:-.03em; font-size:clamp(26px,5vw,52px); color:var(--pink); line-height:1; }
   .over b { display:block; margin-top:6px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); font-weight:700; }
@@ -58,7 +64,7 @@
   .about span:first-child { max-width:90ch; }
   .hidden { display:none; }
   @media (max-width:820px) {
-    .log { display:none; }
+    .log, .hist { display:none; }
     .bar { flex-wrap:wrap; gap:4px 12px; padding:8px 12px; font-size:10px; }
     .bar > span:last-child { display:none; }
     .board { grid-template-columns:repeat(3,1fr); }
@@ -74,6 +80,7 @@
     .board b { font-size:13px; }
   }
   @media (max-height:480px) {
+    .hist { display:none; }
     .about span:first-child { display:none; }
     .about { padding:4px 12px; }
     .board { grid-template-columns:repeat(6,1fr); }
@@ -99,6 +106,8 @@
     .board b { font-size:14px; }
     .about span:first-child { display:none; }
     .about .short { display:block; }
+    .hist { display:block; position:static; width:auto; max-height:none; flex:0 0 auto; order:2; border:0; border-bottom:1px solid var(--line); padding:6px 12px; }
+    .log { order:3; } .about { order:4; } .board { order:1; }
     .log { display:block; position:static; width:auto; max-height:none; flex:1 1 0; min-height:0; overflow:hidden; border:0; border-bottom:1px solid var(--line); padding:8px 12px; line-height:1.7; -webkit-mask-image:linear-gradient(#000 70%, transparent); mask-image:linear-gradient(#000 70%, transparent); }
   }
   .about .short { display:none; }
@@ -123,6 +132,7 @@
   <div class="foot">
     <div class="board" id="board" aria-label="Scoreboard"></div>
     <div class="log" id="log" aria-live="off"></div>
+    <div class="hist" id="hist" aria-label="Previous matches"></div>
     <div class="about">
       <span>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions. North America and Europe are NATO; Russia is the Warsaw Pact. Latin America, Africa and Asia align themselves each match, or stay non-aligned and fire only if struck. One bloc launches first at DEFCON 1; the other launches on warning. Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one. Nothing here is the real game.</span>
       <span class="short">Simulated <i>DEFCON</i>-style match, 1980s blocs. One per hour, the same for everyone. Not the real game.</span>

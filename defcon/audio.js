@@ -22,13 +22,20 @@
     return b;
   }
 
-  /* ---- output bus: events go out dry and through a long reverb, as if heard from far away ---- */
+  /* ---- output bus: every event passes through a radio (narrow band, overdrive, fading and
+     flutter), then goes out dry and through a long reverb; the drone bypasses the radio ---- */
   function bus(ctx) {
     var out = ctx.createGain(); out.gain.value = 0.9;
     var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
     var ev = ctx.createGain(), verb = ctx.createConvolver(), wet = ctx.createGain();
     verb.buffer = impulse(ctx, 3.2); wet.gain.value = 0.42;
-    ev.connect(out); ev.connect(verb); verb.connect(wet); wet.connect(out);
+    var hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), pre = ctx.createGain(), ws = ctx.createWaveShaper(), post = ctx.createGain(), fade = ctx.createGain();
+    hp.type = 'highpass'; hp.frequency.value = 330; hp.Q.value = 0.9; lp.type = 'lowpass'; lp.frequency.value = 3100; lp.Q.value = 1.1; pre.gain.value = 2.6; post.gain.value = 0.3;
+    var c = new Float32Array(513); for (var i = 0; i < 513; i++) { var x = i / 256 - 1; c[i] = Math.tanh(2.8 * x) * 0.92 + 0.08 * Math.sin(9 * x); } ws.curve = c;
+    fade.gain.value = 0.72;
+    [[0.19, 0.2], [0.53, 0.08], [7.1, 0.06]].forEach(function (f) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f[0]; g.gain.value = f[1]; o.connect(g); g.connect(fade.gain); o.start(0); });
+    ev.connect(hp); hp.connect(lp); lp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(fade);
+    fade.connect(out); fade.connect(verb); verb.connect(wet); wet.connect(out);
     out.connect(comp); comp.connect(ctx.destination);
     return { out: out, ev: ev, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true) };
   }
@@ -142,11 +149,17 @@
     });
     return x - t;
   }
+  function hiss(ctx, B, t, end, level) {
+    var ns = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain(); ns.buffer = B.white; ns.loop = true; nf.type = 'bandpass'; nf.frequency.value = 1900; nf.Q.value = 0.4; ng.gain.value = 0;
+    ng.gain.setValueAtTime(0, Math.max(0, t - 0.4)); ng.gain.linearRampToValueAtTime(level, t); ng.gain.setValueAtTime(level, end); ng.gain.linearRampToValueAtTime(0, end + 0.6);
+    ns.connect(nf); nf.connect(ng); ng.connect(B.ev); ns.start(Math.max(0, t - 0.4)); ns.stop(end + 0.7);
+  }
   function march(ctx, B, t, seed) {
-    var r = rng(seed), x = r();
-    if (x < 0.3) return drums(ctx, B, t, seed + 1, 2).dur;
-    if (x < 0.5) return horns(ctx, B, t, seed + 2, 0.56);
-    var d = drums(ctx, B, t, seed + 1, 3); horns(ctx, B, t + 4 * d.beat, seed + 2, d.beat); return d.dur;
+    var r = rng(seed), x = r(), dur;
+    if (x < 0.3) dur = drums(ctx, B, t, seed + 1, 2).dur;
+    else if (x < 0.5) dur = horns(ctx, B, t, seed + 2, 0.56);
+    else { var d = drums(ctx, B, t, seed + 1, 3); horns(ctx, B, t + 4 * d.beat, seed + 2, d.beat); dur = d.dur; }
+    hiss(ctx, B, t, t + dur, 0.022); return dur;
   }
 
   function loadVoice(ctx) {
@@ -162,7 +175,7 @@
     var z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v), j = Math.max(-25, Math.min(25, z * SD / Math.SQRT2)), x = r();
     return { k: k, time: (k * EVERY + EVERY / 2 + j) * 1000, kind: x < 0.40 ? 'morse' : x < 0.70 ? 'numbers' : 'march', seed: (r() * 4294967296) >>> 0 };
   }
-  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, horns: horns, loadVoice: loadVoice, eventAt: eventAt, rng: rng, EVERY: EVERY };
+  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, horns: horns, hiss: hiss, loadVoice: loadVoice, eventAt: eventAt, rng: rng, EVERY: EVERY };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;

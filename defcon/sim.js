@@ -179,6 +179,11 @@
     M.terr.forEach(function (t) { t.kills = 0; t.lost = 0; });
     M.cities.forEach(function (c) { c.pop = c.pop0; c.hits = 0; });
     var logs = [];
+    /* alignment declarations at the start of the match */
+    ['LA', 'AF', 'AS'].forEach(function (id, i) {
+      var t = M.terr.filter(function (x) { return x.id === id; })[0], at = 0.25 + i * 0.25;
+      if (min >= at) logs.push({ t: at, s: t.name.toUpperCase() + ': ' + (t.bloc === 'NATO' ? 'JOINS NATO' : t.bloc === 'PACT' ? 'JOINS THE WARSAW PACT' : 'DECLARES NON-ALIGNED'), c: 'a' });
+    });
     var firstL = null; M.launches.forEach(function (L) { if (firstL === null || L.t0 < firstL.t0) firstL = L; });
     if (firstL && min >= firstL.t0) { var who = M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED'; logs.push({ t: firstL.t0, s: who + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST', c: 'f' }); }
     if (M.nonStrikeAt && min >= M.nonStrikeAt) logs.push({ t: M.nonStrikeAt, s: 'NON-ALIGNED ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT'), c: 'f' });

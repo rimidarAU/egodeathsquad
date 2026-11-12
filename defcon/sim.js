@@ -12,6 +12,7 @@
   var MATCH_MS = 3600000, MIN = 60;
   var PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];      /* minute, level */
   var END_MIN = 56;
+  var CAMP = 0.5;   /* share of evacuations and wartime events that fall on NATO territories */
 
   function X(lon) { return (lon + 180) * 4; }
   function Y(lat) { return (84 - lat) * 4; }
@@ -46,6 +47,63 @@
     return fallback;
   }
 
+  /* ---------- statements ----------
+     Escalation lines are logged as the DEFCON level falls. Every quote from a politician,
+     diplomat or journalist belongs to an event that changes the match (see build):
+       before the war   Latin America courted or held, Africa pressured or left alone, hawkish
+                        talk (who strikes first), an ultimatum (the non-aligned are struck),
+                        talks that succeed (a fifth of all warheads held back, slower reply) or
+                        fail (hair-trigger reply), cities evacuated (fewer dead there)
+       during the war   a stand-down (that territory fires nothing more), shelters (fewer dead
+                        there from then on), retargeting (its remaining warheads go to the
+                        largest cities), air defence (more inbound missiles intercepted)
+     Only the last lines, after the exchange is over, change nothing. */
+  var ESC = {
+    4: ['WATCH INCREASED. ALL LEAVE CANCELLED.', 'RESERVES RECALLED. EMBASSIES BURNING PAPERS.', 'RADAR PICKETS DOUBLED. BORDERS CLOSED.'],
+    3: ['FLEETS PUT TO SEA. FIRST SHOTS EXCHANGED.', 'AIRCRAFT DISPERSED TO WAR STATIONS.', 'SUBMARINES SLIP THEIR MOORINGS.'],
+    2: ['MISSILE CREWS AT THEIR CONSOLES.', 'CITIES TOLD TO TAKE SHELTER.', 'BOMBERS HOLDING AT FAIL-SAFE POINTS.'],
+    1: ['LAUNCH AUTHORITY RELEASED.', 'ALL RESTRAINTS REMOVED.', 'NUCLEAR WAR IMMINENT.']
+  };
+  var CAP = { NA: 'Washington', LA: 'Bras\u00edlia', EU: 'Brussels', RU: 'Moscow', AF: 'Lagos', AS: 'Beijing', AU: 'Canberra' };
+  var Q = {
+    laNato: [['Washington \u00b7 Secretary of State', 'Our neighbours to the south know who their friends are. We have reminded them.'], ['Bras\u00edlia \u00b7 wire service', 'An American envoy left the presidential palace after midnight. Neither side would comment.'], ['Buenos Aires \u00b7 Foreign Minister', 'We have received certain assurances. We are studying them with care.'], ['Mexico City \u00b7 correspondent', 'Soviet advisers were seen leaving for the airport this morning with their families.']],
+    laPact: [['Havana \u00b7 state radio', 'The hemisphere will not be Washington\u2019s back yard for ever.'], ['Moscow \u00b7 party daily', 'Fraternal Latin America stands shoulder to shoulder with the socialist camp.'], ['Lima \u00b7 correspondent', 'Crowds outside the American embassy have not dispersed for two days.']],
+    afPact: [['Moscow \u00b7 Deputy Foreign Minister', 'Africa remembers who armed its liberation, and who armed its jailers.'], ['Addis Ababa \u00b7 wire service', 'Soviet transport aircraft have been landing through the night.'], ['Luanda \u00b7 Defence Minister', 'We did not choose this quarrel. But we know our friends.'], ['Cairo \u00b7 correspondent', 'The Soviet ambassador has been received at the palace three times since Sunday.']],
+    afNeutral: [['Lagos \u00b7 Head of State', 'Africa will not be a battlefield for other men\u2019s quarrels.'], ['Nairobi \u00b7 correspondent', 'The non-aligned summit ended tonight with a single sentence: we take no side.'], ['Cairo \u00b7 Foreign Minister', 'We ask both powers to remember that the wind does not respect borders.']],
+    hawkNato: [['Washington \u00b7 President', 'We will not wait to be struck. I have made that plain to Moscow.'], ['Brussels \u00b7 NATO spokesman', 'All options remain on the table. All of them.'], ['London \u00b7 Defence Secretary', 'Deterrence works only if the other side believes you. They should believe us.'], ['Canberra \u00b7 Prime Minister', 'Australia stands with its allies, whatever this week brings.']],
+    hawkPact: [['Moscow \u00b7 General Secretary', 'Whoever raises the sword against us will find that we have drawn ours first.'], ['Moscow \u00b7 state radio', 'The Strategic Rocket Forces have been brought to full combat readiness.'], ['Beijing \u00b7 Foreign Ministry', 'The imperialists mistake our patience for weakness. It is neither.'], ['East Berlin \u00b7 party daily', 'The hour of decision will be chosen in Moscow, not in Washington.']],
+    defiant: [['Lagos \u00b7 Head of State', 'If they mean to burn the world, they will not find Africa kneeling.'], ['Kinshasa \u00b7 state radio', 'Our forces answer to no foreign capital. Let both camps take note.'], ['Johannesburg \u00b7 correspondent', 'Missile crews here say their orders no longer mention waiting.']],
+    ultimatum: [['Washington \u00b7 National Security Adviser', 'There are no bystanders now. Those who are not with us should consider their position.'], ['Moscow \u00b7 Defence Minister', 'Neutrality that shelters our enemies is not neutrality.'], ['Brussels \u00b7 NATO spokesman', 'We cannot guarantee the safety of any state that will not declare itself.']],
+    talksOk: [['Geneva \u00b7 joint communiqu\u00e9', 'Both delegations have accepted limits on any first exchange.'], ['New York \u00b7 UN Secretary-General', 'I am able to report an understanding on restraint. It is fragile.'], ['Geneva \u00b7 correspondent', 'The delegations left by the same door tonight. Nobody here remembers that happening before.']],
+    talksFail: [['Geneva \u00b7 correspondent', 'The talks adjourned after eleven minutes. The delegations left by separate doors.'], ['New York \u00b7 UN Secretary-General', 'The hotline rang for six minutes. Nobody picked it up.'], ['Vienna \u00b7 wire service', 'Both embassies have sent their children home.']],
+    evac: [['{C} \u00b7 correspondent', 'Every road out of the city is full. Nobody is driving in.'], ['{C} \u00b7 wire service', 'Schools closed at noon. Parents were told to collect their children.'], ['{C} \u00b7 radio reporter', 'The underground stations have been opened as shelters. People are already inside.'], ['{C} \u00b7 correspondent', 'Trains leaving the city are full. Trains arriving are empty.'], ['{C} \u00b7 civil defence', 'Sirens will sound at noon. This time it is not a test.']],
+    stand: [['{C} \u00b7 head of government', 'Enough. I have ordered our remaining forces to stand down.'], ['{C} \u00b7 military command', 'No further release is authorised. Crews are to stand by.'], ['{C} \u00b7 state radio', 'Our rockets are silent. We ask the same of every other nation.']],
+    shelter: [['{C} \u00b7 civil defence', 'Everyone who can be below ground is below ground.'], ['{C} \u00b7 emergency broadcast', 'Stay under cover. Do not come up to look.'], ['{C} \u00b7 correspondent', 'We are broadcasting from a cellar. The streets above are empty.']],
+    retarget: [['{C} \u00b7 general staff', 'Remaining warheads are being turned on their largest cities.'], ['{C} \u00b7 Defence Minister', 'We will not waste what is left on empty ground.'], ['{C} \u00b7 military command', 'New target lists have gone out to every crew still able to fire.']],
+    defence: [['{C} \u00b7 air defence command', 'The interceptor screen is holding.'], ['{C} \u00b7 radar station', 'Tracking forty inbound. Batteries are engaging.'], ['{C} \u00b7 correspondent', 'Something is bursting high over the city, far above the clouds.']],
+    after: [['Unknown \u00b7 amateur radio', 'Is anyone receiving? Is anyone there?'], ['Southern Ocean \u00b7 weather ship', 'We have lost every station north of the forty-fifth parallel.'], ['Unknown \u00b7 emergency band', 'This frequency is being kept clear for survivors. Please respond.'], ['Reykjav\u00edk \u00b7 coast radio', 'Calling any vessel. Calling any vessel. We have no instructions.']]
+  };
+  /* turn a match's events into dated statements */
+  function story(M, S, nr) {
+    var out = [], used = {}, i;
+    function say(pool, lo, hi, ti) {
+      var a = Q[pool].filter(function (q) { return !used[pool + q[1]]; }); if (!a.length) a = Q[pool];
+      var q = a[(nr() * a.length) | 0]; used[pool + q[1]] = 1;
+      out.push({ t: lo + nr() * (hi - lo), who: q[0].replace('{C}', ti == null ? '' : CAP[M.terr[ti].id]), text: q[1] });
+    }
+    if (S.la) { say('laNato', 2, 10); say('laNato', 10, 18); } else say('laPact', 1, 20);
+    if (S.af) { say('afPact', 2, 10); say('afPact', 10, 18); } else say('afNeutral', 1, 20);
+    if (S.talk) { var hp = { N: 'hawkNato', P: 'hawkPact', A: 'defiant' }[S.talk]; say(hp, 13, 20); say(hp, 20, 27); }
+    if (S.ult) say('ultimatum', 20, 27.3);
+    say(S.talks ? 'talksOk' : 'talksFail', 18, 27);
+    S.evac.forEach(function (ti) { say('evac', 3, 26, ti); });
+    out.sort(function (a, b) { return a.t - b.t; });
+    for (i = 1; i < out.length; i++) if (out[i].t < out[i - 1].t + 0.9) out[i].t = out[i - 1].t + 0.9;
+    S.war.forEach(function (w) { say(w.kind, w.t, w.t, w.ti); });
+    say('after', 53.0, 54.2); if (nr() < 0.6) say('after', 54.6, 55.6);
+    return out;
+  }
+
   /* ---------- build a match from a seed ---------- */
   function build(seed) {
     var r = rng(seed), M = { seed: seed, units: [], cities: [], launches: [], terr: [] };
@@ -62,7 +120,11 @@
        Russia and Asia are always allies, so neither ever targets the other.
        The other two align themselves each match, weighted by the period's leanings;
        non-aligned territories hold fire unless struck, then answer the striker's bloc. */
-    var W = { LA: [0.05, 0.95, 0], AF: [0, 0.25, 0.75] };  /* NATO, PACT, NON */
+    /* Events, drawn from their own random stream. Each changes the odds below, and the odds
+       without the event are set so that the long-run rates stay where they were:
+       Latin America 5 / 95 / 0, Africa 0 / 25 / 75, first strike 40 / 35 / 25, pre-emption 45%. */
+    var nr = rng((seed ^ 0x51F15EED) >>> 0), S = { la: nr() < 0.06, af: nr() < 0.20 };
+    var W = { LA: S.la ? [0.60, 0.40, 0] : [0.014894, 0.985106, 0], AF: S.af ? [0, 0.70, 0.30] : [0, 0.1375, 0.8625] };  /* NATO, PACT, NON */
     M.terr.forEach(function (tt) {
       if (tt.id === 'NA' || tt.id === 'EU' || tt.id === 'AU') tt.bloc = 'NATO';
       else if (tt.id === 'RU' || tt.id === 'AS') tt.bloc = 'PACT';
@@ -75,10 +137,14 @@
     /* who goes first: NATO 40%, Warsaw Pact 35%, the non-aligned 25% (if any exist that hour;
        otherwise the 25% falls back to the blocs in 40:35 proportion) */
     var nons = []; M.terr.forEach(function (t, j) { if (t.bloc === 'NON') nons.push(j); });
-    var x = r();
-    M.initiator = x < 0.40 ? 'NATO' : x < 0.75 ? 'PACT' : nons.length ? 'NON' : (r() < 0.40 / 0.75 ? 'NATO' : 'PACT');
+    var x = r(), y = nr();
+    S.talk = y < 0.2 ? 'N' : y < 0.4 ? 'P' : (nons.length && y < 0.5) ? 'A' : '';
+    S.ult = nr() < 0.20 && nons.length > 0;
+    S.talks = nr() < 0.30;
+    var FS = nons.length ? { N: [0.70, 0.15], P: [0.15, 0.70], A: [0.20, 0.20], '': [0.42, 0.32] }[S.talk] : { N: [0.80, 0.20], P: [0.20, 0.80], '': [0.555556, 0.444444] }[S.talk];
+    M.initiator = x < FS[0] ? 'NATO' : (x < FS[0] + FS[1] || !nons.length) ? 'PACT' : 'NON';
     var opp2 = { NATO: 'PACT', PACT: 'NATO' };
-    var t_first = 28 + r() * 4, t_resp = t_first + 1.5 + r() * 1.5;
+    var t_first = 28 + r() * 4, rr = r(), t_resp = t_first + (S.talks ? 2 + rr * 1.5 : 0.5 + rr * 0.8);
     var id = 0;
     function schedule(u, startMin, targetsIdx, count) {
       for (var k = 0; k < count; k++) {
@@ -115,7 +181,7 @@
       M.terr.forEach(function (tt, ti) {
         if (tt.bloc !== 'NON') return;
         var by = r() < 0.5 ? 'NATO' : 'PACT';
-        if (r() < 0.45) { tt.preemptedBy = by; M.terr.forEach(function (o) { if (o.bloc === by) o.sideTargets = (o.sideTargets || []).concat([ti]); }); }
+        if (r() < (S.ult ? 0.85 : 0.35)) { tt.preemptedBy = by; M.terr.forEach(function (o) { if (o.bloc === by) o.sideTargets = (o.sideTargets || []).concat([ti]); }); }
       });
       M.terr.forEach(function (tt) {
         if (tt.bloc === 'NON' || !tt.enemies.length) return;
@@ -135,21 +201,59 @@
         M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
       }
     }
+    /* talks succeeded: every unit holds back the last fifth of its warheads */
+    if (S.talks) {
+      var byUnit = []; M.launches.forEach(function (L) { var k = byUnit.indexOf(L.from); if (k < 0) { byUnit.push(L.from); L.from.q = []; } L.from.q.push(L); });
+      byUnit.forEach(function (u) { u.q.sort(function (a, b) { return a.t0 - b.t0; }); u.q.slice(Math.ceil(u.q.length * 0.8)).forEach(function (L) { L.cut = true; }); delete u.q; });
+      M.launches = M.launches.filter(function (L) { return !L.cut; });
+    }
     /* whoever is named as striking first must have the first missile in the air */
     var e0 = null, i0 = null;
     M.launches.forEach(function (L) { if (!e0 || L.t0 < e0.t0) e0 = L; if (M.terr[L.from.t].bloc === M.initiator && (!i0 || L.t0 < i0.t0)) i0 = L; });
     if (e0 && i0 && M.terr[e0.from.t].bloc !== M.initiator) i0.t0 = Math.max(28, e0.t0 - 0.05);
+    var t1 = 60; M.launches.forEach(function (L) { if (L.t0 < t1) t1 = L.t0; });
+    /* cities evacuated before the war: two to four territories, chosen evenly between the camps */
+    function camp() { return nr() < CAMP ? 'NATO' : 'PACT'; }
+    function member(b, ok) { var c = []; M.terr.forEach(function (t, j) { if (t.bloc === b && (!ok || ok(j))) c.push(j); }); return c.length ? c[(nr() * c.length) | 0] : -1; }
+    S.evac = []; for (var ne = 2 + ((nr() * 3) | 0); ne > 0; ne--) { var te = member(camp()); if (te >= 0 && S.evac.indexOf(te) < 0) S.evac.push(te); }
+    /* events during the war, each announced by a statement at the moment it takes effect */
+    S.war = []; var shelterAt = {}, defenceAt = {}, nW = 4 + ((nr() * 3) | 0), span = 49.5 - (t1 + 1.5);
+    for (var w = 0; w < nW; w++) {
+      var tw = t1 + 1.5 + (w + 0.15 + 0.7 * nr()) * span / nW, yk = nr(), kind = yk < 0.15 ? 'stand' : yk < 0.45 ? 'shelter' : yk < 0.70 ? 'retarget' : 'defence', b = camp();
+      var firing = function (j) { return M.launches.some(function (L) { return L.from.t === j && L.t0 > tw; }); }, inbound = function (j) { return M.launches.some(function (L) { return L.to.t === j && L.t0 + L.fl > tw; }); };
+      var ti = member(b, kind === 'stand' || kind === 'retarget' ? firing : inbound);
+      if (ti < 0) { kind = 'shelter'; ti = member(b, inbound); }
+      if (ti < 0 || S.war.some(function (e) { return e.kind === kind && e.ti === ti; })) continue;
+      S.war.push({ t: tw, kind: kind, ti: ti });
+      if (kind === 'stand') M.launches = M.launches.filter(function (L) { return !(L.from.t === ti && L.t0 > tw); });
+      else if (kind === 'shelter') shelterAt[ti] = tw;
+      else if (kind === 'defence') defenceAt[ti] = tw;
+      else {
+        var foes = {}; M.launches.forEach(function (L) { if (L.from.t === ti) foes[L.to.t] = 1; });
+        var big = M.cities.filter(function (c) { return foes[c.t]; }).sort(function (a, b) { return b.pop0 - a.pop0; }).slice(0, 4);
+        M.launches.forEach(function (L) {
+          if (L.from.t !== ti || L.t0 <= tw || !big.length) return;
+          var c = big[(nr() * big.length) | 0], u = L.from, dxr = c.x - u.x, dx = Math.abs(dxr) > 720 ? dxr - Math.sign(dxr) * 1440 : dxr;
+          L.to = c; L.tx = u.x + dx; L.wrap = L.tx < 0 || L.tx > 1440; L.fl = (0.9 + Math.hypot(dx, c.y - u.y) / 400) * (u.kind === 'sub' ? 0.7 : 1);
+        });
+      }
+    }
     /* ABM: a defending silo near the target may intercept, less often as the barrage thickens */
     M.launches.sort(function (a, b) { return a.t0 - b.t0; });
     M.launches.forEach(function (L, i) {
-      var def = M.terr[L.to.t].silos, best = null;
+      var def = M.terr[L.to.t].silos, best = null, alert = defenceAt[L.to.t] !== undefined && L.t0 > defenceAt[L.to.t];
       def.forEach(function (s) { var d = Math.hypot(s.x - L.to.x, s.y - L.to.y); if (d < 140 && (!best || d < best.d)) best = { s: s, d: d }; });
-      if (best && r() < Math.max(0.08, 0.38 - i / M.launches.length * 0.3)) L.abm = 0.7 + r() * 0.25;  /* fraction of flight at which it dies */
+      if (best && r() < Math.max(0.08, 0.38 - i / M.launches.length * 0.3) + (alert ? 0.25 : 0)) L.abm = 0.7 + r() * 0.25;  /* fraction of flight at which it dies */
     });
-    /* resolve kills in time order */
+    /* resolve kills in time order; evacuated and sheltered populations lose fewer */
     var ev = M.launches.filter(function (L) { return !L.abm; }).map(function (L) { return { t: L.t0 + L.fl, L: L }; }).sort(function (a, b) { return a.t - b.t; });
     var pop = {}; M.cities.forEach(function (c, i) { c.i = i; pop[i] = c.pop0; });
-    ev.forEach(function (e) { var c = e.L.to, k = Math.round(Math.min(pop[c.i], Math.max(0.5, pop[c.i] * 0.55)) * 10) / 10; pop[c.i] -= k; e.L.kills = k; });
+    ev.forEach(function (e) {
+      var c = e.L.to, f = (S.evac.indexOf(c.t) >= 0 ? 0.85 : 1) * (shelterAt[c.t] !== undefined && e.t > shelterAt[c.t] ? 0.7 : 1);
+      var k = Math.round(Math.min(pop[c.i], Math.max(0.5, pop[c.i] * 0.55) * f) * 10) / 10; pop[c.i] -= k; e.L.kills = k;
+    });
+    M.events = S; M.quotes = story(M, S, nr);
+    M.esc = [[6, 4], [12, 3], [20, 2], [28, 1]].map(function (e) { var a = ESC[e[1]]; return { t: e[0], s: 'DEFCON ' + e[1] + ' \u00b7 ' + a[(nr() * a.length) | 0] }; });
     return M;
   }
 
@@ -186,11 +290,9 @@
     M.terr.forEach(function (t) { t.kills = 0; t.lost = 0; });
     M.cities.forEach(function (c) { c.pop = c.pop0; c.hits = 0; });
     var logs = [];
-    /* alignment declarations at the start of the match */
-    ['LA', 'AF'].forEach(function (id, i) {
-      var t = M.terr.filter(function (x) { return x.id === id; })[0], at = 0.25 + i * 0.25;
-      if (min >= at) logs.push({ t: at, s: t.name.toUpperCase() + ': ' + (t.bloc === 'NATO' ? 'JOINS NATO' : t.bloc === 'PACT' ? 'JOINS THE WARSAW PACT' : 'DECLARES NON-ALIGNED'), c: 'a' });
-    });
+    /* escalation lines and statements */
+    M.esc.forEach(function (e) { if (min >= e.t) logs.push({ t: e.t, s: e.s, c: 'e' }); });
+    M.quotes.forEach(function (q) { if (min >= q.t) logs.push({ t: q.t, s: '<span class="who">' + q.who + '</span> \u201c' + q.text + '\u201d', c: 'q' }); });
     var firstL = null; M.launches.forEach(function (L) { if (firstL === null || L.t0 < firstL.t0) firstL = L; });
     if (firstL && min >= firstL.t0) { var who = M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED'; logs.push({ t: firstL.t0, s: who + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST', c: 'f' }); }
     if (M.nonStrikeAt && min >= M.nonStrikeAt) logs.push({ t: M.nonStrikeAt, s: 'NON-ALIGNED ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT'), c: 'f' });
@@ -226,8 +328,14 @@
     hud.next.textContent = fmt(MIN - min);
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     var narrow = window.innerWidth < 430, tiny = window.innerWidth < 360;
-    hud.board.innerHTML = rows.map(function (r) { var tag = narrow ? (r.t.bloc === 'NON' ? 'N-A' + (r.t.strikesFirst || r.t.retaliates ? '*' : '') : r.t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
+    hud.board.innerHTML = rows.map(function (r) {
+      var t = r.t, und = min < 28 && (t.id === 'LA' || t.id === 'AF'), sf = t.strikesFirst && firstL && min >= firstL.t0, rt = t.retaliates && M.nonStrikeAt && min >= M.nonStrikeAt;
+      var tag = und ? (narrow ? '?' : 'undeclared') : narrow ? (t.bloc === 'NON' ? 'N-A' + (sf || rt ? '*' : '') : t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : t.bloc === 'NON' ? (sf ? 'non-aligned, struck first' : rt ? 'non-aligned, struck' : 'non-aligned') : t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact';
+      return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
+    /* keep the newest statement at the top for 45 seconds so launches do not bury it */
+    var pin = null; logs.forEach(function (e) { if (e.c === 'q' && min - e.t < 0.75 && (!pin || e.t > pin.t)) pin = e; });
+    if (pin) { logs.splice(logs.indexOf(pin), 1); logs.unshift(pin); }
     hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' \u00b7 ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'awaiting launch') + '</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });
     hud.over.hidden = !(min >= END_MIN);

@@ -59,7 +59,7 @@
     /* 1980s Cold War alignment. NATO: North America, Europe. Warsaw Pact: Russia.
        The other three align themselves each match, weighted by the period's leanings;
        non-aligned territories hold fire unless struck, then answer the striker's bloc. */
-    var W = { LA: [0.50, 0.40, 0.10], AF: [0.20, 0.35, 0.45], AS: [0.10, 0.35, 0.55] };  /* NATO, PACT, NON */
+    var W = { LA: [0.42, 0.53, 0.05], AF: [0.10, 0.50, 0.40], AS: [0.05, 0.49, 0.46] };  /* NATO, PACT, NON */
     M.terr.forEach(function (tt) {
       if (tt.id === 'NA' || tt.id === 'EU') tt.bloc = 'NATO';
       else if (tt.id === 'RU') tt.bloc = 'PACT';

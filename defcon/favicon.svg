@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" ry="7" fill="#C9BC7A"/>
-  <circle cx="16" cy="16" r="2.672" fill="#000"/>
-  <path fill="#000" d="M20.008 16.000 L29.360 16.000 A13.360 13.360 0 0 0 22.680 4.430 L18.004 12.529 A4.008 4.008 0 0 1 20.008 16.000 Z M13.996 12.529 L9.320 4.430 A13.360 13.360 0 0 0 2.640 16.000 L11.992 16.000 A4.008 4.008 0 0 1 13.996 12.529 Z M13.996 19.471 L9.320 27.570 A13.360 13.360 0 0 0 22.680 27.570 L18.004 19.471 A4.008 4.008 0 0 1 13.996 19.471 Z"/>
+  <defs><clipPath id="t"><rect x="2.300" y="2.300" width="27.400" height="27.400" rx="5.900"/></clipPath></defs>
+  <rect x="0.400" y="0.400" width="31.200" height="31.200" rx="7.600" fill="#fff" stroke="#000" stroke-width="0.800"/>
+  <rect x="2.600" y="2.600" width="26.800" height="26.800" rx="5.600" fill="#000"/>
+  <g clip-path="url(#t)">
+    <g transform="translate(16 16) scale(0.957) translate(-16 -16)">
+      <g fill="#fff">
+        <circle cx="6.500" cy="26.800" r="3.400"/><circle cx="11.800" cy="27.600" r="2.700"/><circle cx="2.500" cy="27.800" r="2.600"/><circle cx="16.300" cy="28.300" r="2.100"/><circle cx="20.300" cy="28.800" r="1.700"/>
+        <rect x="0" y="28.300" width="32" height="5"/>
+      </g>
+      <path fill="none" stroke="#fff" stroke-width="2.100" stroke-linecap="round" d="M7 23.500 C8.300 19.800 10.800 17.100 14.300 15.500"/>
+      <g fill="#fff" transform="translate(21.300 10.300) rotate(52) scale(0.640)">
+        <path d="M0 -11.500 C2.600 -8.800 3.200 -5.800 3.200 -3 V3.500 L6.500 7.500 V9 L3.200 7.600 H-3.200 L-6.500 9 V7.500 L-3.200 3.500 V-3 C-3.200 -5.800 -2.600 -8.800 0 -11.500 Z"/>
+        <path d="M-2.200 8.600 H2.200 L0 12.600 Z"/>
+      </g>
+    </g>
+  </g>
 </svg>

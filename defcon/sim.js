@@ -62,7 +62,7 @@
        Russia and Asia are always allies, so neither ever targets the other.
        The other two align themselves each match, weighted by the period's leanings;
        non-aligned territories hold fire unless struck, then answer the striker's bloc. */
-    var W = { LA: [40 / 110, 35 / 110, 35 / 110], AF: [0.20, 0.35, 0.45] };  /* NATO, PACT, NON */
+    var W = { LA: [0.05, 0.95, 0], AF: [0, 0.25, 0.75] };  /* NATO, PACT, NON */
     M.terr.forEach(function (tt) {
       if (tt.id === 'NA' || tt.id === 'EU' || tt.id === 'AU') tt.bloc = 'NATO';
       else if (tt.id === 'RU' || tt.id === 'AS') tt.bloc = 'PACT';

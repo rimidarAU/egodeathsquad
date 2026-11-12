@@ -165,7 +165,7 @@
     state = M; window.DEFCON_MATCH = M;
   }
 
-  var hud = { hist: document.getElementById('hist'), lvl: document.getElementById('lvl'), clock: document.getElementById('clock'), match: document.getElementById('match'), next: document.getElementById('next'), board: document.getElementById('board'), log: document.getElementById('log'), over: document.getElementById('over'), readout: document.querySelectorAll('.readout b') };
+  var hud = { hist: document.getElementById('hist'), lvl: document.getElementById('lvl'), clock: document.getElementById('clock'), match: document.getElementById('match'), next: document.getElementById('next'), board: document.getElementById('board'), log: document.getElementById('log'), over: document.getElementById('over') };
   function fmt(m) { var s = Math.max(0, Math.floor(m * 60)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
   function level(min) { var l = 5; PHASES.forEach(function (p) { if (min >= p[0]) l = p[1]; }); return l; }
 
@@ -217,7 +217,6 @@
     hud.clock.textContent = fmt(min);
     hud.match.textContent = '#' + (idx % 100000);
     hud.next.textContent = fmt(MIN - min);
-    hud.readout.forEach(function (b) { b.className = (parseInt(b.textContent, 10) === lv) ? 'on' + (lv === 1 ? ' one' : '') : ''; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     var narrow = window.innerWidth < 360;
     hud.board.innerHTML = rows.map(function (r) { var tag = narrow ? (r.t.bloc === 'NON' ? 'N-A' + (r.t.strikesFirst || r.t.retaliates ? '*' : '') : r.t.bloc === 'NATO' ? 'NATO' : 'WP') : r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');

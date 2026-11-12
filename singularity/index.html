@@ -27,6 +27,7 @@
   .status, footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 24px; padding:12px 24px; color:var(--dim); }
   .status { border-bottom:1px solid var(--line); position:sticky; top:0; background:rgba(10,10,11,.92); backdrop-filter:blur(6px); z-index:10; }
   footer { border-top:1px solid var(--line); }
+  .credit { margin:0; padding:0 24px 14px; color:var(--dim); font-size:11px; line-height:1.6; }
   .addendum { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 24px; padding:18px 24px; border-top:1px solid var(--line); background:var(--panel); }
   .addendum .mono-label { color:var(--dim); }
   .addendum a { color:var(--text); text-decoration:underline; text-decoration-color:var(--pink); text-underline-offset:4px; }
@@ -71,7 +72,6 @@
   .hero h1 .dot { color:var(--pink); text-decoration:none; outline-offset:6px; }
   .hero h1 .dot:hover { color:var(--red); }
   .hero .bottom { position:relative; z-index:2; margin-top:16px; padding-top:12px; border-top:3px solid var(--text); display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 32px; }
-  .hero .lede { max-width:46ch; color:var(--dim); font-size:13px; letter-spacing:0; text-transform:none; font-weight:400; }
 
   /* ===== generic section ===== */
   section { position:relative; border-bottom:1px solid var(--line); }
@@ -154,7 +154,7 @@
     .cell .body-disc, .cell .lens { transform:translate(0,6%) scale(.82); }
     .cell .lens { transform:translate(-50%,-44%) scale(.82); }
     .end { grid-template-columns:1fr; }
-    .status, footer, .hero, .copy, .head, .end, .addendum { padding-left:16px; padding-right:16px; }
+    .status, footer, .hero, .copy, .head, .end, .addendum, .credit { padding-left:16px; padding-right:16px; }
     th, td { padding-left:16px; padding-right:16px; }
     .tl { padding-left:16px; padding-right:16px; }
     .hole { top:42%; }
@@ -195,12 +195,14 @@
       </div>
       <div class="vis block">
         <div class="tw"><table>
-          <tr><th>Object</th><th>Mass</th><th>Horizon radius</th></tr>
+          <thead><tr><th>Object</th><th>Mass</th><th>Horizon radius</th></tr></thead>
+          <tbody>
           <tr><td>Earth</td><td class="n">6.0 × 10<sup>24</sup> kg</td><td class="n hi">8.9 mm</td></tr>
           <tr><td>Sun</td><td class="n">1 M<sub>☉</sub></td><td class="n hi">2.95 km</td></tr>
           <tr><td>Typical stellar black hole</td><td class="n">10 M<sub>☉</sub></td><td class="n hi">30 km</td></tr>
           <tr><td>Sagittarius A* (Milky Way centre)</td><td class="n">4.3 × 10<sup>6</sup> M<sub>☉</sub></td><td class="n hi">1.3 × 10<sup>7</sup> km &nbsp;(18 solar radii)</td></tr>
           <tr><td>M87* (first imaged)</td><td class="n">6.5 × 10<sup>9</sup> M<sub>☉</sub></td><td class="n hi">1.9 × 10<sup>10</sup> km &nbsp;(~130 au)</td></tr>
+          </tbody>
         </table></div>
       </div>
     </div>
@@ -378,9 +380,7 @@
     <span>End of file</span>
     <span>egodeathsquad.au/singularity///</span>
   </footer>
-  <footer style="border-top:0;padding-top:0;font-size:11px;letter-spacing:0;text-transform:none;font-weight:400;display:block;line-height:1.6">
-    <span>Collapse sequence informed by ScienceClic English, “Visualizing the birth of a Black Hole” (simulation Alessandro Roussel); rendered here in CSS, no footage used. Figures: Schwarzschild radii from r<sub>s</sub> = 2GM/c²; Hawking temperature and lifetime from the standard formulae; Sgr A* mass from Genzel/Ghez; M87* mass and GW150914 parameters from the EHT and LIGO collaborations.</span>
-  </footer>
+  <p class="credit">Collapse sequence informed by ScienceClic English, “Visualizing the birth of a Black Hole” (simulation Alessandro Roussel); rendered here in CSS, no footage used. Figures: Schwarzschild radii from r<sub>s</sub> = 2GM/c²; Hawking temperature and lifetime from the standard formulae; Sgr A* mass from Genzel/Ghez; M87* mass and GW150914 parameters from the EHT and LIGO collaborations.</p>
 </div>
 </body>
 </html>

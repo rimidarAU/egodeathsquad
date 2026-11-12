@@ -135,6 +135,10 @@
         M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
       }
     }
+    /* whoever is named as striking first must have the first missile in the air */
+    var e0 = null, i0 = null;
+    M.launches.forEach(function (L) { if (!e0 || L.t0 < e0.t0) e0 = L; if (M.terr[L.from.t].bloc === M.initiator && (!i0 || L.t0 < i0.t0)) i0 = L; });
+    if (e0 && i0 && M.terr[e0.from.t].bloc !== M.initiator) i0.t0 = Math.max(28, e0.t0 - 0.05);
     /* ABM: a defending silo near the target may intercept, less often as the barrage thickens */
     M.launches.sort(function (a, b) { return a.t0 - b.t0; });
     M.launches.forEach(function (L, i) {
@@ -221,8 +225,8 @@
     hud.match.textContent = '#' + (idx % 100000);
     hud.next.textContent = fmt(MIN - min);
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
-    var narrow = window.innerWidth < 360;
-    hud.board.innerHTML = rows.map(function (r) { var tag = narrow ? (r.t.bloc === 'NON' ? 'N-A' + (r.t.strikesFirst || r.t.retaliates ? '*' : '') : r.t.bloc === 'NATO' ? 'NATO' : 'WP') : r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + r.t.name + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
+    var narrow = window.innerWidth < 430, tiny = window.innerWidth < 360;
+    hud.board.innerHTML = rows.map(function (r) { var tag = narrow ? (r.t.bloc === 'NON' ? 'N-A' + (r.t.strikesFirst || r.t.retaliates ? '*' : '') : r.t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : r.t.bloc === 'NON' ? (r.t.strikesFirst ? 'non-aligned, struck first' : r.t.retaliates ? 'non-aligned, struck' : 'non-aligned') : r.t.bloc === 'NATO' ? 'NATO' : 'Warsaw Pact'; return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
     hud.log.innerHTML = logs.slice(0, 10).map(function (e) { return '<div class="' + e.c + '">' + fmt(e.t) + '  ' + e.s + '</div>'; }).join('') || '<div>DEFCON ' + lv + ' \u00b7 ' + (lv > 3 ? 'placement' : lv > 1 ? 'manoeuvre' : 'awaiting launch') + '</div>';
     var dead = 0; M.terr.forEach(function (t) { dead += t.lost; });

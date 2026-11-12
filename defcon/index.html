@@ -88,6 +88,8 @@
     .board em { margin-left:5px; font-size:8px; }
     .board small { display:none; }
     .board b { font-size:13px; }
+    .about { flex-wrap:nowrap; gap:10px; }
+    .about .mono { font-size:min(11px, 2.5vw); letter-spacing:.06em; white-space:nowrap; }
   }
   @media (orientation:portrait) and (max-width:820px) {
     .map { object-fit:contain; }
@@ -103,7 +105,12 @@
     .hist { display:none; }
     .log { max-height:40px; line-height:1.5; padding:2px 12px; }
     .about { font-size:10px; }
+    .board { grid-template-columns:repeat(4,1fr); }
     .board div { padding:3px 8px; font-size:10px; }
+    .board div:nth-child(2n) { border-right:1px solid var(--line); }
+    .board div:nth-child(4n) { border-right:0; }
+    .board div:nth-child(n+5) { border-bottom:0; }
+    .board em { display:none; }
     .about { padding:3px 12px; }
     .bar { padding:4px 60px 4px 12px; }
   }
@@ -134,7 +141,7 @@
   </div>
   <div class="explain" id="about" hidden>
     <span class="mono">About</span>
-    <p>A simulated match in the style of Introversion's <i>DEFCON</i>, on 1980s Cold War assumptions.</p>
+    <p>Simulated matches using Introversion's <i>DEFCON</i> software, involving 1980s Cold War scenarios.</p>
     <p>North America, Europe, and Australia represent NATO. Russia and Asia represent the Warsaw Pact.</p>
     <p>Latin America usually tends to the Warsaw Pact, but can be persuaded with good diplomacy. Africa has similar sentiments, but usually abides by the Non-Aligned Movement. Of course, they may have their own plans...</p>
     <p>Score: +2 per million killed, −1 per million of your own lost. One match every hour, generated from the clock, so everyone watching sees the same one.</p>

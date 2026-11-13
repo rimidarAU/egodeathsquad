@@ -1,5 +1,5 @@
 /* Soundtrack for /defcon/: an endless drone with occasional morse, numbers-station
-   and drum/horn events. Events fall on average every 80 seconds (standard deviation
+   and drum events. Events fall on average every 80 seconds (standard deviation
    10 seconds) at moments worked out from the clock, so everyone listening hears the
    same thing at the same time. Sound is on by default and starts at the
    visitor's first touch, click or key press; the sound button mutes it. */
@@ -121,7 +121,7 @@
     return x - t;
   }
 
-  /* ---- drums and horns ---- */
+  /* ---- drums ---- */
   function snare(ctx, B, dest, t, acc) {
     var s = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = B.white; hp.type = 'highpass'; hp.frequency.value = 1100;
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.55 * acc, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + 0.07 + 0.07 * acc);
@@ -133,31 +133,41 @@
     var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.9, t + 0.004); g.gain.exponentialRampToValueAtTime(0.001, t + 0.34); o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.4);
   }
+  /* a marching cadence heard from a distance: it rolls in, plays eight to twelve bars of
+     varying patterns with a steady bass drum and tenor accents, then rolls off and fades */
+  function tenor(ctx, dest, t, f, acc) {
+    var o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(f * 1.25, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.06);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.42 * acc, t + 0.004); g.gain.exponentialRampToValueAtTime(0.001, t + 0.22); o.connect(g); g.connect(dest); o.start(t); o.stop(t + 0.25);
+  }
+  function roll(ctx, B, dest, t, dur, from, to) {
+    var s = 0.045, n = Math.floor(dur / s);
+    for (var i = 0; i < n; i++) snare(ctx, B, dest, t + i * s, from + (to - from) * i / n);
+  }
   function drums(ctx, B, t, seed, bars) {
     var r = rng(seed), beat = 60 / (100 + ((r() * 4) | 0) * 6), s = beat / 4, out = ctx.createGain(), lp = ctx.createBiquadFilter();
-    out.gain.value = 0.42; lp.type = 'lowpass'; lp.frequency.value = 4200; out.connect(lp); lp.connect(B.ev);
-    var pats = ['X.xxX.xxX.xxXxxx', 'X..xX..xXxxxX.x.', 'X.xxX.xxXrrrX...'], n = bars || 2;
+    lp.type = 'lowpass'; lp.frequency.value = 4200; out.connect(lp); lp.connect(B.ev);
+    var pats = ['X.xxX.xxX.xxXxxx', 'X..xX..xXxxxX.x.', 'X.xxX.xxXrrrX...', 'X.x.x.xxX.x.x.xx', 'XxxXxxX.XxxXxxX.', 'X...X.x.X...Xrrr', 'X.xxX..xX.xxXr.r', 'x.x.X.x.x.x.X.xx'];
+    var tens = ['T...t...T...t...', 'T..t..T.t.T.T...', 'T.......T.t.T...', 'T...T...t.t.T.T.'];
+    var n = bars || (8 + ((r() * 5) | 0)), intro = 2 * beat, total = intro + n * 4 * beat + 2.2, tf = [118, 96, 82][(r() * 3) | 0];
+    /* approach and recede */
+    out.gain.setValueAtTime(0.0001, t); out.gain.linearRampToValueAtTime(0.22, t + intro); out.gain.linearRampToValueAtTime(0.44, t + intro + 2 * 4 * beat);
+    out.gain.setValueAtTime(0.44, t + intro + (n - 3) * 4 * beat); out.gain.linearRampToValueAtTime(0.16, t + intro + n * 4 * beat); out.gain.linearRampToValueAtTime(0.0001, t + total);
+    roll(ctx, B, out, t, intro - s, 0.25, 0.9);
+    var t1 = t + intro, last = -1;
     for (var b = 0; b < n; b++) {
-      var p = pats[(r() * pats.length) | 0], t0 = t + b * 4 * beat;
-      kick(ctx, out, t0); kick(ctx, out, t0 + 2 * beat);
-      for (var i = 0; i < 16; i++) { var c = p[i], x = t0 + i * s; if (c === 'X') snare(ctx, B, out, x, 1); else if (c === 'x') snare(ctx, B, out, x, 0.55); else if (c === 'r') { snare(ctx, B, out, x, 0.4 + i * 0.03); snare(ctx, B, out, x + s / 2, 0.45 + i * 0.03); } }
+      var k = (r() * pats.length) | 0; if (k === last) k = (k + 1) % pats.length; last = k;
+      var p = b === n - 1 ? 'X.xxX.xxXrrrX...' : pats[k], q = tens[(r() * tens.length) | 0], t0 = t1 + b * 4 * beat;
+      kick(ctx, out, t0); kick(ctx, out, t0 + 2 * beat); if (b % 2) { kick(ctx, out, t0 + beat); kick(ctx, out, t0 + 3 * beat); }
+      for (var i = 0; i < 16; i++) {
+        var c = p[i], x = t0 + i * s;
+        if (c === 'X') snare(ctx, B, out, x, 1); else if (c === 'x') snare(ctx, B, out, x, 0.55); else if (c === 'r') { snare(ctx, B, out, x, 0.4 + i * 0.03); snare(ctx, B, out, x + s / 2, 0.45 + i * 0.03); }
+        if (q[i] === 'T') tenor(ctx, out, x, tf, 1); else if (q[i] === 't') tenor(ctx, out, x, tf * 1.33, 0.7);
+      }
     }
-    snare(ctx, B, out, t + n * 4 * beat, 1); kick(ctx, out, t + n * 4 * beat);
-    return { dur: n * 4 * beat + 0.4, beat: beat };
-  }
-  function horns(ctx, B, t, seed, beat) {
-    var r = rng(seed), base = [98, 110, 87.3][(r() * 3) | 0], H = [base * 2, base * 3, base * 4, base * 5, base * 6];
-    var phrases = [[[0, 1], [0, 0.5], [1, 0.5], [2, 2.5]], [[2, 1], [1, 1], [0, 2.5]], [[0, 0.75], [0, 0.25], [1, 1], [2, 1], [1, 2.5]], [[1, 0.5], [1, 0.5], [2, 1], [3, 1], [2, 2.5]]];
-    var ph = phrases[(r() * phrases.length) | 0], out = ctx.createGain(), x = t; out.gain.value = 0.17; out.connect(B.ev);
-    beat = beat || 0.56;
-    ph.forEach(function (nt) {
-      var f = H[nt[0]], d = nt[1] * beat, lp = ctx.createBiquadFilter(), g = ctx.createGain(); lp.type = 'lowpass'; lp.Q.value = 0.9;
-      lp.frequency.setValueAtTime(350, x); lp.frequency.linearRampToValueAtTime(1500, x + 0.09); lp.frequency.linearRampToValueAtTime(950, x + Math.max(0.2, d));
-      g.gain.setValueAtTime(0.0001, x); g.gain.linearRampToValueAtTime(1, x + 0.06); g.gain.setValueAtTime(1, x + Math.max(0.08, d - 0.08)); g.gain.linearRampToValueAtTime(0.0001, x + d + 0.12);
-      [[1, -7], [1, 6], [0.5, 0], [2, 3]].forEach(function (v, k) { var o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sawtooth'; o.frequency.value = f * v[0]; o.detune.value = v[1]; og.gain.value = k < 2 ? 0.5 : k === 2 ? 0.35 : 0.08; o.connect(og); og.connect(lp); o.start(x); o.stop(x + d + 0.15); });
-      lp.connect(g); g.connect(out); x += d;
-    });
-    return x - t;
+    var tEnd = t1 + n * 4 * beat;
+    snare(ctx, B, out, tEnd, 1); kick(ctx, out, tEnd); tenor(ctx, out, tEnd, tf, 1);
+    roll(ctx, B, out, tEnd + beat, 1.6, 0.6, 0.15);
+    return { dur: total, beat: beat };
   }
   function hiss(ctx, B, t, end, level) {
     var ns = ctx.createBufferSource(), nf = ctx.createBiquadFilter(), ng = ctx.createGain(); ns.buffer = B.white; ns.loop = true; nf.type = 'bandpass'; nf.frequency.value = 1900; nf.Q.value = 0.4; ng.gain.value = 0;
@@ -166,9 +176,7 @@
   }
   function march(ctx, B, t, seed) {
     var r = rng(seed), x = r(), dur;
-    if (x < 0.3) dur = drums(ctx, B, t, seed + 1, 2).dur;
-    else if (x < 0.5) dur = horns(ctx, B, t, seed + 2, 0.56);
-    else { var d = drums(ctx, B, t, seed + 1, 3); horns(ctx, B, t + 4 * d.beat, seed + 2, d.beat); dur = d.dur; }
+    dur = drums(ctx, B, t, seed + 1).dur;
     hiss(ctx, B, t, t + dur, 0.022); return dur;
   }
 
@@ -185,7 +193,7 @@
     var z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v), j = Math.max(-25, Math.min(25, z * SD / Math.SQRT2)), x = r();
     return { k: k, time: (k * EVERY + EVERY / 2 + j) * 1000, kind: x < 0.40 ? 'morse' : x < 0.70 ? 'numbers' : 'march', seed: (r() * 4294967296) >>> 0 };
   }
-  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, horns: horns, hiss: hiss, loadVoice: loadVoice, eventAt: eventAt, rng: rng, EVERY: EVERY };
+  window.DEFCON_AUDIO = { bus: bus, drone: drone, tension: tension, morse: morse, morseText: morseText, numbers: numbers, march: march, drums: drums, hiss: hiss, loadVoice: loadVoice, eventAt: eventAt, rng: rng, EVERY: EVERY };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>EgoDeathSquad</title>
 <meta name="description" content="A plain-language explainer of Cryo Archive, the endgame zone in Bungie's Marathon (2026).">
@@ -58,7 +58,7 @@
   .copy h2 { margin:0 0 18px; font-size:clamp(30px,4.5vw,56px); color:var(--frost); }
   .copy h3 { margin:22px 0 8px; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ice); }
   .copy p { margin:0 0 14px; max-width:56ch; }
-  .copy p.dim { color:var(--dim); }
+  .copy p.dim, .tables p.dim { color:var(--dim); }
   .k { color:var(--ice); } .w { color:var(--warn); }
   .side { border-left:1px solid var(--line); background:var(--panel); padding:24px; display:flex; flex-direction:column; justify-content:center; gap:14px; }
   .note { border-left:3px solid var(--warn); padding:10px 14px; background:rgba(255,179,71,.06); max-width:60ch; font-size:13px; }
@@ -98,6 +98,37 @@
   .sources a { text-decoration:underline; text-decoration-color:var(--ice); text-underline-offset:3px; }
   .sources a:hover { color:var(--ice); }
   .disclaimer { padding:0 24px 16px; color:var(--dim); font-size:11px; line-height:1.6; }
+
+  /* ---- isometric map ---- */
+  .mapwrap { padding:20px 24px 28px; }
+  .mapwrap h2 { margin:0 0 12px; font-size:clamp(30px,4.5vw,56px); color:var(--frost); }
+  .mapwrap > p { margin:0 0 14px; max-width:78ch; }
+  #iso-layers { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px; }
+  #iso-layers button { font:inherit; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text); background:var(--panel); border:1px solid var(--c); padding:6px 10px 6px 6px; cursor:pointer; display:flex; align-items:center; gap:7px; }
+  #iso-layers button i { font-style:normal; display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; border:2px solid var(--c); color:var(--c); font-size:10px; }
+  #iso-layers button[aria-pressed="false"] { opacity:.4; border-color:var(--line); }
+  #iso-layers button:focus-visible, .poi:focus-visible { outline:2px solid var(--frost); outline-offset:2px; }
+  .isoscroll { overflow-x:auto; border:1px solid var(--line); background:radial-gradient(ellipse at 50% 45%,#0E1820,#06090C 75%); }
+  #iso svg { display:block; width:100%; min-width:920px; height:auto; }
+  #iso .zn { font:700 8px 'Space Mono',monospace; letter-spacing:.06em; text-transform:uppercase; fill:#DDEBF0; paint-order:stroke; stroke:#06090C; stroke-width:2.5px; pointer-events:none; }
+  #iso .zn.big { font-size:11px; fill:#fff; }
+  #iso .key { font:700 10px 'Space Mono',monospace; letter-spacing:.1em; text-transform:uppercase; fill:var(--dim); }
+  #iso .gl { font:700 10px 'Space Mono',monospace; pointer-events:none; } #iso .gl.sm { font-size:7px; }
+  #iso .poi { cursor:pointer; } #iso .poi:hover .dot, #iso .poi.sel .dot { fill:#1B2A33; stroke-width:3.5; }
+  #iso-info { margin-top:10px; border:1px solid var(--line); background:var(--panel); padding:12px 14px; min-height:92px; }
+  #iso-info span { display:block; font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); }
+  #iso-info b { display:block; font-size:15px; margin:2px 0 4px; } #iso-info p { margin:0 0 4px; max-width:90ch; } #iso-info small { color:var(--dim); }
+  .hint { display:none; color:var(--dim); font-size:11px; margin:6px 0 0; }
+  .tables { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0; border-top:1px solid var(--line); }
+  .tables > div { padding:20px 24px 24px; } .tables > div + div { border-left:1px solid var(--line); }
+  .tables .wide { grid-column:1 / -1; border-left:0 !important; border-bottom:1px solid var(--line); }
+  .tables h3 { margin:0 0 10px; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ice); }
+  .tscroll { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { text-align:left; vertical-align:top; padding:6px 10px 6px 0; border-bottom:1px solid var(--line); }
+  th { color:var(--dim); font-size:10px; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap; }
+  td:first-child { color:var(--frost); font-weight:700; white-space:nowrap; }
+  @media (max-width:820px) { .mapwrap, .tables > div { padding-left:16px; padding-right:16px; } .tables { grid-template-columns:1fr; } .tables > div + div { border-left:0; border-top:1px solid var(--line); } .hint { display:block; } }
 
   @media (prefers-reduced-motion:reduce) { .pod::after, .status .live::before { animation:none; } }
   @media (max-width:820px) {
@@ -205,8 +236,60 @@
   </section>
 
   <!-- 04 -->
+  <section id="map">
+    <div class="head mono-label"><span><b>04</b> &nbsp;The map</span><span>Isometric schematic and points of interest</span></div>
+    <div class="mapwrap">
+      <h2 class="display">Where<br>things are.</h2>
+      <p>A schematic of the zone on its three levels, redrawn for this page from two community map guides. Select a marker to read what it is. Use the buttons to show or hide each kind of marker.</p>
+      <div id="iso-layers" role="group" aria-label="Marker layers"></div>
+      <div class="isoscroll"><div id="iso"></div></div>
+      <p class="hint">Swipe the map sideways to see all of it.</p>
+      <div id="iso-info" aria-live="polite"><span>Nothing selected</span><p>Select a marker on the map.</p></div>
+      <p class="note" style="margin-top:14px;max-width:none"><b>What this map is and is not.</b> Room positions are approximate and the shapes are simplified blocks, so use it for what is near what, not for exact routes. Battery markers show where batteries are <em>spent</em>; neither guide marks where loose batteries are picked up. Only one compiler is marked in the guides. The 3D models at sketchfab.com/CheeseWhisperer could not be opened when this was made and are not used.</p>
+    </div>
+    <div class="tables">
+      <div class="wide">
+        <h3>Vault requirements</h3>
+        <div class="tscroll"><table>
+          <tr><th>Vault</th><th>Where</th><th>Clearance</th><th>Batteries</th><th>Coolant</th><th>Key</th></tr>
+          <tr><td>1</td><td>South-west corner of Control</td><td>None listed</td><td>5</td><td>None</td><td>None</td></tr>
+          <tr><td>2</td><td>Biostock Chiller</td><td>None listed</td><td>5 to 6</td><td>1</td><td>None</td></tr>
+          <tr><td>3</td><td>Preservation Chiller</td><td>None listed</td><td>4</td><td>None</td><td>Pump Credentials</td></tr>
+          <tr><td>4</td><td>North-west corner of Control</td><td>3</td><td>8</td><td>1</td><td>Colonist Credentials</td></tr>
+          <tr><td>5</td><td>Cold Storage, west end</td><td>None listed</td><td>4 to 5</td><td>1</td><td>Tranquility Credentials</td></tr>
+          <tr><td>6</td><td>Labs, by elevator</td><td>4</td><td>8 to 12</td><td>1</td><td>Secret Lab symbols; anti-virus kits</td></tr>
+          <tr><td>7</td><td>Labs, by elevator</td><td>3 to 5</td><td>10 (3 + 7)</td><td>None listed</td><td>DNA Access Card, then Commander Credentials</td></tr>
+        </table></div>
+      </div>
+      <div>
+        <h3>Keys and where they come from</h3>
+        <div class="tscroll"><table>
+          <tr><th>Key</th><th>Source</th></tr>
+          <tr><td>Pump</td><td>Floor of a warden room in a wing where no team spawned. Kill the warden or use the door panel.</td></tr>
+          <tr><td>Colonist</td><td>Shoot down the body-carrying drones in Cold Storage, take the DNA sample to the Panopticon station (clearance 3, 1 battery), survive the wave.</td></tr>
+          <tr><td>Tranquility</td><td>Floor of either frozen Tranquility room, north or south of Control. Picking it up spawns a warden.</td></tr>
+          <tr><td>Lab symbols</td><td>Read three symbols and their order in the Secret Lab (clearance 4).</td></tr>
+          <tr><td>Commander</td><td>DNA Access Card from another vault, sequencer code, four monitors in order, DNA vial, then the labs (3 batteries, anti-virus kits).</td></tr>
+        </table></div>
+      </div>
+      <div>
+        <h3>Clearance levels</h3>
+        <div class="tscroll"><table>
+          <tr><th>Level</th><th>Opens</th></tr>
+          <tr><td>1</td><td>Control; battery scanner; terminal scanner</td></tr>
+          <tr><td>2</td><td>Most doors; warden-room scanner</td></tr>
+          <tr><td>3</td><td>Small loot rooms; Panopticon; exfil-station scanner</td></tr>
+          <tr><td>4</td><td>Lab elevators (Vaults 6 and 7); Armory; Secret Lab</td></tr>
+          <tr><td>5</td><td>Compiler Trace; Vault 7 side loot room</td></tr>
+        </table></div>
+        <p class="dim" style="margin:10px 0 0;font-size:12px">Security tags add 1 (from UESC commanders or floor loot). Security terminals add 3.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
   <section id="unlock">
-    <div class="head mono-label"><span><b>04</b> &nbsp;How it was unlocked</span><span>A community puzzle</span></div>
+    <div class="head mono-label"><span><b>05</b> &nbsp;How it was unlocked</span><span>A community puzzle</span></div>
     <div class="body">
       <div class="copy">
         <h2 class="display">The players<br>opened it.</h2>
@@ -220,9 +303,9 @@
     </div>
   </section>
 
-  <!-- 05 -->
+  <!-- 06 -->
   <section id="timeline">
-    <div class="head mono-label"><span><b>05</b> &nbsp;Timeline</span><span>2026</span></div>
+    <div class="head mono-label"><span><b>06</b> &nbsp;Timeline</span><span>2026</span></div>
     <ul class="tl">
       <li><b>March</b><span>A community goal of 500 million UESC kills, then a cryptic puzzle, stand between players and the fourth zone.</span></li>
       <li><b>15 March</b><span>Players finish the puzzle. The entry requirements are revealed.</span></li>
@@ -245,10 +328,12 @@
       <li><a href="https://www.destructoid.com/how-to-unlock-cryo-archive-in-marathon/" rel="noopener noreferrer">Destructoid: how to unlock Cryo Archive</a></li>
       <li><a href="https://www.gfinityesports.com/article/marathon-everything-we-know-about-the-cryo-archive-endgame-zone" rel="noopener noreferrer">Gfinity: everything we know about Cryo Archive</a></li>
       <li><a href="https://thegamepost.com/marathon-cryo-archive-map-release-date-entry-requirements-endgame-details/" rel="noopener noreferrer">The Game Post: release date, requirements and endgame details</a></li>
+      <li>Map guides used for section 04: Mezmorki, “Cryo Archive Map Guide” v1.0 (base map by @Marathoncodec; reference guides by SeraphMax and LordTT), and LordTT’s Cryo Archive guide.</li>
     </ul>
   </div>
   <p class="disclaimer">An unofficial fan explainer, written from public reporting between March and July 2026. Not affiliated with or endorsed by Bungie. Marathon and Cryo Archive are Bungie's. No game art or footage is used; the visuals here are drawn for this page.</p>
   <footer class="mono-label"><span>End of file</span><span>egodeathsquad.au/cryologic///</span></footer>
 </div>
+<script src="map.js"></script>
 </body>
 </html>

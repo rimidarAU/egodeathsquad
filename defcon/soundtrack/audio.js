@@ -39,7 +39,7 @@
     riser:   [[0, 0], [32, 0], [45, 0.16], [50, 0.16], [53, 0]],
     intercut:  [[0, 0], [5, 0], [5.01, 0.1], [15, 0.1], [25, 0.45], [45, 1], [50, 1], [50.01, 0]],   /* chance of a broadcast excerpt per 30 s */
     intercut2: [[0, 0], [38, 0], [45, 0.8], [50, 0.8], [50.01, 0]],                                    /* a second, overlapping line of excerpts */
-    cutGain:   [[0, 0.3], [15, 0.3], [25, 0.42], [45, 0.55]]
+    cutGain:   [[0, 0.3], [15, 0.3], [25, 0.42], [45, 0.85]]
   };
   function at(name, min) {
     var c = SCORE[name], i;

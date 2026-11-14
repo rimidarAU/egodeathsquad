@@ -5,11 +5,13 @@
    final seconds of the hour it runs down to silence and the next match begins again.
    Every setting is worked out from the clock, so everyone listening hears the same thing
    at the same time. Each warhead that lands in the match is heard as a distant thud.
+   Excerpts of recorded radio broadcasts cut in now and then before DEFCON 1, more and more
+   often after it, and stop before the last ten minutes.
    Sound is on by default and starts at the visitor's first touch, click or key press;
    the sound button mutes it. */
 (function () {
   'use strict';
-  var HOUR = 3600000, LANGS = ['de', 'en', 'ru'];
+  var HOUR = 3600000, LANGS = ['de', 'en', 'ru'], CUTS = ['uk-1', 'uk-2', 'uk-3', 'su-1', 'su-2', 'su-3', 'us-1', 'us-2', 'us-3', 'ru-1', 'ru-2', 'ru-3'], CUT_SLOT = 30000, CUT_END = 50;
   var MORSE = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
     0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.' };
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -36,6 +38,9 @@
     crackHz: [[0, 0.7], [28, 1], [50, 1.6], [56, 3]],
     riser:   [[0, 0], [40, 0], [50, 0.05], [56, 0.16], [59.6, 0.2]],
     traffic: [[0, 0], [47, 0], [50, 0.12], [56, 0.6], [59.4, 0.7], [59.7, 0]]   /* chance of a radio fragment per 4 s */
+    ,
+    intercut: [[0, 0], [0.5, 0], [1, 0.1], [28, 0.1], [28.01, 0.2], [49, 0.9], [50, 0.9], [50.01, 0]],   /* chance of a broadcast excerpt per 30 s */
+    cutGain:  [[0, 0.3], [28, 0.4], [50, 0.55]]
   };
   function at(name, min) {
     var c = SCORE[name], i;
@@ -79,7 +84,7 @@
 
   /* ---- the drone ---- */
   function engine(ctx, B) {
-    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], voice: null, slot: -1, hits: {}, hitSeed: null };
+    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], voice: null, cut: null, cutSlot: -1, slot: -1, hits: {}, hitSeed: null };
     function gain(v) { var g = ctx.createGain(); g.gain.value = v; return g; }
     function bind(param, name, scale) { E.set.push({ p: param, n: name, f: scale }); }
     var master = gain(0), trem = gain(1), lp = ctx.createBiquadFilter(), pre = gain(1), post = gain(1), ws = shaper(ctx, 1, 1025), sum = gain(1);
@@ -182,14 +187,41 @@
     }
   }
 
+  /* ---- broadcast excerpts: at most one per 30 s slot, chosen by the clock, heard through
+     the same radio as the traffic. A listener who arrives part-way through one hears it from
+     that point. None is started that would still be playing in the last ten minutes. ---- */
+  function cutPlan(k) {
+    var r = rng(Math.imul(k ^ 0x51ED270B, 2654435761) >>> 0);
+    return { at0: k * CUT_SLOT + r() * 14000, p: r(), idx: (r() * CUTS.length) | 0 };
+  }
+  function intercuts(E, now) {
+    if (!E.cut) return;
+    var slot = Math.floor(now / CUT_SLOT);
+    for (var k = Math.max(slot, E.cutSlot + 1); k <= slot + 1; k++) {
+      var c = cutPlan(k), wait = (c.at0 - now) / 1000;
+      if (wait > 1.5) break;
+      E.cutSlot = k;
+      var min = (c.at0 % HOUR) / 60000; if (c.p >= at('intercut', min)) continue;
+      var idx = c.idx; if (idx === cutPlan(k - 1).idx) idx = (idx + 1) % CUTS.length;
+      var b = E.cut[idx], off = wait < 0 ? -wait : 0;
+      if (!b || min + b.duration / 60 > CUT_END || off > b.duration - 1.5) continue;
+      var ctx = E.ctx, t = ctx.currentTime + Math.max(wait, 0), s = ctx.createBufferSource(), g = ctx.createGain(), v = at('cutGain', min);
+      s.buffer = b; g.gain.setValueAtTime(off ? 0 : v, t); if (off) g.gain.linearRampToValueAtTime(v, t + 0.4);
+      s.connect(g); g.connect(E.B.ev); s.start(t, off);
+    }
+  }
+  function loadCuts(ctx) {
+    return Promise.all(CUTS.map(function (n) { return fetch('soundtrack/intercut/' + n + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).catch(function () { return null; }); }));
+  }
+
   function loadVoice(ctx) {
     var out = {}, jobs = [];
     LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('soundtrack/voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
     return Promise.all(jobs).then(function () { return out; });
   }
-  /* one step of the clock: settings, landing warheads, radio traffic */
-  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); traffic(E, now); }
-  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadVoice: loadVoice, at: at, SCORE: SCORE };
+  /* one step of the clock: settings, landing warheads, broadcast excerpts, radio traffic */
+  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); intercuts(E, now); traffic(E, now); }
+  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadVoice: loadVoice, loadCuts: loadCuts, cutPlan: cutPlan, at: at, SCORE: SCORE };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;
@@ -200,7 +232,7 @@
      (or at once where the browser allows it). The button mutes; the choice is remembered. */
   function saved() { try { return localStorage.getItem('defcon-muted') === '1'; } catch (e) { return false; } }
   function save(m) { try { localStorage.setItem('defcon-muted', m ? '1' : '0'); } catch (e) {} }
-  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); loadVoice(ctx).then(function (v) { E.voice = v; }); }
+  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); loadVoice(ctx).then(function (v) { E.voice = v; }); loadCuts(ctx).then(function (c) { E.cut = c; }); }
   function play() {
     ensure(); var go = function () { if (!on || ctx.state !== 'running') return; B.vol.gain.cancelScheduledValues(ctx.currentTime); B.vol.gain.setTargetAtTime(0.9, ctx.currentTime, 0.6); if (!timer) timer = setInterval(tick, 500); tick(); };
     var pr = ctx.resume(); if (pr && pr.then) pr.then(go, function () {}); go();

@@ -184,7 +184,7 @@
 
   function loadVoice(ctx) {
     var out = {}, jobs = [];
-    LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
+    LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('soundtrack/voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
     return Promise.all(jobs).then(function () { return out; });
   }
   /* one step of the clock: settings, landing warheads, radio traffic */

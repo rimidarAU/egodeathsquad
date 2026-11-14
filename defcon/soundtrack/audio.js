@@ -1,45 +1,41 @@
-/* Soundtrack for /defcon/, driven by the match clock (one match per UTC hour), so everyone
-   listening hears the same thing at the same time.
-     0:00 - 20:00  a basic low drone; a broadcast excerpt now and then
-    20:00 - 30:00  the drone grows; excerpts at a moderate rate
-    30:00 - 45:00  the drone climbs to its maximum: dissonance, distortion, an endlessly
-                   rising tone, a racing pulse; excerpts at a moderate rate, radio traffic begins
-    45:00 - 50:00  maximum drone; excerpts almost continuously, sometimes two at once
-    50:00 - 55:00  the drone sinks to nothing and the excerpts are phased out
-    55:00 - 60:00  a slow, regretful piano theme and nothing else
-   Each warhead that lands before 55:00 is heard as a distant thud. Sound is on by default and
-   starts at the visitor's first touch, click or key press; the sound button mutes it. */
+/* Soundtrack for /defcon/: one drone that follows the match clock. It starts each hour
+   almost empty, gathers voices, brightness, noise and unease as the DEFCON level falls,
+   and reaches its climax in the last ten minutes: distortion, an endlessly rising tone,
+   a racing pulse and overlapping radio traffic, held through the Game Over period. In the
+   final seconds of the hour it runs down to silence and the next match begins again.
+   Every setting is worked out from the clock, so everyone listening hears the same thing
+   at the same time. Each warhead that lands in the match is heard as a distant thud.
+   Sound is on by default and starts at the visitor's first touch, click or key press;
+   the sound button mutes it. */
 (function () {
   'use strict';
-  var HOUR = 3600000, LANGS = ['de', 'en', 'ru'], CUTS = ['uk-1', 'uk-2', 'uk-3', 'su-1', 'su-2', 'su-3', 'us-1', 'us-2', 'us-3', 'ru-1', 'ru-2', 'ru-3'], CUT_SLOT = 30000, CUT_END = 55, QUIET = 55;
+  var HOUR = 3600000, LANGS = ['de', 'en', 'ru'];
   var MORSE = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
     0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.' };
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   /* ---- the score: every setting as a curve over the minutes of the match ---- */
   var SCORE = {
-    master:  [[0, 0], [0.4, 0.22], [20, 0.24], [30, 0.45], [45, 1], [50, 1], [52.5, 0.4], [55, 0], [60, 0]],
-    sub:     [[0, 0.30], [20, 0.32], [45, 0.5]],
-    rootSaw: [[0, 0.06], [20, 0.07], [30, 0.14], [45, 0.3]],
-    fifth:   [[0, 0], [20, 0], [30, 0.2], [45, 0.3]],
-    octave:  [[0, 0], [22, 0], [30, 0.08], [45, 0.2]],
-    second:  [[0, 0], [30, 0], [38, 0.12], [45, 0.24], [50, 0.24], [53, 0]],      /* a semitone above the root */
-    tritone: [[0, 0], [33, 0], [40, 0.12], [45, 0.22], [50, 0.22], [53, 0]],
-    cluster: [[0, 0], [36, 0], [45, 0.09], [50, 0.09], [52, 0]],
-    cutoff:  [[0, 120], [20, 150], [30, 400], [45, 2600], [50, 2800], [55, 120]],
-    drive:   [[0, 1], [20, 1], [30, 1.4], [45, 5], [50, 5], [55, 1]],
-    pulseHz: [[0, 0.06], [20, 0.08], [30, 0.4], [45, 3.5], [50, 4], [55, 0.1]],
-    pulse:   [[0, 0.15], [20, 0.2], [30, 0.3], [45, 0.6], [50, 0.6], [55, 0.2]],
-    wobble:  [[0, 3], [20, 4], [30, 10], [45, 60], [50, 60], [55, 5]],             /* cents of pitch drift */
-    rumble:  [[0, 0.08], [20, 0.1], [30, 0.16], [45, 0.42], [50, 0.42], [55, 0.05]],
-    hiss:    [[0, 0.02], [20, 0.025], [30, 0.05], [45, 0.2], [50, 0.2], [55, 0.01]],
-    crackle: [[0, 0.05], [20, 0.06], [30, 0.14], [45, 0.36], [50, 0.36], [55, 0.03]],
-    crackHz: [[0, 0.7], [30, 1], [45, 3], [50, 3], [55, 0.7]],
-    riser:   [[0, 0], [32, 0], [45, 0.16], [50, 0.2], [53, 0]],
-    traffic: [[0, 0], [38, 0], [45, 0.5], [50, 0.7], [54.4, 0]],                   /* chance of a radio fragment per 4 s */
-    intercut:  [[0, 0], [0.5, 0], [1, 0.07], [20, 0.07], [20.01, 0.35], [45, 0.35], [45.01, 1], [50, 1], [54.5, 0]],   /* chance of a broadcast excerpt per 30 s */
-    intercut2: [[0, 0], [45, 0], [45.01, 0.8], [50, 0.8], [53, 0]],               /* a second, overlapping line of excerpts */
-    cutGain:   [[0, 0.3], [20, 0.35], [30, 0.4], [45, 0.55], [50, 0.55], [55, 0.3]]
+    master:  [[0, 0], [0.4, 0.2], [6, 0.24], [12, 0.3], [20, 0.38], [28, 0.48], [50, 0.72], [56, 1], [59.6, 1], [59.95, 0], [60, 0]],
+    sub:     [[0, 0.30], [28, 0.36], [56, 0.5]],
+    rootSaw: [[0, 0.06], [28, 0.12], [56, 0.3]],
+    fifth:   [[0, 0], [5, 0], [12, 0.2], [56, 0.3]],
+    octave:  [[0, 0], [11, 0], [20, 0.08], [56, 0.2]],
+    second:  [[0, 0], [19, 0], [28, 0.07], [50, 0.14], [56, 0.24]],      /* a semitone above the root */
+    tritone: [[0, 0], [27, 0], [34, 0.06], [50, 0.12], [56, 0.22]],
+    cluster: [[0, 0], [30, 0], [50, 0.03], [56, 0.09]],
+    cutoff:  [[0, 110], [6, 140], [12, 180], [20, 250], [28, 380], [50, 900], [56, 2600], [59.6, 3200], [60, 80]],
+    drive:   [[0, 1], [28, 1.3], [50, 2.2], [56, 5]],
+    pulseHz: [[0, 0.05], [12, 0.08], [20, 0.15], [28, 0.4], [50, 1.1], [56, 3.5], [59.6, 7]],
+    pulse:   [[0, 0.1], [20, 0.2], [28, 0.3], [50, 0.4], [56, 0.6]],
+    wobble:  [[0, 2], [28, 6], [50, 18], [56, 60], [59.6, 90]],          /* cents of pitch drift */
+    fall:    [[0, 0], [59.6, 0], [60, -2400]],                           /* the run-down at the end */
+    rumble:  [[0, 0.08], [28, 0.14], [50, 0.24], [56, 0.42]],
+    hiss:    [[0, 0.02], [20, 0.035], [28, 0.05], [50, 0.09], [56, 0.2]],
+    crackle: [[0, 0.05], [28, 0.12], [50, 0.2], [56, 0.36]],
+    crackHz: [[0, 0.7], [28, 1], [50, 1.6], [56, 3]],
+    riser:   [[0, 0], [40, 0], [50, 0.05], [56, 0.16], [59.6, 0.2]],
+    traffic: [[0, 0], [47, 0], [50, 0.12], [56, 0.6], [59.4, 0.7], [59.7, 0]]   /* chance of a radio fragment per 4 s */
   };
   function at(name, min) {
     var c = SCORE[name], i;
@@ -83,7 +79,7 @@
 
   /* ---- the drone ---- */
   function engine(ctx, B) {
-    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], voice: null, cut: null, cutSlot: [-1, -1], pnoT: 0, slot: -1, hits: {}, hitSeed: null };
+    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], voice: null, slot: -1, hits: {}, hitSeed: null };
     function gain(v) { var g = ctx.createGain(); g.gain.value = v; return g; }
     function bind(param, name, scale) { E.set.push({ p: param, n: name, f: scale }); }
     var master = gain(0), trem = gain(1), lp = ctx.createBiquadFilter(), pre = gain(1), post = gain(1), ws = shaper(ctx, 1, 1025), sum = gain(1);
@@ -94,7 +90,7 @@
     var wob = [0.17, 0.29].map(function (hz, i) { var o = ctx.createOscillator(), g = gain(0); o.frequency.value = hz; o.connect(g); o.start(t); bind(g.gain, 'wobble', function (c) { return i ? -c : c; }); return g; });
     function voice(freq, type, name, fixed) {
       var o = ctx.createOscillator(), g = gain(fixed || 0); o.type = type; o.frequency.value = freq; o.connect(g); g.connect(sum); wob[E.oscs.length % 2].connect(o.detune); o.start(t);
-      E.oscs.push(o); if (name) bind(g.gain, name);
+      E.oscs.push(o); bind(o.detune, 'fall'); if (name) bind(g.gain, name);
     }
     voice(27.5, 'sine', 'sub'); voice(55.27, 'sine', null, 0.5); voice(55, 'sawtooth', 'rootSaw');
     voice(82.41, 'sine', 'fifth'); voice(82.2, 'sawtooth', 'fifth', 0); E.set[E.set.length - 1].f = function (v) { return v * 0.3; };
@@ -145,7 +141,7 @@
     var min = (now - idx * HOUR) / 60000;
     M.launches.forEach(function (L) {
       if (L.abm || E.hits[L.id]) return;
-      var w = (L.t0 + L.fl - min) * 60; if (w <= 0 || w > 0.8 || L.t0 + L.fl >= QUIET) return;
+      var w = (L.t0 + L.fl - min) * 60; if (w <= 0 || w > 0.8) return;
       E.hits[L.id] = 1; thud(E, E.ctx.currentTime + w, Math.min(1, (L.kills || 0) / 12));
     });
   }
@@ -178,7 +174,7 @@
       if (wait <= 0) { E.slot = k; continue; }
       if (wait > 1.5) break;
       E.slot = k; min = (at0 % HOUR) / 60000;
-      if (min >= QUIET - 0.2 || r() >= at('traffic', min)) continue;
+      if (r() >= at('traffic', min)) continue;
       var t = E.ctx.currentTime + wait, seed = (r() * 4294967296) >>> 0, lang = LANGS[(r() * 3) | 0], L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', txt = '';
       if (r() < 0.65 && E.voice && E.voice[lang] && speak(E.ctx, E.B, t, seed, E.voice[lang])) continue;
       for (var i = 3 + ((r() * 4) | 0); i > 0; i--) txt += L[(r() * 36) | 0];
@@ -186,76 +182,14 @@
     }
   }
 
-  /* ---- broadcast excerpts: at most one per 30 s slot, chosen by the clock, heard through
-     the same radio as the traffic. A listener who arrives part-way through one hears it from
-     that point. None is started that would still be playing in the last ten minutes. ---- */
-  function cutPlan(k, lane) {
-    var r = rng(Math.imul(k ^ (lane ? 0x2F6B1A93 : 0x51ED270B), 2654435761) >>> 0);
-    return { at0: k * CUT_SLOT + (lane ? 15000 : 0) + r() * 14000, p: r(), idx: (r() * CUTS.length) | 0 };
-  }
-  function intercuts(E, now) {
-    if (!E.cut) return;
-    var slot = Math.floor(now / CUT_SLOT);
-    for (var lane = 0; lane < 2; lane++) for (var k = Math.max(slot - lane, E.cutSlot[lane] + 1); k <= slot + 1; k++) {
-      var c = cutPlan(k, lane), wait = (c.at0 - now) / 1000;
-      if (wait > 1.5) break;
-      E.cutSlot[lane] = k;
-      var min = (c.at0 % HOUR) / 60000; if (c.p >= at(lane ? 'intercut2' : 'intercut', min)) continue;
-      var idx = c.idx; if (idx === cutPlan(k - 1, lane).idx) idx = (idx + 1) % CUTS.length;
-      if (lane && (idx === cutPlan(k, 0).idx || idx === cutPlan(k + 1, 0).idx)) idx = (idx + 2) % CUTS.length;
-      var b = E.cut[idx], off = wait < 0 ? -wait : 0;
-      if (!b || min + b.duration / 60 > CUT_END || off > b.duration - 1.5) continue;
-      var ctx = E.ctx, t = ctx.currentTime + Math.max(wait, 0), s = ctx.createBufferSource(), g = ctx.createGain(), v = at('cutGain', min);
-      s.buffer = b; g.gain.setValueAtTime(off ? 0 : v, t); if (off) g.gain.linearRampToValueAtTime(v, t + 0.4);
-      s.connect(g); g.connect(E.B.ev); s.start(t, off);
-    }
-  }
-  function loadCuts(ctx) {
-    return Promise.all(CUTS.map(function (n) { return fetch('soundtrack/intercut/' + n + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).catch(function () { return null; }); }));
-  }
-
-  /* ---- the piano theme, 55:00 to the hour: A minor, 50 beats a minute, a broken-chord left
-     hand under a sparse melody. Seven eight-bar phrases, then a last chord left to ring. ---- */
-  var BEAT = 1200, PIANO_AT = 55 * 60000 + 2000;
-  var CH = { Am: [45, 52, 57, 60], F: [41, 48, 53, 57], C: [48, 55, 60, 64], G: [43, 50, 55, 59], Dm: [50, 57, 62, 65], E: [40, 47, 52, 56], Em: [40, 47, 52, 55] };
-  var PH = {
-    A: { ch: ['Am', 'F', 'C', 'G', 'Am', 'F', 'Dm', 'E'], mel: [[0, 76], [2, 74], [3, 72], [4, 69], [7, 72], [8, 67], [10, 72], [11, 76], [12, 74], [15, 71], [16, 72], [18, 71], [19, 69], [20, 65], [22, 69], [23, 72], [24, 69], [26, 74], [27, 77], [28, 76], [30, 68], [31, 71]] },
-    B: { ch: ['F', 'G', 'Em', 'Am', 'Dm', 'Am', 'E', 'E'], mel: [[0, 81], [2, 79], [3, 77], [4, 79], [6, 74], [8, 76], [10, 71], [11, 67], [12, 69], [14, 72], [15, 76], [16, 77], [18, 76], [19, 74], [20, 72], [22, 69], [24, 71], [26, 68], [28, 64]] }
-  };
-  var PIANO = (function () {
-    var out = [], order = ['A', 'A', 'B', 'A', 'B', 'A', 'A'];
-    order.forEach(function (name, pi) {
-      var P = PH[name], b0 = pi * 32, last = pi === order.length - 1, soft = last ? 0.75 : 1;
-      P.ch.forEach(function (c, bar) { CH[c].forEach(function (m, i) { if (name === 'B' && bar === 7 && i > 1) return; out.push([b0 + bar * 4 + i, m, (i ? 0.2 : 0.3) * soft]); }); });
-      P.mel.forEach(function (n) { out.push([b0 + n[0] + 0.02, n[1] - (last ? 12 : 0), (pi ? 0.46 : 0.38) * soft]); });
-    });
-    [33, 45, 52, 57, 60, 64].forEach(function (m, i) { out.push([order.length * 32 + i * 0.06, m, 0.32]); });
-    return out.sort(function (a, b) { return a[0] - b[0]; });
-  })();
-  function pianoWave(ctx) { var h = [0, 1, 0.55, 0.32, 0.2, 0.12, 0.08, 0.05, 0.03], re = new Float32Array(h.length), im = new Float32Array(h); return ctx.createPeriodicWave(re, im); }
-  function pianoNote(E, t, midi, vel) {
-    var ctx = E.ctx, f = 440 * Math.pow(2, (midi - 69) / 12), tau = Math.min(3.2, 1.5 * Math.pow(261.6 / f, 0.45)), end = t + tau * 6;
-    var lp = ctx.createBiquadFilter(), g = ctx.createGain(); lp.type = 'lowpass'; lp.Q.value = 0.5;
-    lp.frequency.setValueAtTime(Math.min(9000, f * 7), t); lp.frequency.setTargetAtTime(Math.min(4000, f * 2.2), t + 0.01, 0.5);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel * 0.3, t + 0.006); g.gain.setTargetAtTime(0, t + 0.006, tau);
-    E.pwave = E.pwave || pianoWave(ctx);
-    [-3, 3].forEach(function (c) { var o = ctx.createOscillator(); o.setPeriodicWave(E.pwave); o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(end); });
-    lp.connect(g); g.connect(E.B.mix);
-  }
-  function piano(E, now) {
-    var h0 = Math.floor(now / HOUR) * HOUR + PIANO_AT, from = Math.max(now, E.pnoT), to = now + 1500;
-    if (to > h0 && from < h0 + PIANO[PIANO.length - 1][0] * BEAT + 1) PIANO.forEach(function (n) { var at0 = h0 + n[0] * BEAT; if (at0 > from && at0 <= to) pianoNote(E, E.ctx.currentTime + (at0 - now) / 1000, n[1], n[2]); });
-    E.pnoT = to;
-  }
-
   function loadVoice(ctx) {
     var out = {}, jobs = [];
     LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('soundtrack/voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
     return Promise.all(jobs).then(function () { return out; });
   }
-  /* one step of the clock: settings, landing warheads, broadcast excerpts, radio traffic, piano */
-  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); intercuts(E, now); traffic(E, now); piano(E, now); }
-  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadVoice: loadVoice, loadCuts: loadCuts, cutPlan: cutPlan, PIANO: PIANO, at: at, SCORE: SCORE };
+  /* one step of the clock: settings, landing warheads, radio traffic */
+  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); traffic(E, now); }
+  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadVoice: loadVoice, at: at, SCORE: SCORE };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;
@@ -266,7 +200,7 @@
      (or at once where the browser allows it). The button mutes; the choice is remembered. */
   function saved() { try { return localStorage.getItem('defcon-muted') === '1'; } catch (e) { return false; } }
   function save(m) { try { localStorage.setItem('defcon-muted', m ? '1' : '0'); } catch (e) {} }
-  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); loadVoice(ctx).then(function (v) { E.voice = v; }); loadCuts(ctx).then(function (c) { E.cut = c; }); }
+  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); loadVoice(ctx).then(function (v) { E.voice = v; }); }
   function play() {
     ensure(); var go = function () { if (!on || ctx.state !== 'running') return; B.vol.gain.cancelScheduledValues(ctx.currentTime); B.vol.gain.setTargetAtTime(0.9, ctx.currentTime, 0.6); if (!timer) timer = setInterval(tick, 500); tick(); };
     var pr = ctx.resume(); if (pr && pr.then) pr.then(go, function () {}); go();

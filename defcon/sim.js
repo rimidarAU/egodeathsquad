@@ -377,8 +377,8 @@
     var narrow = window.innerWidth < 430, tiny = window.innerWidth < 360;
     hud.board.innerHTML = rows.map(function (r) {
       var t = r.t, und = !(firstL && min >= firstL.t0) && t.home === 'NON', sf = t.strikesFirst && firstL && min >= firstL.t0, rt = t.retaliates && M.nonStrikeAt && min >= M.nonStrikeAt;
-      var tag = und ? '?' : narrow ? (t.bloc === 'NON' ? 'NAM' + (sf || rt ? '*' : '') : t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : t.bloc === 'NON' ? (sf ? 'NAM, struck first' : rt ? 'NAM, struck' : 'NAM') : t.bloc === 'NATO' ? (t.home === 'NON' ? 'NATO ally' : 'NATO') : t.home === 'NON' ? 'Pact ally' : 'Warsaw Pact';
-      return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
+      var tag = und ? 'undeclared' : t.bloc === 'NON' ? (sf ? 'Non-Aligned, struck first' : rt ? 'Non-Aligned, struck' : 'Non-Aligned') : t.bloc === 'NATO' ? (t.home === 'NON' ? 'NATO ally' : 'NATO') : t.home === 'NON' ? 'Pact ally' : 'Warsaw Pact';
+      return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + '</span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><em>' + tag + '</em><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
     /* keep the newest statement at the top for 45 seconds so launches do not bury it */
     var pin = null; logs.forEach(function (e) { if (e.c === 'q' && min - e.t < 0.75 && (!pin || e.t > pin.t)) pin = e; });

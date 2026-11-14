@@ -377,7 +377,7 @@
     var narrow = window.innerWidth < 430, tiny = window.innerWidth < 360;
     hud.board.innerHTML = rows.map(function (r) {
       var t = r.t, und = !(firstL && min >= firstL.t0) && t.home === 'NON', sf = t.strikesFirst && firstL && min >= firstL.t0, rt = t.retaliates && M.nonStrikeAt && min >= M.nonStrikeAt;
-      var tag = und ? (narrow ? '?' : 'undeclared') : narrow ? (t.bloc === 'NON' ? 'N-A' + (sf || rt ? '*' : '') : t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : t.bloc === 'NON' ? (sf ? 'non-aligned, struck first' : rt ? 'non-aligned, struck' : 'non-aligned') : t.bloc === 'NATO' ? (t.home === 'NON' ? 'NATO ally' : 'NATO') : t.home === 'NON' ? 'Pact ally' : 'Warsaw Pact';
+      var tag = und ? (window.innerWidth < 390 ? '?' : 'neutral') : narrow ? (t.bloc === 'NON' ? 'NAM' + (sf || rt ? '*' : '') : t.bloc === 'NATO' ? 'NATO' : tiny ? 'WP' : 'Pact') : t.bloc === 'NON' ? (sf ? 'NAM, struck first' : rt ? 'NAM, struck' : 'NAM') : t.bloc === 'NATO' ? (t.home === 'NON' ? 'NATO ally' : 'NATO') : t.home === 'NON' ? 'Pact ally' : 'Warsaw Pact';
       return '<div><i style="background:' + r.t.col + '"></i><span>' + (tiny ? r.t.name.replace('North America', 'N. America').replace('Latin America', 'L. America') : r.t.name) + ' <em>' + tag + '</em></span><b>' + (r.sc >= 0 ? '+' : '') + r.sc.toFixed(0) + '</b><small>' + r.t.kills.toFixed(0) + 'M killed · ' + r.t.lost.toFixed(0) + 'M lost</small></div>'; }).join('');
     logs.sort(function (a, b) { return b.t - a.t; });
     /* keep the newest statement at the top for 45 seconds so launches do not bury it */

@@ -1,8 +1,9 @@
 /* Soundtrack for /defcon/: one drone that follows the match clock. It starts each hour
    almost empty, gathers voices, brightness, noise and unease as the DEFCON level falls,
    and reaches its climax in the last ten minutes: distortion, an endlessly rising tone,
-   a racing pulse and overlapping radio traffic, held through the Game Over period. In the
-   final seconds of the hour it runs down to silence and the next match begins again.
+   a racing pulse and overlapping radio traffic. When the result is declared at 56:00 it all
+   falls away within half a minute to a low, sagging minor drone, which lasts until the final
+   seconds of the hour, runs down to silence, and the next match begins again.
    Every setting is worked out from the clock, so everyone listening hears the same thing
    at the same time. Each warhead that lands in the match is heard as a distant thud.
    Excerpts of recorded radio broadcasts cut in now and then before DEFCON 1, more and more
@@ -18,27 +19,28 @@
 
   /* ---- the score: every setting as a curve over the minutes of the match ---- */
   var SCORE = {
-    master:  [[0, 0], [0.4, 0.2], [6, 0.24], [12, 0.3], [20, 0.38], [28, 0.48], [50, 0.72], [56, 1], [59.6, 1], [59.95, 0], [60, 0]],
-    sub:     [[0, 0.30], [28, 0.36], [56, 0.5]],
-    rootSaw: [[0, 0.06], [28, 0.12], [56, 0.3]],
-    fifth:   [[0, 0], [5, 0], [12, 0.2], [56, 0.3]],
-    octave:  [[0, 0], [11, 0], [20, 0.08], [56, 0.2]],
-    second:  [[0, 0], [19, 0], [28, 0.07], [50, 0.14], [56, 0.24]],      /* a semitone above the root */
-    tritone: [[0, 0], [27, 0], [34, 0.06], [50, 0.12], [56, 0.22]],
-    cluster: [[0, 0], [30, 0], [50, 0.03], [56, 0.09]],
-    cutoff:  [[0, 110], [6, 140], [12, 180], [20, 250], [28, 380], [50, 900], [56, 2600], [59.6, 3200], [60, 80]],
-    drive:   [[0, 1], [28, 1.3], [50, 2.2], [56, 5]],
-    pulseHz: [[0, 0.05], [12, 0.08], [20, 0.15], [28, 0.4], [50, 1.1], [56, 3.5], [59.6, 7]],
-    pulse:   [[0, 0.1], [20, 0.2], [28, 0.3], [50, 0.4], [56, 0.6]],
-    wobble:  [[0, 2], [28, 6], [50, 18], [56, 60], [59.6, 90]],          /* cents of pitch drift */
-    fall:    [[0, 0], [59.6, 0], [60, -2400]],                           /* the run-down at the end */
-    rumble:  [[0, 0.08], [28, 0.14], [50, 0.24], [56, 0.42]],
-    hiss:    [[0, 0.02], [20, 0.035], [28, 0.05], [50, 0.09], [56, 0.2]],
-    crackle: [[0, 0.05], [28, 0.12], [50, 0.2], [56, 0.36]],
-    crackHz: [[0, 0.7], [28, 1], [50, 1.6], [56, 3]],
-    riser:   [[0, 0], [40, 0], [50, 0.05], [56, 0.16], [59.6, 0.2]],
-    traffic: [[0, 0], [47, 0], [50, 0.12], [56, 0.6], [59.4, 0.7], [59.7, 0]]   /* chance of a radio fragment per 4 s */
+    master:  [[0, 0], [0.4, 0.2], [6, 0.24], [12, 0.3], [20, 0.38], [28, 0.48], [50, 0.72], [56, 1], [56.4, 0.42], [59.6, 0.32], [59.95, 0], [60, 0]],
+    sub:     [[0, 0.30], [28, 0.36], [56, 0.5], [56.4, 0.34]],
+    rootSaw: [[0, 0.06], [28, 0.12], [56, 0.3], [56.4, 0.07]],
+    fifth:   [[0, 0], [5, 0], [12, 0.2], [56, 0.3], [56.4, 0.1]],
+    octave:  [[0, 0], [11, 0], [20, 0.08], [56, 0.2], [56.4, 0.04]],
+    second:  [[0, 0], [19, 0], [28, 0.07], [50, 0.14], [56, 0.24], [56.3, 0]],      /* a semitone above the root */
+    tritone: [[0, 0], [27, 0], [34, 0.06], [50, 0.12], [56, 0.22], [56.3, 0]],
+    cluster: [[0, 0], [30, 0], [50, 0.03], [56, 0.09], [56.2, 0]],
+    cutoff:  [[0, 110], [6, 140], [12, 180], [20, 250], [28, 380], [50, 900], [56, 2600], [56.4, 420], [59.6, 240], [60, 80]],
+    drive:   [[0, 1], [28, 1.3], [50, 2.2], [56, 5], [56.4, 1.1]],
+    pulseHz: [[0, 0.05], [12, 0.08], [20, 0.15], [28, 0.4], [50, 1.1], [56, 3.5], [56.4, 0.11], [59.6, 0.06]],
+    pulse:   [[0, 0.1], [20, 0.2], [28, 0.3], [50, 0.4], [56, 0.6], [56.4, 0.3]],
+    wobble:  [[0, 2], [28, 6], [50, 18], [56, 60], [56.4, 9], [59.6, 14]],          /* cents of pitch drift */
+    fall:    [[0, 0], [56, 0], [56.4, -200], [59.6, -300], [60, -1500]],                           /* the run-down at the end */
+    rumble:  [[0, 0.08], [28, 0.14], [50, 0.24], [56, 0.42], [56.4, 0.12]],
+    hiss:    [[0, 0.02], [20, 0.035], [28, 0.05], [50, 0.09], [56, 0.2], [56.4, 0.025]],
+    crackle: [[0, 0.05], [28, 0.12], [50, 0.2], [56, 0.36], [56.4, 0.05]],
+    crackHz: [[0, 0.7], [28, 1], [50, 1.6], [56, 3], [56.4, 0.6]],
+    riser:   [[0, 0], [40, 0], [50, 0.05], [56, 0.16], [56.3, 0]],
+    traffic: [[0, 0], [47, 0], [50, 0.12], [55.9, 0.6], [56, 0]]   /* chance of a radio fragment per 4 s */
     ,
+    minor:   [[0, 0], [56, 0], [56.5, 0.2]],                           /* a minor third, heard only in defeat */
     intercut: [[0, 0], [0.5, 0], [1, 0.1], [28, 0.1], [28.01, 0.2], [49, 0.9], [50, 0.9], [50.01, 0]],   /* chance of a broadcast excerpt per 30 s */
     cutGain:  [[0, 0.3], [28, 0.4], [50, 0.55]]
   };
@@ -101,6 +103,7 @@
     voice(82.41, 'sine', 'fifth'); voice(82.2, 'sawtooth', 'fifth', 0); E.set[E.set.length - 1].f = function (v) { return v * 0.3; };
     voice(110.4, 'triangle', 'octave'); voice(58.27, 'sawtooth', 'second'); voice(77.78, 'sawtooth', 'tritone');
     [233.1, 311.1, 466.2, 622.3].forEach(function (f) { voice(f, 'sawtooth', 'cluster'); });
+    voice(65.41, 'sine', 'minor'); voice(130.6, 'triangle', 'minor'); E.set[E.set.length - 1].f = function (v) { return v * 0.5; };
     /* the pulse: a slow swell that quickens into a racing throb */
     var pl = ctx.createOscillator(), pg = gain(0); pl.frequency.value = 0.05; pl.connect(pg); pg.connect(trem.gain); pl.start(t);
     bind(pl.frequency, 'pulseHz'); bind(pg.gain, 'pulse', function (d) { return d / 2; }); bind(trem.gain, 'pulse', function (d) { return 1 - d / 2; });

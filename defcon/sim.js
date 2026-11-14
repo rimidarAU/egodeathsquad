@@ -12,7 +12,7 @@
   var MATCH_MS = 3600000, MIN = 60;
   var PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];      /* minute, level */
   var END_MIN = 56;
-  var CAMP = 0.5;   /* share of evacuations and wartime events that fall on NATO territories */
+  var CAMP = 0.52;  /* share of evacuations and wartime events that fall on NATO territories; set so NATO and the Pact win equally often */
 
   function X(lon) { return (lon + 180) * 4; }
   function Y(lat) { return (84 - lat) * 4; }

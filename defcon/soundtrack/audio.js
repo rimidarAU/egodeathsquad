@@ -14,7 +14,7 @@
    and starts at the visitor's first touch, click or key press; the sound button mutes it. */
 (function () {
   'use strict';
-  var HOUR = 3600000, CUTS = ['uk-1', 'uk-2', 'uk-3', 'su-1', 'su-2', 'su-3', 'us-1', 'us-2', 'us-3', 'ru-1', 'ru-2', 'ru-3'], CUT_SLOT = 30000, CUT_END = 50;
+  var HOUR = 3600000, CUTS = ['uk-1', 'uk-2', 'uk-3', 'su-1', 'su-2', 'su-3', 'us-1', 'us-2', 'us-3', 'ru-1', 'ru-2', 'ru-3', 'l58-1', 'l58-2', 'l58-3', 'cn-1', 'cn-2', 'cn-3', 'de-1', 'de-2', 'de-3', 'gdr-1', 'gdr-2', 'gdr-3'], CUT_SLOT = 30000, CUT_END = 50;
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   /* ---- the score: every setting as a curve over the minutes of the match ---- */

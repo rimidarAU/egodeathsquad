@@ -140,7 +140,7 @@
     s.connect(f); f.connect(ng); ng.connect(E.B.mix); s.start(t, (t * 1.7) % 2); s.stop(t + 1.9);
   }
   function impacts(E, now) {
-    var M = window.DEFCON_MATCH, idx = Math.floor(now / HOUR); if (!M || !M.launches || M.seed !== ((idx * 2654435761) >>> 0)) return;
+    var M = window.DEFCON_MATCH, idx = Math.floor(now / HOUR); if (!M || !M.launches || M.idx !== idx) return;
     if (E.hitSeed !== M.seed) { E.hitSeed = M.seed; E.hits = {}; }
     var min = (now - idx * HOUR) / 60000;
     M.launches.forEach(function (L) {

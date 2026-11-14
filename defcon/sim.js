@@ -1,6 +1,7 @@
 /* DEFCON-style match simulation, synchronised to the clock.
    One match per UTC hour. Everything is derived from (seed, elapsed), so every
-   visitor sees the same match at the same moment and no server is needed. */
+   visitor sees the same match at the same moment and no server is needed.
+   The seed for each hour is a random number published ahead of time in seeds.json. */
 (function () {
   'use strict';
   var SVG = 'http://www.w3.org/2000/svg';
@@ -281,8 +282,9 @@
   function level(min) { var l = 5; PHASES.forEach(function (p) { if (min >= p[0]) l = p[1]; }); return l; }
 
   function render(now) {
-    var idx = Math.floor(now / MATCH_MS), seed = (idx * 2654435761) >>> 0;
-    if (!state || state.seed !== seed) { mount(build(seed)); renderHistory(idx); }
+    var idx = Math.floor(now / MATCH_MS), seed = seedFor(idx);
+    if (!state || state.seed !== seed) { var fresh = build(seed); fresh.idx = idx; mount(fresh); }
+    renderHistory(idx);
     var M = state, min = (now - idx * MATCH_MS) / 60000, lv = level(min);
     /* units appear during placement */
     M.units.forEach(function (u) { u.el.setAttribute('opacity', min >= u.born ? 1 : 0); });
@@ -359,7 +361,7 @@
   /* previous matches: rebuilt from their seeds, so the history is the same for everyone too */
   var histIdx = -1;
   function summarize(idx) {
-    var M = build((idx * 2654435761) >>> 0), dead = 0;
+    var M = build(seedFor(idx)), dead = 0;
     M.launches.forEach(function (L) { if (L.abm) return; M.terr[L.from.t].kills += L.kills; M.terr[L.to.t].lost += L.kills; dead += L.kills; });
     var rows = M.terr.map(function (t) { return { t: t, sc: 2 * t.kills - t.lost }; }).sort(function (a, b) { return b.sc - a.sc; });
     /* the faction of the top-scoring territory wins; that territory is its MVP */
@@ -377,7 +379,22 @@
     help.addEventListener('click', function () { var open = about.hidden; about.hidden = !open; help.setAttribute('aria-expanded', open ? 'true' : 'false'); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !about.hidden) { about.hidden = true; help.setAttribute('aria-expanded', 'false'); } });
   }
+  /* Seeds. seeds.json holds a random seed for each recent and upcoming hour, published ahead
+     of time by a scheduled job (.github/workflows/defcon-seeds.yml), so a match cannot be
+     worked out before its seed is published and is still the same for everyone. An hour with
+     no published seed falls back to a seed derived from the hour itself. The file is read
+     before the first frame (or after three seconds without an answer) and again every
+     twenty minutes, which keeps an open page ahead of the next match. */
+  var SEEDS = {}, ready = false;
+  function seedFor(idx) { var s = SEEDS[idx]; return typeof s === 'number' && isFinite(s) ? s >>> 0 : (idx * 2654435761) >>> 0; }
+  function loadSeeds() {
+    if (!window.fetch) { ready = true; return; }
+    fetch('seeds.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-store' }).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (j) { if (j && j.seeds && typeof j.seeds === 'object') { SEEDS = j.seeds; histIdx = -1; } })
+      .catch(function () {}).then(function () { ready = true; });
+  }
+  loadSeeds(); setTimeout(function () { ready = true; }, 3000); setInterval(loadSeeds, 1200000);
   var last = 0;
-  function frame(ts) { if (ts - last > 120) { last = ts; try { render(Date.now()); } catch (e) { /* keep the loop alive */ } } requestAnimationFrame(frame); }
+  function frame(ts) { if (ready && ts - last > 120) { last = ts; try { render(Date.now()); } catch (e) { /* keep the loop alive */ } } requestAnimationFrame(frame); }
   requestAnimationFrame(frame);
 })();

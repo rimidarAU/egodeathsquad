@@ -1,0 +1,25 @@
+name: Defcon match seeds
+# Publishes random seeds for the next twelve hours of /defcon/ matches, four times a day.
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: defcon-seeds
+jobs:
+  seeds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add seeds for upcoming matches
+        run: node .github/scripts/defcon-seeds.js
+      - name: Commit and push
+        run: |
+          git add defcon/seeds.json
+          if git diff --cached --quiet; then echo "Nothing to publish."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Defcon: publish match seeds"
+          git push || (git pull --rebase && git push)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://sketchfab.com; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>EgoDeathSquad</title>
 <meta name="description" content="A plain-language explainer of Cryo Archive, the endgame zone in Bungie's Marathon (2026).">
@@ -130,6 +130,22 @@
   td:first-child { color:var(--frost); font-weight:700; white-space:nowrap; }
   @media (max-width:820px) { .mapwrap, .tables > div { padding-left:16px; padding-right:16px; } .tables { grid-template-columns:1fr; } .tables > div + div { border-left:0; border-top:1px solid var(--line); } .hint { display:block; } }
 
+  /* ---- vault interiors (3D models by CheeseWhisperer) ---- */
+  .vgrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:16px; }
+  .vcard { border:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; }
+  .vframe { position:relative; aspect-ratio:16/9; background:#000; }
+  .vframe img, .vframe iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; object-fit:cover; }
+  .vcard .meta { padding:10px 12px 12px; display:flex; flex-direction:column; gap:6px; }
+  .vcard .meta b { color:var(--frost); font-size:14px; } .vcard .meta span { color:var(--dim); font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
+  .vcard .row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin-top:2px; }
+  .vcard button { font:inherit; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--bg); background:var(--ice); border:0; padding:7px 10px; cursor:pointer; }
+  .vcard button:focus-visible { outline:2px solid var(--frost); outline-offset:2px; }
+  .vcard a { font-size:11px; text-decoration:underline; color:var(--dim); }
+  .vkey { display:flex; flex-wrap:wrap; gap:6px 16px; margin:14px 0 0; padding:0; list-style:none; font-size:12px; color:var(--dim); }
+  .vkey i { display:inline-block; width:10px; height:10px; margin-right:6px; vertical-align:-1px; }
+  @media (max-width:980px) { .vgrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:620px) { .vgrid { grid-template-columns:1fr; } }
+
   @media (prefers-reduced-motion:reduce) { .pod::after, .status .live::before { animation:none; } }
   @media (max-width:820px) {
     .body { grid-template-columns:1fr; }
@@ -245,19 +261,19 @@
       <div class="isoscroll"><div id="iso"></div></div>
       <p class="hint">Swipe the map sideways to see all of it.</p>
       <div id="iso-info" aria-live="polite"><span>Nothing selected</span><p>Select a marker on the map.</p></div>
-      <p class="note" style="margin-top:14px;max-width:none"><b>What this map is and is not.</b> Room positions are approximate and the shapes are simplified blocks, so use it for what is near what, not for exact routes. Battery markers show where batteries are <em>spent</em>; neither guide marks where loose batteries are picked up. Only one compiler is marked in the guides. The 3D models at sketchfab.com/CheeseWhisperer could not be opened when this was made and are not used.</p>
+      <p class="note" style="margin-top:14px;max-width:none"><b>What this map is and is not.</b> Room positions are approximate and the shapes are simplified blocks, so use it for what is near what, not for exact routes. Battery markers show where batteries are <em>spent</em>; neither guide marks where loose batteries are picked up. Only one compiler is marked in the guides. The vault interiors are shown separately in section 05.</p>
     </div>
     <div class="tables">
       <div class="wide">
         <h3>Vault requirements</h3>
         <div class="tscroll"><table>
           <tr><th>Vault</th><th>Where</th><th>Clearance</th><th>Batteries</th><th>Coolant</th><th>Key</th></tr>
-          <tr><td>1</td><td>South-west corner of Control</td><td>None listed</td><td>5</td><td>None</td><td>None</td></tr>
-          <tr><td>2</td><td>Biostock Chiller</td><td>None listed</td><td>5 to 6</td><td>1</td><td>None</td></tr>
-          <tr><td>3</td><td>Preservation Chiller</td><td>None listed</td><td>4</td><td>None</td><td>Pump Credentials</td></tr>
-          <tr><td>4</td><td>North-west corner of Control</td><td>3</td><td>8</td><td>1</td><td>Colonist Credentials</td></tr>
-          <tr><td>5</td><td>Cold Storage, west end</td><td>None listed</td><td>4 to 5</td><td>1</td><td>Tranquility Credentials</td></tr>
-          <tr><td>6</td><td>Labs, by elevator</td><td>4</td><td>8 to 12</td><td>1</td><td>Secret Lab symbols; anti-virus kits</td></tr>
+          <tr><td>1 &middot; Cryo Maintenance 01</td><td>South-west corner of Control</td><td>None listed</td><td>5</td><td>None</td><td>None</td></tr>
+          <tr><td>2 &middot; Generator Room 02</td><td>Biostock Chiller</td><td>None listed</td><td>5 to 6</td><td>1</td><td>None</td></tr>
+          <tr><td>3 &middot; Pump Station 03</td><td>Preservation Chiller</td><td>None listed</td><td>4</td><td>None</td><td>Pump Credentials</td></tr>
+          <tr><td>4 &middot; Cryo Monitoring 04</td><td>North-west corner of Control</td><td>3</td><td>8</td><td>1</td><td>Colonist Credentials</td></tr>
+          <tr><td>5 &middot; Secret Cargo 05</td><td>Cold Storage, west end</td><td>None listed</td><td>4 to 5</td><td>1</td><td>Tranquility Credentials</td></tr>
+          <tr><td>6 &middot; Lab 06</td><td>Labs, by elevator</td><td>4</td><td>8 to 12</td><td>1</td><td>Secret Lab symbols; anti-virus kits</td></tr>
           <tr><td>7</td><td>Labs, by elevator</td><td>3 to 5</td><td>10 (3 + 7)</td><td>None listed</td><td>DNA Access Card, then Commander Credentials</td></tr>
         </table></div>
       </div>
@@ -288,8 +304,60 @@
   </section>
 
   <!-- 05 -->
+  <section id="vaults">
+    <div class="head mono-label"><span><b>05</b> &nbsp;Inside the vaults</span><span>3D models by CheeseWhisperer</span></div>
+    <div class="mapwrap">
+      <h2 class="display">Six vaults<br>in 3D.</h2>
+      <p>These models show the inside of Vaults 1 to 6. They were made by hand by CheeseWhisperer from gameplay footage, to help find the terminals that open each vault; the maker says they are not comprehensive. Press <span class="k">Load 3D model</span> to turn one around in place. There is no model of Vault 7.</p>
+      <div class="vgrid">
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v1.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 1, Cryo Maintenance 01, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 1</span><b>Cryo Maintenance 01</b>
+            <div class="row"><button type="button" data-model="63d1f42bd3884c75aa6d712c5a4f276d" data-title="Vault 1 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/63d1f42bd3884c75aa6d712c5a4f276d" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v2.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 2, Generator Room 02, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 2</span><b>Generator Room 02</b>
+            <div class="row"><button type="button" data-model="e678f18c94de41329c33f5c1db5d5c9e" data-title="Vault 2 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/e678f18c94de41329c33f5c1db5d5c9e" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v3.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 3, Pump Station 03, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 3</span><b>Pump Station 03</b>
+            <div class="row"><button type="button" data-model="5218846d63254d59a2c1051bd6281728" data-title="Vault 3 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/5218846d63254d59a2c1051bd6281728" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v4.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 4, Cryo Monitoring 04, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 4</span><b>Cryo Monitoring 04</b>
+            <div class="row"><button type="button" data-model="24dea9b6046248639b259184e9d8fb0c" data-title="Vault 4 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/24dea9b6046248639b259184e9d8fb0c" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v5.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 5, Secret Cargo 05, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 5</span><b>Secret Cargo 05</b>
+            <div class="row"><button type="button" data-model="2bfec09bf3bb48fb8eea3eaf4576f29e" data-title="Vault 5 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/2bfec09bf3bb48fb8eea3eaf4576f29e" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+        <div class="vcard">
+          <div class="vframe"><img src="vaults/v6.jpg" width="720" height="405" loading="lazy" alt="3D map of the inside of Vault 6, Lab 06, by CheeseWhisperer"></div>
+          <div class="meta"><span>Vault 6</span><b>Lab 06</b>
+            <div class="row"><button type="button" data-model="d7bbf1de11d346eaa06e7b840bc6d4d6" data-title="Vault 6 3D map">Load 3D model</button><a href="https://sketchfab.com/3d-models/d7bbf1de11d346eaa06e7b840bc6d4d6" rel="noopener noreferrer">Open on Sketchfab</a></div>
+          </div>
+        </div>
+      </div>
+      <ul class="vkey" aria-label="Colour key used in the models">
+        <li><i style="background:#F4C6C6"></i>Higher floor</li><li><i style="background:#F0707C"></i>Middle floor</li><li><i style="background:#B8404C"></i>Lower floor</li><li><i style="background:#22C4E8"></i>Frost floor</li>
+        <li><i style="background:#3BE03B"></i>Entrance</li><li><i style="background:#F2E24A"></i>Loot room</li><li><i style="background:#F0A030"></i>Symbol or frozen panel</li><li><i style="background:#2FD05A"></i>Frost shut-off button</li><li><i style="background:#D030D0"></i>Reference symbol panel</li>
+      </ul>
+      <p class="dim" style="margin:12px 0 0;font-size:12px;color:var(--dim)">Models and preview images &copy; CheeseWhisperer, used under the Creative Commons Attribution licence. Loading a model connects to sketchfab.com.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
   <section id="unlock">
-    <div class="head mono-label"><span><b>05</b> &nbsp;How it was unlocked</span><span>A community puzzle</span></div>
+    <div class="head mono-label"><span><b>06</b> &nbsp;How it was unlocked</span><span>A community puzzle</span></div>
     <div class="body">
       <div class="copy">
         <h2 class="display">The players<br>opened it.</h2>
@@ -303,9 +371,9 @@
     </div>
   </section>
 
-  <!-- 06 -->
+  <!-- 07 -->
   <section id="timeline">
-    <div class="head mono-label"><span><b>06</b> &nbsp;Timeline</span><span>2026</span></div>
+    <div class="head mono-label"><span><b>07</b> &nbsp;Timeline</span><span>2026</span></div>
     <ul class="tl">
       <li><b>March</b><span>A community goal of 500 million UESC kills, then a cryptic puzzle, stand between players and the fourth zone.</span></li>
       <li><b>15 March</b><span>Players finish the puzzle. The entry requirements are revealed.</span></li>
@@ -329,6 +397,7 @@
       <li><a href="https://www.gfinityesports.com/article/marathon-everything-we-know-about-the-cryo-archive-endgame-zone" rel="noopener noreferrer">Gfinity: everything we know about Cryo Archive</a></li>
       <li><a href="https://thegamepost.com/marathon-cryo-archive-map-release-date-entry-requirements-endgame-details/" rel="noopener noreferrer">The Game Post: release date, requirements and endgame details</a></li>
       <li>Map guides used for section 04: Mezmorki, “Cryo Archive Map Guide” v1.0 (base map by @Marathoncodec; reference guides by SeraphMax and LordTT), and LordTT’s Cryo Archive guide.</li>
+      <li><a href="https://sketchfab.com/CheeseWhisperer/models" rel="noopener noreferrer">CheeseWhisperer: Cryo Archive Vault 3D maps (Sketchfab, CC Attribution)</a></li>
     </ul>
   </div>
   <p class="disclaimer">An unofficial fan explainer, written from public reporting between March and July 2026. Not affiliated with or endorsed by Bungie. Marathon and Cryo Archive are Bungie's. No game art or footage is used; the visuals here are drawn for this page.</p>

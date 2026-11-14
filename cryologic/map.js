@@ -41,12 +41,12 @@
   var M = 'Mezmorki guide', L = 'LordTT guide', BOTH = 'both guides';
   /* [layer, x, y, level, title, text, source, label] */
   var POIS = [
-    ['vault', 86.5, 86, 0, 'Vault 1', 'Needs 5 batteries. No key and no coolant.', BOTH, '1'],
-    ['vault', 121.4, 49, 0, 'Vault 2', 'Needs 5 to 6 batteries and one filled cryo coolant.', BOTH, '2'],
-    ['vault', 127.5, 89.5, 0, 'Vault 3', 'Needs 4 batteries and the Pump Credentials.', BOTH, '3'],
-    ['vault', 86.5, 53, 0, 'Vault 4', 'Needs clearance 3, 8 batteries, one filled coolant and the Colonist Credentials.', BOTH, '4'],
-    ['vault', 51.5, 69.4, -1, 'Vault 5', 'Needs 4 to 5 batteries, one filled coolant and the Tranquility Credentials.', BOTH, '5'],
-    ['vault', 115, 43.5, 0, 'Lab elevator to Vaults 6 and 7 (north)', 'Clearance 4 to ride. Vault 6: 8 to 12 batteries (one guide says 9), one filled coolant, and the three Secret Lab symbols entered in order; bring anti-virus kits. Vault 7: clearance 3 to 5, a DNA Access Card, 10 batteries (3 for the data field, 7 for the door) and the Commander Credentials; one guide adds AI subroutines 1 to 6. The boss is inside.', BOTH, '6/7'],
+    ['vault', 86.5, 86, 0, 'Vault 1: Cryo Maintenance 01', 'Needs 5 batteries. No key and no coolant.', BOTH, '1'],
+    ['vault', 121.4, 49, 0, 'Vault 2: Generator Room 02', 'Needs 5 to 6 batteries and one filled cryo coolant.', BOTH, '2'],
+    ['vault', 127.5, 89.5, 0, 'Vault 3: Pump Station 03', 'Needs 4 batteries and the Pump Credentials.', BOTH, '3'],
+    ['vault', 86.5, 53, 0, 'Vault 4: Cryo Monitoring 04', 'Needs clearance 3, 8 batteries, one filled coolant and the Colonist Credentials.', BOTH, '4'],
+    ['vault', 51.5, 69.4, -1, 'Vault 5: Secret Cargo 05', 'Needs 4 to 5 batteries, one filled coolant and the Tranquility Credentials.', BOTH, '5'],
+    ['vault', 115, 43.5, 0, 'Lab elevator to Vaults 6 and 7 (north)', 'Clearance 4 to ride. Vault 6 (Lab 06): 8 to 12 batteries (one guide says 9), one filled coolant, and the three Secret Lab symbols entered in order; bring anti-virus kits. Vault 7: clearance 3 to 5, a DNA Access Card, 10 batteries (3 for the data field, 7 for the door) and the Commander Credentials; one guide adds AI subroutines 1 to 6. The boss is inside.', BOTH, '6/7'],
     ['vault', 115, 97, 0, 'Lab elevator to Vaults 6 and 7 (south)', 'The second elevator to the labs. Same requirements as the north elevator.', BOTH, '6/7'],
 
     ['battery', 86.5, 86, 0, 'Vault 1 door', '5 batteries.', BOTH], ['battery', 121.4, 49, 0, 'Vault 2 door', '5 to 6 batteries.', BOTH], ['battery', 127.5, 89.5, 0, 'Vault 3 door', '4 batteries.', BOTH],
@@ -138,4 +138,14 @@
     bar.appendChild(b);
   });
   apply();
+
+  /* vault interiors: swap the preview image for the Sketchfab viewer on request */
+  Array.prototype.forEach.call(document.querySelectorAll('.vcard button[data-model]'), function (b) {
+    b.addEventListener('click', function () {
+      var f = b.closest('.vcard').querySelector('.vframe'), fr = document.createElement('iframe');
+      fr.src = 'https://sketchfab.com/models/' + b.getAttribute('data-model') + '/embed?autostart=1&ui_infos=0&ui_watermark_link=0';
+      fr.title = b.getAttribute('data-title'); fr.setAttribute('allow', 'fullscreen; xr-spatial-tracking'); fr.setAttribute('allowfullscreen', '');
+      f.innerHTML = ''; f.appendChild(fr); b.disabled = true; b.textContent = 'Loaded';
+    });
+  });
 })();

@@ -12,7 +12,9 @@
   var MATCH_MS = 3600000, MIN = 60;
   var PHASES = [[0, 5], [6, 4], [12, 3], [20, 2], [28, 1]];      /* minute, level */
   var END_MIN = 56;
-  var CAMP = 0.52;  /* share of evacuations and wartime events that fall on NATO territories; set so NATO and the Pact win equally often */
+  var LATE = [4, 4];   /* the united non-aligned strike this many minutes after the first launch, plus up to this many more */
+  var SUMMIT = 0.12;   /* chance that the non-aligned hold a summit before the war */
+  var CAMP = 0.73;  /* share of civil-defence events (evacuations, shelters, air defence) that fall on NATO's side; set so NATO and the Pact win equally often. Stand-downs and retargeting fall evenly. */
 
   function X(lon) { return (lon + 180) * 4; }
   function Y(lat) { return (84 - lat) * 4; }
@@ -81,6 +83,7 @@
     shelter: [['{C} \u00b7 civil defence', 'Everyone who can be below ground is below ground.'], ['{C} \u00b7 emergency broadcast', 'Stay under cover. Do not come up to look.'], ['{C} \u00b7 correspondent', 'We are broadcasting from a cellar. The streets above are empty.']],
     retarget: [['{C} \u00b7 general staff', 'Remaining warheads are being turned on their largest cities.'], ['{C} \u00b7 Defence Minister', 'We will not waste what is left on empty ground.'], ['{C} \u00b7 military command', 'New target lists have gone out to every crew still able to fire.']],
     defence: [['{C} \u00b7 air defence command', 'The interceptor screen is holding.'], ['{C} \u00b7 radar station', 'Tracking forty inbound. Batteries are engaging.'], ['{C} \u00b7 correspondent', 'Something is bursting high over the city, far above the clouds.']],
+    summit: [['Belgrade \u00b7 joint communiqu\u00e9', 'Asia, Africa and Latin America will answer this crisis with one voice.'], ['New Delhi \u00b7 Prime Minister', 'We will not be divided and enlisted one by one.'], ['Belgrade \u00b7 correspondent', 'Three delegations arrived separately. They left together.']],
     after: [['Unknown \u00b7 amateur radio', 'Is anyone receiving? Is anyone there?'], ['Southern Ocean \u00b7 weather ship', 'We have lost every station north of the forty-fifth parallel.'], ['Unknown \u00b7 emergency band', 'This frequency is being kept clear for survivors. Please respond.'], ['Reykjav\u00edk \u00b7 coast radio', 'Calling any vessel. Calling any vessel. We have no instructions.']]
   };
   /* turn a match's events into dated statements */
@@ -94,6 +97,7 @@
     }
     if (S.la) { say('laNato', 2, 10); say('laNato', 10, 18); } else say('laPact', 1, 20);
     if (S.af) { say('afPact', 2, 10); say('afPact', 10, 18); } else say('afNeutral', 1, 20);
+    if (S.summit) say('summit', 4, 12);
     if (S.talk) { var hp = { N: 'hawkNato', P: 'hawkPact', A: 'defiant' }[S.talk]; say(hp, 13, 20); say(hp, 20, 27); }
     if (S.ult) say('ultimatum', 20, 27.3);
     say(S.talks ? 'talksOk' : 'talksFail', 18, 27);
@@ -128,8 +132,10 @@
     /* Events, drawn from their own random stream. Each changes the odds below, and the odds
        without the event are set so that the long-run rates stay where they were:
        Latin America 5 / 85 / 10, Africa 0 / 25 / 75 (Asia has no event: 5 / 70 / 25), first strike 40 / 35 / 25, pre-emption 45%. */
-    var nr = rng((seed ^ 0x51F15EED) >>> 0), S = { la: nr() < 0.06, af: nr() < 0.20 };
+    var nr = rng((seed ^ 0x51F15EED) >>> 0), S = { la: nr() < 0.06, af: nr() < 0.20, summit: nr() < SUMMIT };
     var W = { LA: S.la ? [0.60, 0.40, 0] : [0.014894, 0.878723, 0.106383], AF: S.af ? [0, 0.70, 0.30] : [0, 0.1375, 0.8625], AS: [0.05, 0.70, 0.25] };  /* NATO, PACT, NON */
+    /* a summit of the non-aligned: each is far likelier to hold to the Movement, unless a bloc has courted it */
+    if (S.summit) { W.AS = [0.02, 0.10, 0.88]; if (!S.la) W.LA = [0.03, 0.15, 0.82]; if (!S.af) W.AF = [0, 0.05, 0.95]; }
     M.terr.forEach(function (tt) {
       if (tt.id === 'NA' || tt.id === 'EU' || tt.id === 'AU') tt.home = tt.bloc = 'NATO';
       else if (tt.id === 'RU') tt.home = tt.bloc = 'PACT';
@@ -146,7 +152,9 @@
     S.talk = y < 0.2 ? 'N' : y < 0.4 ? 'P' : (nons.length && y < 0.5) ? 'A' : '';
     S.ult = nr() < 0.20 && nons.length > 0;
     S.talks = nr() < 0.30;
-    var FS = nons.length ? { N: [0.70, 0.15], P: [0.15, 0.70], A: [0.20, 0.20], '': [0.42, 0.32] }[S.talk] : { N: [0.80, 0.20], P: [0.20, 0.80], '': [0.555556, 0.444444] }[S.talk];
+    /* all three non-aligned standing together are a third power: they let the blocs strike first (see the late strike below) */
+    M.united = nons.length === 3;
+    var FS = M.united ? { N: [0.80, 0.20], P: [0.20, 0.80], A: [0.555556, 0.444444], '': [0.555556, 0.444444] }[S.talk] : nons.length ? { N: [0.70, 0.15], P: [0.15, 0.70], A: [0.20, 0.20], '': [0.42, 0.32] }[S.talk] : { N: [0.80, 0.20], P: [0.20, 0.80], '': [0.555556, 0.444444] }[S.talk];
     M.initiator = x < FS[0] ? 'NATO' : (x < FS[0] + FS[1] || !nons.length) ? 'PACT' : 'NON';
     var opp2 = { NATO: 'PACT', PACT: 'NATO' };
     var t_first = 28 + r() * 4, rr = r(), t_resp = t_first + (S.talks ? 2 + rr * 1.5 : 0.5 + rr * 0.8);
@@ -163,6 +171,7 @@
         M.launches.push({ id: id++, from: u, to: city, tx: tx, wrap: tx < 0 || tx > 1440, t0: t0, fl: fl, abm: null });
       }
     }
+    function aim(L, c) { var u = L.from, dxr = c.x - u.x, dx = Math.abs(dxr) > 720 ? dxr - Math.sign(dxr) * 1440 : dxr; L.to = c; L.tx = u.x + dx; L.wrap = L.tx < 0 || L.tx > 1440; L.fl = (0.9 + Math.hypot(dx, c.y - u.y) / 400) * (u.kind === 'sub' ? 0.7 : 1); }
     var members = function (b) { var o = []; M.terr.forEach(function (t, j) { if (t.bloc === b) o.push(j); }); return o; };
     if (M.initiator === 'NON') {
       /* the non-aligned pact strikes a bloc of its choosing; both blocs then launch on warning,
@@ -186,7 +195,7 @@
          way. They will all answer it (below), so every unit of that bloc turns part of its fire
          on them while the rest goes to its adversary. */
       var by = r() < 0.5 ? 'NATO' : 'PACT';
-      if (nons.length && r() < (S.ult ? 0.85 : 0.35)) M.terr.forEach(function (o) { if (o.bloc === 'NON') o.preemptedBy = by; else if (o.bloc === by) o.sideTargets = nons.slice(); });
+      if (nons.length && !M.united && r() < (S.ult ? 0.85 : 0.35)) M.terr.forEach(function (o) { if (o.bloc === 'NON') o.preemptedBy = by; else if (o.bloc === by) o.sideTargets = nons.slice(); });
       M.terr.forEach(function (tt) {
         if (tt.bloc === 'NON' || !tt.enemies.length) return;
         tt.silos.concat(tt.subs).forEach(function (u) {
@@ -204,6 +213,21 @@
         M.nonStrikeBy = hitBy; M.nonStrikeAt = firstHit + 2;
         M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.retaliates = hitBy; tt.t0 = firstHit + 2; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, tt.t0, tg, u.nukes); }); });
       }
+    }
+    /* The united non-aligned strike late. With all three standing together they wait until the
+       blocs have spent much of their arsenals on each other, then launch everything at both.
+       Each bloc answers them with half of whatever it has not yet fired, the rest still going
+       to its adversary. If any one of the three has taken a side, this never happens. */
+    if (M.united && M.initiator !== 'NON') {
+      var t_late = t_first + LATE[0] + r() * LATE[1], both = members('NATO').concat(members('PACT')), nonCities = M.cities.filter(function (c) { return M.terr[c.t].bloc === 'NON'; }), nonPop = 0;
+      nonCities.forEach(function (c) { nonPop += c.pop0; });
+      M.launches.forEach(function (L) {
+        if (L.t0 <= t_late + 1.5 || r() >= 0.5) return;
+        var pick = r() * nonPop, c = nonCities[0]; for (var j = 0; j < nonCities.length; j++) { pick -= nonCities[j].pop0; if (pick <= 0) { c = nonCities[j]; break; } }
+        aim(L, c);
+      });
+      M.lateAt = t_late;
+      M.terr.forEach(function (tt) { if (tt.bloc !== 'NON') return; tt.t0 = t_late; tt.late = true; tt.silos.concat(tt.subs).forEach(function (u) { schedule(u, t_late, both, u.nukes); }); });
     }
     /* talks succeeded: every unit holds back the last fifth of its warheads */
     if (S.talks) {
@@ -223,7 +247,7 @@
     /* events during the war, each announced by a statement at the moment it takes effect */
     S.war = []; var shelterAt = {}, defenceAt = {}, nW = 4 + ((nr() * 3) | 0), span = 49.5 - (t1 + 1.5);
     for (var w = 0; w < nW; w++) {
-      var tw = t1 + 1.5 + (w + 0.15 + 0.7 * nr()) * span / nW, yk = nr(), kind = yk < 0.15 ? 'stand' : yk < 0.45 ? 'shelter' : yk < 0.70 ? 'retarget' : 'defence', b = camp();
+      var tw = t1 + 1.5 + (w + 0.15 + 0.7 * nr()) * span / nW, yk = nr(), kind = yk < 0.15 ? 'stand' : yk < 0.45 ? 'shelter' : yk < 0.70 ? 'retarget' : 'defence', b = kind === 'stand' || kind === 'retarget' ? (nr() < 0.5 ? 'NATO' : 'PACT') : camp();
       var firing = function (j) { return M.launches.some(function (L) { return L.from.t === j && L.t0 > tw; }); }, inbound = function (j) { return M.launches.some(function (L) { return L.to.t === j && L.t0 + L.fl > tw; }); };
       var ti = member(b, kind === 'stand' || kind === 'retarget' ? firing : inbound);
       if (ti < 0) { kind = 'shelter'; ti = member(b, inbound); }
@@ -317,6 +341,7 @@
     M.quotes.forEach(function (q) { if (min >= q.t) logs.push({ t: q.t, s: '<span class="who">' + q.who + '</span> \u201c' + q.text + '\u201d', c: 'q' }); });
     var firstL = null; M.launches.forEach(function (L) { if (firstL === null || L.t0 < firstL.t0) firstL = L; });
     if (firstL && min >= firstL.t0) { var who = M.initiator === 'NATO' ? 'NATO' : M.initiator === 'PACT' ? 'WARSAW PACT' : 'THE NON-ALIGNED'; logs.push({ t: firstL.t0, s: who + ' STRIKE' + (M.initiator === 'NON' ? '' : 'S') + ' FIRST', c: 'f' }); }
+    if (M.lateAt && min >= M.lateAt) logs.push({ t: M.lateAt, s: 'THE NON-ALIGNED STRIKE BOTH BLOCS', c: 'f' });
     if (M.nonStrikeAt && min >= M.nonStrikeAt) logs.push({ t: M.nonStrikeAt, s: 'NON-ALIGNED ANSWER ' + (M.nonStrikeBy === 'NATO' ? 'NATO' : 'THE PACT'), c: 'f' });
     M.launches.forEach(function (L) {
       var end = L.t0 + L.fl, dead = L.abm ? L.t0 + L.fl * L.abm : end, live = min >= L.t0 && min < dead + 0.35;

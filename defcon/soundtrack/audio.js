@@ -1,41 +1,40 @@
-/* Soundtrack for /defcon/: one drone that follows the match clock. It starts each hour
-   almost empty, gathers voices, brightness, noise and unease as the DEFCON level falls,
-   and reaches its climax in the last ten minutes: distortion, an endlessly rising tone,
-   a racing pulse and overlapping radio traffic, held through the Game Over period. In the
-   final seconds of the hour it runs down to silence and the next match begins again.
-   Every setting is worked out from the clock, so everyone listening hears the same thing
-   at the same time. Each warhead that lands in the match is heard as a distant thud.
-   Sound is on by default and starts at the visitor's first touch, click or key press;
-   the sound button mutes it. */
+/* Soundtrack for /defcon/: one drone that follows the match clock (one match per UTC hour),
+   so everyone listening hears the same thing at the same time. The hour repeats without a
+   break: it ends on the same drone it begins with.
+     0:00 - 20:00  the basic drone
+    20:00 - 30:00  the drone grows
+    30:00 - 45:00  the drone climbs to its maximum
+    45:00 - 50:00  the drone held at maximum
+    50:00 - 55:00  the drone sinks back to the basic drone
+    55:00 - 60:00  the basic drone, with a few quiet, sad piano figures
+   Each warhead that lands in the match is heard as a distant thud. Everything is made in
+   the browser; there are no audio files. Sound is on by default and starts at the visitor's
+   first touch, click or key press; the sound button mutes it. */
 (function () {
   'use strict';
-  var HOUR = 3600000, LANGS = ['de', 'en', 'ru'];
-  var MORSE = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
-    0: '-----', 1: '.----', 2: '..---', 3: '...--', 4: '....-', 5: '.....', 6: '-....', 7: '--...', 8: '---..', 9: '----.' };
+  var HOUR = 3600000;
   function rng(s) { return function () { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   /* ---- the score: every setting as a curve over the minutes of the match ---- */
   var SCORE = {
-    master:  [[0, 0], [0.4, 0.2], [6, 0.24], [12, 0.3], [20, 0.38], [28, 0.48], [50, 0.72], [56, 1], [59.6, 1], [59.95, 0], [60, 0]],
-    sub:     [[0, 0.30], [28, 0.36], [56, 0.5]],
-    rootSaw: [[0, 0.06], [28, 0.12], [56, 0.3]],
-    fifth:   [[0, 0], [5, 0], [12, 0.2], [56, 0.3]],
-    octave:  [[0, 0], [11, 0], [20, 0.08], [56, 0.2]],
-    second:  [[0, 0], [19, 0], [28, 0.07], [50, 0.14], [56, 0.24]],      /* a semitone above the root */
-    tritone: [[0, 0], [27, 0], [34, 0.06], [50, 0.12], [56, 0.22]],
-    cluster: [[0, 0], [30, 0], [50, 0.03], [56, 0.09]],
-    cutoff:  [[0, 110], [6, 140], [12, 180], [20, 250], [28, 380], [50, 900], [56, 2600], [59.6, 3200], [60, 80]],
-    drive:   [[0, 1], [28, 1.3], [50, 2.2], [56, 5]],
-    pulseHz: [[0, 0.05], [12, 0.08], [20, 0.15], [28, 0.4], [50, 1.1], [56, 3.5], [59.6, 7]],
-    pulse:   [[0, 0.1], [20, 0.2], [28, 0.3], [50, 0.4], [56, 0.6]],
-    wobble:  [[0, 2], [28, 6], [50, 18], [56, 60], [59.6, 90]],          /* cents of pitch drift */
-    fall:    [[0, 0], [59.6, 0], [60, -2400]],                           /* the run-down at the end */
-    rumble:  [[0, 0.08], [28, 0.14], [50, 0.24], [56, 0.42]],
-    hiss:    [[0, 0.02], [20, 0.035], [28, 0.05], [50, 0.09], [56, 0.2]],
-    crackle: [[0, 0.05], [28, 0.12], [50, 0.2], [56, 0.36]],
-    crackHz: [[0, 0.7], [28, 1], [50, 1.6], [56, 3]],
-    riser:   [[0, 0], [40, 0], [50, 0.05], [56, 0.16], [59.6, 0.2]],
-    traffic: [[0, 0], [47, 0], [50, 0.12], [56, 0.6], [59.4, 0.7], [59.7, 0]]   /* chance of a radio fragment per 4 s */
+    master:  [[0, 0.22], [20, 0.22], [30, 0.45], [45, 1], [50, 1], [55, 0.22]],
+    sub:     [[0, 0.30], [20, 0.30], [30, 0.36], [45, 0.5], [50, 0.5], [55, 0.30]],
+    rootSaw: [[0, 0.06], [20, 0.06], [30, 0.12], [45, 0.3], [50, 0.3], [55, 0.06]],
+    fifth:   [[0, 0], [20, 0], [30, 0.2], [45, 0.3], [50, 0.3], [55, 0]],
+    octave:  [[0, 0], [22, 0], [30, 0.08], [45, 0.2], [50, 0.2], [55, 0]],
+    second:  [[0, 0], [30, 0], [45, 0.24], [50, 0.24], [54, 0]],                  /* a semitone above the root */
+    tritone: [[0, 0], [33, 0], [45, 0.22], [50, 0.22], [54, 0]],
+    cluster: [[0, 0], [36, 0], [45, 0.09], [50, 0.09], [53, 0]],
+    cutoff:  [[0, 120], [20, 120], [30, 380], [45, 2600], [50, 2600], [55, 120]],
+    drive:   [[0, 1], [20, 1], [30, 1.3], [45, 5], [50, 5], [55, 1]],
+    pulseHz: [[0, 0.06], [20, 0.06], [30, 0.4], [45, 3.5], [50, 3.5], [55, 0.06]],
+    pulse:   [[0, 0.12], [20, 0.12], [30, 0.3], [45, 0.6], [50, 0.6], [55, 0.12]],
+    wobble:  [[0, 2], [20, 2], [30, 6], [45, 60], [50, 60], [55, 2]],             /* cents of pitch drift */
+    rumble:  [[0, 0.08], [20, 0.08], [30, 0.14], [45, 0.42], [50, 0.42], [55, 0.08]],
+    hiss:    [[0, 0.02], [20, 0.02], [30, 0.05], [45, 0.2], [50, 0.2], [55, 0.02]],
+    crackle: [[0, 0.05], [20, 0.05], [30, 0.12], [45, 0.36], [50, 0.36], [55, 0.05]],
+    crackHz: [[0, 0.7], [20, 0.7], [30, 1], [45, 3], [50, 3], [55, 0.7]],
+    riser:   [[0, 0], [32, 0], [45, 0.16], [50, 0.16], [53, 0]]
   };
   function at(name, min) {
     var c = SCORE[name], i;
@@ -61,25 +60,20 @@
   }
   function shaper(ctx, k, n) { var ws = ctx.createWaveShaper(), c = new Float32Array(n); for (var i = 0; i < n; i++) c[i] = Math.tanh(k * (2 * i / (n - 1) - 1)); ws.curve = c; return ws; }
 
-  /* ---- output: a mute gain and a compressor; `mix` (the drone) and `ev` (radio traffic,
-     heard through a narrow, overdriven, fading radio) both feed a long reverb ---- */
+  /* ---- output: a mute gain and a compressor; `mix` feeds them directly and through a long reverb ---- */
   function bus(ctx) {
     var vol = ctx.createGain(); vol.gain.value = 0;
     var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -9; comp.ratio.value = 4;
     var mix = ctx.createGain(), verb = ctx.createConvolver(), wet = ctx.createGain();
     verb.buffer = impulse(ctx, 3.2); wet.gain.value = 0.4;
-    var ev = ctx.createGain(), hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), pre = ctx.createGain(), ws = shaper(ctx, 2.8, 513), post = ctx.createGain(), fade = ctx.createGain();
-    hp.type = 'highpass'; hp.frequency.value = 330; hp.Q.value = 0.9; lp.type = 'lowpass'; lp.frequency.value = 3100; lp.Q.value = 1.1; pre.gain.value = 2.6; post.gain.value = 0.3; fade.gain.value = 0.72;
-    [[0.19, 0.2], [0.53, 0.08], [7.1, 0.06]].forEach(function (f) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f[0]; g.gain.value = f[1]; o.connect(g); g.connect(fade.gain); o.start(0); });
-    ev.connect(hp); hp.connect(lp); lp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(fade); fade.connect(mix);
     mix.connect(vol); mix.connect(verb); verb.connect(wet); wet.connect(vol);
     vol.connect(comp); comp.connect(ctx.destination);
-    return { vol: vol, mix: mix, ev: ev, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true), crackle: crackleBuffer(ctx, 11) };
+    return { vol: vol, mix: mix, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true), crackle: crackleBuffer(ctx, 11) };
   }
 
   /* ---- the drone ---- */
   function engine(ctx, B) {
-    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], voice: null, slot: -1, hits: {}, hitSeed: null };
+    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], pnoT: 0, hits: {}, hitSeed: null };
     function gain(v) { var g = ctx.createGain(); g.gain.value = v; return g; }
     function bind(param, name, scale) { E.set.push({ p: param, n: name, f: scale }); }
     var master = gain(0), trem = gain(1), lp = ctx.createBiquadFilter(), pre = gain(1), post = gain(1), ws = shaper(ctx, 1, 1025), sum = gain(1);
@@ -90,7 +84,7 @@
     var wob = [0.17, 0.29].map(function (hz, i) { var o = ctx.createOscillator(), g = gain(0); o.frequency.value = hz; o.connect(g); o.start(t); bind(g.gain, 'wobble', function (c) { return i ? -c : c; }); return g; });
     function voice(freq, type, name, fixed) {
       var o = ctx.createOscillator(), g = gain(fixed || 0); o.type = type; o.frequency.value = freq; o.connect(g); g.connect(sum); wob[E.oscs.length % 2].connect(o.detune); o.start(t);
-      E.oscs.push(o); bind(o.detune, 'fall'); if (name) bind(g.gain, name);
+      E.oscs.push(o); if (name) bind(g.gain, name);
     }
     voice(27.5, 'sine', 'sub'); voice(55.27, 'sine', null, 0.5); voice(55, 'sawtooth', 'rootSaw');
     voice(82.41, 'sine', 'fifth'); voice(82.2, 'sawtooth', 'fifth', 0); E.set[E.set.length - 1].f = function (v) { return v * 0.3; };
@@ -146,50 +140,37 @@
     });
   }
 
-  /* ---- radio traffic in the climax: morse and numbers-station voices, overlapping ---- */
-  function morse(ctx, B, t, seed, text) {
-    var r = rng(seed), f = 540 + ((r() * 7) | 0) * 45, u = 0.05 + r() * 0.025, x = t;
-    var o = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter(), v = ctx.createGain();
-    o.frequency.value = f; g.gain.value = 0; bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 5; v.gain.value = 0.15;
-    o.connect(g); g.connect(bp); bp.connect(v); v.connect(B.ev);
-    text.toUpperCase().split('').forEach(function (ch) {
-      if (ch === ' ') { x += 4 * u; return; }
-      var code = MORSE[ch]; if (!code) return;
-      code.split('').forEach(function (s) { var d = s === '.' ? u : 3 * u; g.gain.setValueAtTime(0, x); g.gain.linearRampToValueAtTime(1, x + 0.005); g.gain.setValueAtTime(1, x + d - 0.005); g.gain.linearRampToValueAtTime(0, x + d); x += d + u; });
-      x += 2 * u;
+  /* ---- piano, 55:00 to the hour: a few short, quiet figures in A minor over the drone,
+     about twenty seconds apart, the same every hour ---- */
+  var PIANO_AT = 55 * 60000 + 10000, GAP = 20000, NOTE = 1300;
+  var FIGS = [[76, 72, 69], [69, 72, 71], [45, 76, 74, 72, 69], [72, 71, 69], [41, 69, 65], [77, 76, 72], [45, 74, 72, 69], [64, 69, 72, 71], [41, 72, 69, 65], [76, 74, 72], [40, 71, 68, 64], [45, 72, 71, 69], [69, 64], [33, 57, 60, 64]];
+  var PIANO = (function () {
+    var out = [];
+    FIGS.forEach(function (fig, i) {
+      var last = i === FIGS.length - 1, k = 0;
+      fig.forEach(function (m) { var low = m < 50; out.push([i * GAP + (last ? k * 90 : k * NOTE), m, last ? 0.2 : low ? 0.22 : 0.34]); if (!low || last) k++; });
     });
-    o.start(t); o.stop(x + 0.1);
-    return x - t;
+    return out;
+  })();
+  function pianoWave(ctx) { var h = [0, 1, 0.55, 0.32, 0.2, 0.12, 0.08, 0.05, 0.03]; return ctx.createPeriodicWave(new Float32Array(h.length), new Float32Array(h)); }
+  function pianoNote(E, t, midi, vel) {
+    var ctx = E.ctx, f = 440 * Math.pow(2, (midi - 69) / 12), tau = Math.min(3.2, 1.5 * Math.pow(261.6 / f, 0.45)), end = t + tau * 6;
+    var lp = ctx.createBiquadFilter(), g = ctx.createGain(); lp.type = 'lowpass'; lp.Q.value = 0.5;
+    lp.frequency.setValueAtTime(Math.min(9000, f * 7), t); lp.frequency.setTargetAtTime(Math.min(4000, f * 2.2), t + 0.01, 0.5);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel * 0.3, t + 0.006); g.gain.setTargetAtTime(0, t + 0.006, tau);
+    E.pwave = E.pwave || pianoWave(ctx);
+    [-3, 3].forEach(function (c) { var o = ctx.createOscillator(); o.setPeriodicWave(E.pwave); o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(end); });
+    lp.connect(g); g.connect(E.B.mix);
   }
-  function speak(ctx, B, t, seed, voice) {
-    var r = rng(seed), n = 3 + ((r() * 4) | 0), rate = 0.82 + r() * 0.36, x = t, any = false;
-    var bp = ctx.createBiquadFilter(), v = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 0.7; v.gain.value = 0.36; bp.connect(v); v.connect(B.ev);
-    for (var i = 0; i < n; i++) { var b = voice[(r() * 10) | 0]; if (!b) continue; var s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = rate; s.connect(bp); s.start(x); x += b.duration / rate + 0.1; any = true; }
-    return any;
-  }
-  function traffic(E, now) {
-    var slot = Math.floor(now / 4000), min;
-    for (var k = Math.max(slot, E.slot + 1); k <= slot + 1; k++) {
-      var r = rng(Math.imul(k ^ 0x9E3779B9, 2246822519) >>> 0), at0 = k * 4000 + r() * 3500, wait = (at0 - now) / 1000;
-      if (wait <= 0) { E.slot = k; continue; }
-      if (wait > 1.5) break;
-      E.slot = k; min = (at0 % HOUR) / 60000;
-      if (r() >= at('traffic', min)) continue;
-      var t = E.ctx.currentTime + wait, seed = (r() * 4294967296) >>> 0, lang = LANGS[(r() * 3) | 0], L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', txt = '';
-      if (r() < 0.65 && E.voice && E.voice[lang] && speak(E.ctx, E.B, t, seed, E.voice[lang])) continue;
-      for (var i = 3 + ((r() * 4) | 0); i > 0; i--) txt += L[(r() * 36) | 0];
-      morse(E.ctx, E.B, t, seed, txt);
-    }
+  function piano(E, now) {
+    var h0 = Math.floor(now / HOUR) * HOUR + PIANO_AT, from = Math.max(now, E.pnoT), to = now + 1500;
+    if (to > h0) PIANO.forEach(function (n) { var at0 = h0 + n[0]; if (at0 > from && at0 <= to) pianoNote(E, E.ctx.currentTime + (at0 - now) / 1000, n[1], n[2]); });
+    E.pnoT = to;
   }
 
-  function loadVoice(ctx) {
-    var out = {}, jobs = [];
-    LANGS.forEach(function (l) { out[l] = []; for (var i = 0; i < 10; i++) (function (i) { jobs.push(fetch('soundtrack/voice/' + l + '/' + i + '.mp3').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (a) { return new Promise(function (ok, no) { ctx.decodeAudioData(a, ok, no); }); }).then(function (b) { out[l][i] = b; }).catch(function () { out[l][i] = null; })); })(i); });
-    return Promise.all(jobs).then(function () { return out; });
-  }
-  /* one step of the clock: settings, landing warheads, radio traffic */
-  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); traffic(E, now); }
-  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadVoice: loadVoice, at: at, SCORE: SCORE };
+  /* one step of the clock: settings, landing warheads, piano */
+  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); piano(E, now); }
+  window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, at: at, SCORE: SCORE, PIANO: PIANO };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;
@@ -200,7 +181,7 @@
      (or at once where the browser allows it). The button mutes; the choice is remembered. */
   function saved() { try { return localStorage.getItem('defcon-muted') === '1'; } catch (e) { return false; } }
   function save(m) { try { localStorage.setItem('defcon-muted', m ? '1' : '0'); } catch (e) {} }
-  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); loadVoice(ctx).then(function (v) { E.voice = v; }); }
+  function ensure() { if (ctx) return; ctx = new AC(); B = bus(ctx); E = engine(ctx, B); }
   function play() {
     ensure(); var go = function () { if (!on || ctx.state !== 'running') return; B.vol.gain.cancelScheduledValues(ctx.currentTime); B.vol.gain.setTargetAtTime(0.9, ctx.currentTime, 0.6); if (!timer) timer = setInterval(tick, 500); tick(); };
     var pr = ctx.resume(); if (pr && pr.then) pr.then(go, function () {}); go();

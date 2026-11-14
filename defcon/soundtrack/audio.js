@@ -10,8 +10,8 @@
    Excerpts of recorded radio broadcasts (soundtrack/intercut/) cut in from 5:00: rarely
    until 15:00, more and more often to 25:00 and 45:00, almost continuously from 45:00,
    and none is heard after 50:00.
-   Each warhead that lands in the match is heard as a distant thud. Sound is on by default and starts at the visitor's
-   first touch, click or key press; the sound button mutes it. */
+   Each warhead that lands in the match is heard as a distant thud. Sound is on by default
+   and starts at the visitor's first touch, click or key press; the sound button mutes it. */
 (function () {
   'use strict';
   var HOUR = 3600000, CUTS = ['uk-1', 'uk-2', 'uk-3', 'su-1', 'su-2', 'su-3', 'us-1', 'us-2', 'us-3', 'ru-1', 'ru-2', 'ru-3'], CUT_SLOT = 30000, CUT_END = 50;
@@ -39,7 +39,8 @@
     riser:   [[0, 0], [32, 0], [45, 0.16], [50, 0.16], [53, 0]],
     intercut:  [[0, 0], [5, 0], [5.01, 0.1], [15, 0.1], [25, 0.45], [45, 1], [50, 1], [50.01, 0]],   /* chance of a broadcast excerpt per 30 s */
     intercut2: [[0, 0], [38, 0], [45, 0.8], [50, 0.8], [50.01, 0]],                                    /* a second, overlapping line of excerpts */
-    cutGain:   [[0, 0.3], [15, 0.3], [25, 0.42], [45, 0.85]]
+    cutGain:   [[0, 0.3], [15, 0.3], [25, 0.42], [45, 0.55]],                                         /* level into the radio */
+    cutLevel:  [[0, 1], [25, 1], [45, 2], [50, 2], [55, 1]]                                           /* level out of it, to keep pace with the drone */
   };
   function at(name, min) {
     var c = SCORE[name], i;
@@ -72,24 +73,25 @@
     var comp = ctx.createDynamicsCompressor(); comp.threshold.value = -9; comp.ratio.value = 4;
     var mix = ctx.createGain(), verb = ctx.createConvolver(), wet = ctx.createGain();
     verb.buffer = impulse(ctx, 3.2); wet.gain.value = 0.4;
-    var ev = ctx.createGain(), hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), pre = ctx.createGain(), ws = shaper(ctx, 2.8, 513), post = ctx.createGain(), fade = ctx.createGain();
+    var ev = ctx.createGain(), hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), pre = ctx.createGain(), ws = shaper(ctx, 2.8, 513), post = ctx.createGain(), fade = ctx.createGain(), evOut = ctx.createGain(), out = ctx.createGain();
     hp.type = 'highpass'; hp.frequency.value = 330; hp.Q.value = 0.9; lp.type = 'lowpass'; lp.frequency.value = 3100; lp.Q.value = 1.1; pre.gain.value = 2.6; post.gain.value = 0.3; fade.gain.value = 0.72;
     [[0.19, 0.2], [0.53, 0.08], [7.1, 0.06]].forEach(function (f) { var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f[0]; g.gain.value = f[1]; o.connect(g); g.connect(fade.gain); o.start(0); });
-    ev.connect(hp); hp.connect(lp); lp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(fade); fade.connect(mix);
+    ev.connect(hp); hp.connect(lp); lp.connect(pre); pre.connect(ws); ws.connect(post); post.connect(fade); fade.connect(evOut); evOut.connect(mix);
     mix.connect(vol); mix.connect(verb); verb.connect(wet); wet.connect(vol);
-    vol.connect(comp); comp.connect(ctx.destination);
-    return { vol: vol, mix: mix, ev: ev, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true), crackle: crackleBuffer(ctx, 11) };
+    out.gain.value = 0.8;   /* headroom: the compressor alone lets peaks reach full scale */
+    vol.connect(comp); comp.connect(out); out.connect(ctx.destination);
+    return { vol: vol, mix: mix, ev: ev, evOut: evOut, white: noiseBuffer(ctx, 2, false), brown: noiseBuffer(ctx, 4, true), crackle: crackleBuffer(ctx, 11) };
   }
 
   /* ---- the drone ---- */
   function engine(ctx, B) {
-    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], cut: null, cutSlot: [-1, -1], pnoT: 0, hits: {}, hitSeed: null };
+    var t = ctx.currentTime, E = { ctx: ctx, B: B, set: [], oscs: [], cut: null, cutSlot: [-1, -1], pnoT: 0, live: [], hits: {}, hitSeed: null };
     function gain(v) { var g = ctx.createGain(); g.gain.value = v; return g; }
     function bind(param, name, scale) { E.set.push({ p: param, n: name, f: scale }); }
     var master = gain(0), trem = gain(1), lp = ctx.createBiquadFilter(), pre = gain(1), post = gain(1), ws = shaper(ctx, 1, 1025), sum = gain(1);
     lp.type = 'lowpass'; lp.frequency.value = 110; lp.Q.value = 1.4;
     sum.connect(pre); pre.connect(ws); ws.connect(post); post.connect(lp); lp.connect(trem); trem.connect(master); master.connect(B.mix);
-    bind(master.gain, 'master'); bind(lp.frequency, 'cutoff'); bind(pre.gain, 'drive'); bind(post.gain, 'drive', function (d) { return 1 / Math.pow(d, 0.3); });
+    bind(master.gain, 'master'); bind(B.evOut.gain, 'cutLevel'); bind(lp.frequency, 'cutoff'); bind(pre.gain, 'drive'); bind(post.gain, 'drive', function (d) { return 1 / Math.pow(d, 0.3); });
     /* slow pitch drift: two shared wobbles, pulling neighbouring voices in opposite directions */
     var wob = [0.17, 0.29].map(function (hz, i) { var o = ctx.createOscillator(), g = gain(0); o.frequency.value = hz; o.connect(g); o.start(t); bind(g.gain, 'wobble', function (c) { return i ? -c : c; }); return g; });
     function voice(freq, type, name, fixed) {
@@ -171,7 +173,7 @@
       if (!b || min + b.duration / 60 > CUT_END || off > b.duration - 1.5) continue;
       var ctx = E.ctx, t = ctx.currentTime + Math.max(wait, 0), s = ctx.createBufferSource(), g = ctx.createGain(), v = at('cutGain', min);
       s.buffer = b; g.gain.setValueAtTime(off ? 0 : v, t); if (off) g.gain.linearRampToValueAtTime(v, t + 0.4);
-      s.connect(g); g.connect(E.B.ev); s.start(t, off);
+      s.connect(g); g.connect(E.B.ev); s.start(t, off); E.live.push({ n: g, end: t + b.duration - off });
     }
   }
   function loadCuts(ctx) {
@@ -198,7 +200,7 @@
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel * 0.3, t + 0.006); g.gain.setTargetAtTime(0, t + 0.006, tau);
     E.pwave = E.pwave || pianoWave(ctx);
     [-3, 3].forEach(function (c) { var o = ctx.createOscillator(); o.setPeriodicWave(E.pwave); o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(end); });
-    lp.connect(g); g.connect(E.B.mix);
+    lp.connect(g); g.connect(E.B.mix); E.live.push({ n: g, end: end });
   }
   function piano(E, now) {
     var h0 = Math.floor(now / HOUR) * HOUR + PIANO_AT, from = Math.max(now, E.pnoT), to = now + 1500;
@@ -207,13 +209,23 @@
   }
 
   /* one step of the clock: settings, landing warheads, broadcast excerpts, piano */
-  function step(E, now, jump) { apply(E, now, jump); impacts(E, now); intercuts(E, now); piano(E, now); }
+  function step(E, now, jump) {
+    /* after a pause (mute, a sleeping tab) anything already under way belongs to a moment that has passed: drop it and rejoin the clock */
+    if (jump) { E.live.forEach(function (x) { try { x.n.disconnect(); } catch (e) {} }); E.live = []; E.cutSlot = [-1, -1]; E.pnoT = 0; }
+    else { var ct = E.ctx.currentTime; E.live = E.live.filter(function (x) { return x.end > ct; }); }
+    apply(E, now, jump); impacts(E, now); intercuts(E, now); piano(E, now);
+  }
   window.DEFCON_AUDIO = { bus: bus, engine: engine, step: step, loadCuts: loadCuts, cutPlan: cutPlan, at: at, SCORE: SCORE, PIANO: PIANO };
 
   /* ---- live playback ---- */
   var btn = document.getElementById('snd'); if (!btn) return;
-  var AC = window.AudioContext || window.webkitAudioContext, ctx = null, B = null, E = null, on = false, timer = null, fresh = true;
-  function tick() { if (!on || ctx.state !== 'running') return; try { step(E, Date.now(), fresh); fresh = false; } catch (e) { /* keep the timer alive */ } }
+  var AC = window.AudioContext || window.webkitAudioContext, ctx = null, B = null, E = null, on = false, timer = null, fresh = true, lastW = 0, lastC = 0;
+  function tick() {
+    if (!on || ctx.state !== 'running') return;
+    /* if the clock and the audio have drifted apart (the device slept, the audio was interrupted), start afresh */
+    var w = Date.now(), c = ctx.currentTime; if (lastW && Math.abs((w - lastW) / 1000 - (c - lastC)) > 1.5) fresh = true; lastW = w; lastC = c;
+    try { step(E, Date.now(), fresh); fresh = false; } catch (e) { /* keep the timer alive */ }
+  }
   /* Sound is on by default. Browsers will not start audio until the visitor has touched,
      clicked or pressed a key, so it begins at the first such action anywhere on the page
      (or at once where the browser allows it). The button mutes; the choice is remembered. */
